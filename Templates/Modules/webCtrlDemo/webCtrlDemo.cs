@@ -130,14 +130,5 @@ function webCtrlDemo::loadControllerMap( %this )
 
 function webCtrlDemo::initClient( %this )
 {
-   %this.queueExec("/scripts/customProfiles.cs");
-   %this.queueExec("/scripts/demoGui.cs");
-   %this.queueExec("/scripts/gui/demoGui.gui");
-   %this.queueExec("/scripts/browserGui.cs");
-   %this.queueExec("/scripts/gui/browserGui.gui");
-   %this.queueExec("/scripts/urlRequest.cs");
-   %this.queueExec("/scripts/urlTest.cs");
-   %this.queueExec("/scripts/gui/urltester.gui");
-   %this.queueExec("/scripts/gui/headerTemplate.gui");
-   %this.queueExec("/scripts/createButtons.cs");
+   %this.queueExec("/scripts/initWebDemo.cs");
 }
