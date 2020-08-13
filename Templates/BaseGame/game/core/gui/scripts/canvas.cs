@@ -226,3 +226,8 @@ function GuiCanvas::getBestCanvasRes(%this, %deviceId, %deviceMode)
    // Nothing found? return first mode
    return %this.getMonitorMode(%deviceId, 0);
 }
+
+function onWindowMoveFail()
+{
+   MessageBoxOK("Move Error", "You can not move the game window onto a display that is connected to a different graphics adapter.", "");
+}

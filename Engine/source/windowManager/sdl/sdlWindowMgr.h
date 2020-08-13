@@ -97,6 +97,9 @@ protected:
    /// After it is handled, it will return to state NONE.
    KeyboardInputState mInputState;
 
+   /// Index of the adapter that has been initialized by the first window created.
+   S32 mInitialAdapter;
+
 public:
    PlatformWindowManagerSDL();
    ~PlatformWindowManagerSDL();
@@ -106,6 +109,7 @@ public:
    virtual Point2I   getDesktopResolution();
 
    virtual S32 findFirstMatchingMonitor(const char* name);
+   virtual bool canAccessMonitor(U32 monitorIndex);
    virtual U32 getMonitorCount();
    virtual const char* getMonitorName(U32 index);
    virtual RectI getMonitorRect(U32 index);

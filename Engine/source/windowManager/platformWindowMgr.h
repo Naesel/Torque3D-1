@@ -79,6 +79,9 @@ public:
    // indicate no match.
    virtual S32 findFirstMatchingMonitor(const char* name) { return -1; }
 
+   // Determine if the monitor can be written to from the current display adapter.
+   virtual bool canAccessMonitor(U32 monitorIndex) { return true; }
+
    // Retrieve the number of monitors.  Provides a default count of 0 for systems that
    // don't provide information on connected monitors.
    virtual U32 getMonitorCount() { return 0; }

@@ -576,7 +576,13 @@ void PlatformWindowSDL::_updateMonitorFromMove(const SDL_Event& evt)
          if ((evt.window.data1 >= sdlRect.x) && (evt.window.data1 < (sdlRect.x + sdlRect.w)) &&
             (evt.window.data2 >= sdlRect.y) && (evt.window.data2 < (sdlRect.y + sdlRect.h)))
          {
-            Con::setIntVariable("pref::Video::deviceId", index);
+            if (PlatformWindowManager::get()->canAccessMonitor(index))
+               Con::setIntVariable("pref::Video::deviceId", index);
+            else
+            {
+               _setVideoMode(mVideoMode);
+               Con::executef("onWindowMoveFail");
+            }
             return;
          }
       }

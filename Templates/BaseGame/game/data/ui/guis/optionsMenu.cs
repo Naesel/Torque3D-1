@@ -202,16 +202,17 @@ function OptionsMenu::populateDisplaySettingsList(%this)
    %devicesList = "";
    for(%i = 0; %i < %numDevices; %i++)
    {
+      if (!Canvas.canAccessMonitor(%i))
+         continue;
+
       %device = (%i+1) @ " - " @ Canvas.getMonitorName(%i);
-      if(%i==0)
-         %devicesList = %device;
-      else
-         %devicesList = %devicesList @ "\t" @ %device;
+      %devicesList = %devicesList @ ((%devicesList $= "") ? %device : ("\t" @ %device));
+      if ($pref::Video::deviceId == %i)
+         %selectedDevice = %device;
    }
-   if (%numDevices < 2)
+   if (getFieldCount(%devicesList) < 2)
       OptGraphicsDeviceMenu.active = false;
 
-   %selectedDevice = getField(%devicesList, $pref::Video::deviceId);
    OptionsMenuSettingsList.addOptionRow("Display Device", %devicesList, false, "onDisplayModeChange", -1, -30, true, "The display devices the window should be on.", %selectedDevice);
    
    %mode = getField($Video::ModeTags, $pref::Video::deviceMode);

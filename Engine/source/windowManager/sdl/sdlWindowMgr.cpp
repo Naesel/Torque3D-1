@@ -62,6 +62,7 @@ PlatformWindowManagerSDL::PlatformWindowManagerSDL()
    mOffscreenRender = false;
 
    mInputState = KeyboardInputState::NONE;
+   mInitialAdapter = -1;
 }
 
 PlatformWindowManagerSDL::~PlatformWindowManagerSDL()
@@ -108,6 +109,14 @@ S32 PlatformWindowManagerSDL::findFirstMatchingMonitor(const char* name)
    }
 
    return 0;
+}
+
+bool PlatformWindowManagerSDL::canAccessMonitor(U32 monitorIndex)
+{
+   S32 adapterIndex, outputIndex;
+   SDL_DXGIGetOutputInfo(monitorIndex, &adapterIndex, &outputIndex);
+
+   return adapterIndex == mInitialAdapter;
 }
 
 U32 PlatformWindowManagerSDL::getMonitorCount()
@@ -321,6 +330,13 @@ PlatformWindow *PlatformWindowManagerSDL::createWindow(GFXDevice *device, const 
 
    SDL_SetWindowMinimumSize(window->mWindowHandle, Con::getIntVariable("$Video::minimumXResolution", 1024),
          Con::getIntVariable("$Video::minimumYResolution", 720));
+
+   if (mInitialAdapter == -1)
+   {
+      S32 adapterIndex, outputIndex;
+      SDL_DXGIGetOutputInfo(0, &adapterIndex, &outputIndex);
+      mInitialAdapter = adapterIndex;
+   }
 
    return window;
 }
@@ -603,8 +619,6 @@ DefineEngineFunction(dumpSDL_DisplayData, void, (), ,
    Con::printf("\nSDL Video Driver(s) detected: %d", driverCount);
    for (S32 i = 0; i < driverCount; i++)
    {
-      if (SDL_TRUE == SDL_DXGIGetOutputInfo(i, &adapterIndex, &outputIndex))
-         Con::printf(" #%d, Driver: %s", i, SDL_GetVideoDriver(i));
+      Con::printf(" #%d, Driver: %s", i, SDL_GetVideoDriver(i));
    }
 }
-

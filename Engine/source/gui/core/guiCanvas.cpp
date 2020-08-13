@@ -2439,6 +2439,12 @@ DefineEngineMethod( GuiCanvas, findFirstMatchingMonitor, S32, (const char* name)
    return PlatformWindowManager::get()->findFirstMatchingMonitor(name);
 }
 
+DefineEngineMethod( GuiCanvas, canAccessMonitor, bool, (S32 monitorIndex),,
+               "@brief returns true if the monitor can be written to from the current dispaly adapter.\n\n")
+{
+   return PlatformWindowManager::get()->canAccessMonitor(monitorIndex);
+}
+
 DefineEngineMethod( GuiCanvas, getMonitorCount, S32, (),,
                "@brief Gets the number of monitors attached to the system.\n\n"
 
