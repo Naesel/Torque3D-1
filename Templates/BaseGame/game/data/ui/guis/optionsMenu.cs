@@ -332,9 +332,16 @@ function OptionsMenu::applyGraphicsSettings(%this)
                                  
       $pref::Video::defaultAnisotropy = %level;
    }
-   
-   updateDisplaySettings();
-   
+
+   %newFSAA = OptionsMenuSettingsList.getCurrentOption(9);
+   if (%newFSAA $= "off")
+      %newFSAA = 0;
+   if (%newFSAA !$= $pref::Video::AA)
+   {
+      $pref::Video::AA = %newFSAA;
+      configureCanvas();
+   }
+
    echo("Exporting client prefs");
    %prefPath = getPrefpath();
    export("$pref::*", %prefPath @ "/clientPrefs.cs", false);
