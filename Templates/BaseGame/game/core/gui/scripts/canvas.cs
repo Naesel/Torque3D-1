@@ -64,11 +64,12 @@ $Video::minimumYResolution = 720;
 function configureCanvas()
 {
    // Setup a good default if we don't have one already.
-   if (($pref::Video::deviceId $= "") ||
+   if (($pref::Video::deviceId $= "") || ($pref::Video::deviceId < 0) ||
          ($pref::Video::deviceId >= Canvas.getMonitorCount()))
       $pref::Video::deviceId = 0;  // Monitor 0
 
-   if ($pref::Video::deviceMode $= "")
+   if (($pref::Video::deviceMode $= "") || ($pref::Video::deviceMode < 0) ||
+      ($pref::Video::deviceMode >= getFieldCount($Video::ModeTags)))
    {
       $pref::Video::deviceMode = $Video::ModeBorderless;
       $pref::Video::mode = Canvas.getBestCanvasRes($pref::Video::deviceId, $pref::Video::deviceMode);
@@ -80,7 +81,8 @@ function configureCanvas()
 
    // Default to borderless at desktop resolution if there is no saved pref or
    // command line arg
-   if ($pref::Video::Resolution $= "")
+   if (($pref::Video::Resolution $= "") || ($pref::Video::Resolution.x < $Video::minimumXResolution) ||
+      ($pref::Video::Resolution.y < $Video::minimumYResolution))
    {
       $pref::Video::mode = Canvas.getBestCanvasRes($pref::Video::deviceId, $pref::Video::deviceMode);
       Canvas.modeStrToPrefs($pref::Video::mode);
