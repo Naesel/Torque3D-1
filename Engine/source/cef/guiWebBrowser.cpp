@@ -32,6 +32,7 @@ GuiWebBrowser::GuiWebBrowser(GuiControl* browserGui, GuiWebRender *renderHandler
 {
    mBrowserGui = browserGui;
    m_renderHandler = renderHandler;
+   m_displayHandler = renderHandler;
 }
 
 //------------------------------------------------------------------------------

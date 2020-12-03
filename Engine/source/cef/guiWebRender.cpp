@@ -240,11 +240,15 @@ bool GuiWebRender::onDeviceEvent(GFXDevice::GFXDeviceEventType evt)
 }
 
 //------------------------------------------------------------------------------
-void GuiWebRender::OnCursorChange(CefRefPtr<CefBrowser> browser,
-   CefCursorHandle cursor, CursorType type, const CefCursorInfo& custom_cursor_info)
+bool GuiWebRender::OnCursorChange(CefRefPtr<CefBrowser> browser,
+   CefCursorHandle cursor, cef_cursor_type_t type, const CefCursorInfo& custom_cursor_info)
 {
    if (mWebGui)
+   {
       mWebGui->setMouseCursor((U8)type);
+      return true;
+   }
+   return false;
 }
 
 //------------------------------------------------------------------------------

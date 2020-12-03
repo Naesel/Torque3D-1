@@ -22,11 +22,12 @@
 #ifndef _GUIWEBRENDER_H_
 #define _GUIWEBRENDER_H_
 #include "include/cef_render_handler.h"
+#include "include/cef_display_handler.h"
 #include "gfx/gfxDevice.h"
 
 class GFXTexHandle;
 class GuiWebCtrl;
-class GuiWebRender : public CefRenderHandler
+class GuiWebRender : public CefRenderHandler, public CefDisplayHandler
 {
 private:
    GFXTexHandle mTexture;        // Texture for main browser view
@@ -61,11 +62,6 @@ public:
    void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
    void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList &dirtyRects, const void *buffer, int width, int height) OVERRIDE;
 
-   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-      CefCursorHandle cursor,
-      CursorType type,
-      const CefCursorInfo& custom_cursor_info) OVERRIDE;
-
    virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDragData> drag_data,
       DragOperationsMask allowed_ops,
@@ -74,6 +70,11 @@ public:
       return true;
    }
 
+   // CefDisplayHandler interface
+   virtual bool OnCursorChange(CefRefPtr<CefBrowser> browser,
+      CefCursorHandle cursor,
+      cef_cursor_type_t type,
+      const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
    // CefBase interface
 public:

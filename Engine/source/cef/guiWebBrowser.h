@@ -41,8 +41,10 @@ public:
    ~GuiWebBrowser();
 
    CefRefPtr<CefRenderHandler> m_renderHandler;
+   CefRefPtr<CefDisplayHandler> m_displayHandler;
 
    // CefClient methods:
+   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() { return m_displayHandler; }
    virtual CefRefPtr<CefRenderHandler> GetRenderHandler() { return m_renderHandler; }
    CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE { return this; }

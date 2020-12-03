@@ -1,6 +1,6 @@
 # CEF T3D Plugin Installation Instructions
 
-Download and extract the CEF 'Standard Distribution' for your target platform from: (http://opensource.spotify.com/cefbuilds/index.html).
+Download and extract the CEF 'Standard Distribution' for your target platform from: (https://cef-builds.spotifycdn.com/index.html).
 
 Clone [Torque3D](https://github.com/TorqueGameEngines/Torque3D).
 

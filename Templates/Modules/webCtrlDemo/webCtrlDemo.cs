@@ -130,5 +130,5 @@ function webCtrlDemo::loadControllerMap( %this )
 
 function webCtrlDemo::initClient( %this )
 {
-   %this.queueExec("/scripts/initWebDemo.cs");
+   %this.queueExec("./scripts/initWebDemo.cs");
 }
