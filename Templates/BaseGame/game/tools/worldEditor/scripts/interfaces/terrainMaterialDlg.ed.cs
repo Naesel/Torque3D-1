@@ -307,9 +307,9 @@ function TerrainMaterialDlg::changeNormal( %this )
 }
 
 //-----------------------------------------------------------------------------
-function TerrainMaterialDlg::changePBRConfig( %this )
+function TerrainMaterialDlg::changeormConfig( %this )
 {   
-   %ctrl = %this-->pbrConfigTexCtrl;
+   %ctrl = %this-->ormConfigTexCtrl;
    %file = %ctrl.bitmap;
    if( getSubStr( %file, 0 , 6 ) $= "tools/" )
       %file = "";
@@ -349,8 +349,6 @@ function TerrainMaterialDlg::newMat( %this )
    %path = filePath(%scene.getFilename());
    %module = AssetBrowser.dirHandler.getModuleFromAddress(%path);
    AssetBrowser.selectedModule = %module.moduleID;
-   
-   AssetBrowser.dirHandler.currentAddress = "data/" @ %module.moduleID;
    
    AssetBrowser.setupCreateNewAsset("TerrainMaterialAsset", AssetBrowser.selectedModule);
 }
@@ -419,10 +417,10 @@ function TerrainMaterialDlg::setActiveMaterial( %this, %mat )
       }else{
          %this-->baseTexCtrl.setBitmap( %mat.diffuseMap ); 
       }
-      if (%mat.pbrConfigMap $= ""){
-         %this-->pbrConfigTexCtrl.setBitmap( "tools/materialEditor/gui/unknownImage" );
+      if (%mat.ormConfigMap $= ""){
+         %this-->ormConfigTexCtrl.setBitmap( "tools/materialEditor/gui/unknownImage" );
       }else{
-         %this-->pbrConfigTexCtrl.setBitmap( %mat.pbrConfigMap );
+         %this-->ormConfigTexCtrl.setBitmap( %mat.ormConfigMap );
       }
       if (%mat.detailMap $= ""){
          %this-->detailTexCtrl.setBitmap( "tools/materialEditor/gui/unknownImage" );
@@ -451,7 +449,7 @@ function TerrainMaterialDlg::setActiveMaterial( %this, %mat )
       %this-->macroDistanceCtrl.setText( %mat.macroDistance );      
       
       %this-->isSRGB.setValue( %mat.isSRGB );
-      %this-->invertSmoothness.setValue( %mat.invertSmoothness );
+      %this-->invertRoughness.setValue( %mat.invertRoughness );
             
       %this.activateMaterialCtrls( true );      
    }
@@ -485,10 +483,10 @@ function TerrainMaterialDlg::saveDirtyMaterial( %this, %mat )
    }else{
       %newNormal = %this-->normTexCtrl.bitmap;  
    }
-   if (%this-->pbrConfigTexCtrl.bitmap $= "tools/materialEditor/gui/unknownImage"){
-      %newPBRConfig = "";
+   if (%this-->ormConfigTexCtrl.bitmap $= "tools/materialEditor/gui/unknownImage"){
+      %newormConfig = "";
    }else{
-      %newPBRConfig = %this-->pbrConfigTexCtrl.bitmap;  
+      %newormConfig = %this-->ormConfigTexCtrl.bitmap;  
    }
    if (%this-->detailTexCtrl.bitmap $= "tools/materialEditor/gui/unknownImage"){
       %newDetail = "";
@@ -512,7 +510,7 @@ function TerrainMaterialDlg::saveDirtyMaterial( %this, %mat )
    %macroDistance = %this-->macroDistanceCtrl.getText();   
    
    %isSRGB = %this-->isSRGB.getValue(); 
-   %invertSmoothness = %this-->invertSmoothness.getValue(); 
+   %invertRoughness = %this-->invertRoughness.getValue(); 
    
    // If no properties of this materials have changed,
    // return.
@@ -521,7 +519,7 @@ function TerrainMaterialDlg::saveDirtyMaterial( %this, %mat )
          %mat.diffuseMap $= %newDiffuse &&
          %mat.normalMap $= %newNormal &&
          %mat.detailMap $= %newDetail &&
-         %mat.pbrConfigMap $= %newPBRConfig &&
+         %mat.ormConfigMap $= %newormConfig &&
          %mat.macroMap $= %newMacro &&
          %mat.detailSize == %detailSize &&
          %mat.diffuseSize == %diffuseSize &&
@@ -533,7 +531,7 @@ function TerrainMaterialDlg::saveDirtyMaterial( %this, %mat )
          %mat.macroDistance == %macroDistance &&         
          %mat.parallaxScale == %parallaxScale &&         
          %mat.isSRGB == %isSRGB &&         
-         %mat.invertSmoothness == %invertSmoothness)               
+         %mat.invertRoughness == %invertRoughness)               
       return;
       
    // Make sure the material name is unique.
@@ -555,8 +553,9 @@ function TerrainMaterialDlg::saveDirtyMaterial( %this, %mat )
    }
    
    %mat.diffuseMap = %newDiffuse;    
+   %mat.diffuseMapAsset = "";    
    %mat.normalMap = %newNormal;   
-   %mat.pbrConfigMap = %newPBRConfig; 
+   %mat.ormConfigMap = %newormConfig; 
    %mat.detailMap = %newDetail;    
    %mat.macroMap = %newMacro;
    %mat.detailSize = %detailSize;  
@@ -569,13 +568,17 @@ function TerrainMaterialDlg::saveDirtyMaterial( %this, %mat )
    %mat.useSideProjection = %useSideProjection;
    %mat.parallaxScale = %parallaxScale;
    %mat.isSRGB = %isSRGB;
-   %mat.invertSmoothness = %invertSmoothness;
+   %mat.invertRoughness = %invertRoughness;
    
    // Mark the material as dirty and needing saving.
    
    %fileName = %mat.getFileName();
    if( %fileName $= "" )
-      %fileName = "data/terrains/materials.cs";
+   {
+      error("TerrainMaterialDlg::saveDirtyMaterial() - terrain material doesn't have a fileName set to save to.");
+      return;
+      //%fileName = "data/terrains/materials.cs";
+   }
       
    ETerrainMaterialPersistMan.setDirty( %mat, %fileName ); 
 }
@@ -604,7 +607,7 @@ function TerrainMaterialDlg::snapshotMaterials( %this )
          internalName = %mat.internalName;
          diffuseMap = %mat.diffuseMap;
          normalMap = %mat.normalMap;
-         pbrConfigMap = %mat.pbrConfigMap;
+         ormConfigMap = %mat.ormConfigMap;
          detailMap = %mat.detailMap;
          macroMap = %mat.macroMap;
          detailSize = %mat.detailSize;
@@ -617,7 +620,7 @@ function TerrainMaterialDlg::snapshotMaterials( %this )
          useSideProjection = %mat.useSideProjection;
          parallaxScale = %mat.parallaxScale;
          isSRGB = %mat.isSRGB;
-         invertSmoothness = %mat.invertSmoothness;
+         invertRoughness = %mat.invertRoughness;
       };
    }
 }
@@ -641,7 +644,7 @@ function TerrainMaterialDlg::restoreMaterials( %this )
       %mat.setInternalName( %obj.internalName );
       %mat.diffuseMap = %obj.diffuseMap;
       %mat.normalMap = %obj.normalMap;
-      %mat.pbrConfigMap = %obj.pbrConfigMap;
+      %mat.ormConfigMap = %obj.ormConfigMap;
       %mat.detailMap = %obj.detailMap;
       %mat.macroMap = %obj.macroMap;
       %mat.detailSize = %obj.detailSize;
@@ -654,7 +657,7 @@ function TerrainMaterialDlg::restoreMaterials( %this )
       %mat.useSideProjection = %obj.useSideProjection;
       %mat.parallaxScale = %obj.parallaxScale;
       %mat.isSRGB = %obj.isSRGB;
-      %mat.invertSmoothness = %obj.invertSmoothness;
+      %mat.invertRoughness = %obj.invertRoughness;
    }
 }
 

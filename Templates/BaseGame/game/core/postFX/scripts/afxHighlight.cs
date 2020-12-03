@@ -6,11 +6,11 @@
 
 singleton ShaderData( PFX_afxHighlightShader )
 {
-   DXVertexShaderFile   = "shaders/common/postFx/postFxV.hlsl";
+   DXVertexShaderFile   = "shaders/common/postFX/postFxV.hlsl";
    DXPixelShaderFile    = "shaders/AFX/afxPostFX_Highlight_P.hlsl";
 
-   //OGLVertexShaderFile  = "shaders/common/postFx/gl//postFxV.glsl";
-   //OGLPixelShaderFile   = "shaders/common/postFx/gl/passthruP.glsl";
+   //OGLVertexShaderFile  = "shaders/common/postFX/gl//postFxV.glsl";
+   //OGLPixelShaderFile   = "shaders/common/postFX/gl/passthruP.glsl";
 
    samplerNames[0] = "$inputTex";
 
@@ -36,7 +36,7 @@ singleton PostEffect( afxHighlightPostFX )
    renderTime = "PFXAfterDiffuse";
    renderBin = "HighlightBin";
    renderPriority = 1;
-   isEnabled = true;
+   enabled = true;
 
    shader = PFX_afxHighlightShader;
    stateBlock = PFX_afxDefaultHighlightStateBlock;

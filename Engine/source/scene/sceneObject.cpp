@@ -293,6 +293,8 @@ bool SceneObject::collideBox(const Point3F &start, const Point3F &end, RayInfo *
 
 void SceneObject::disableCollision()
 {
+   for (SceneObject* ptr = getMountList(); ptr; ptr = ptr->getMountLink())
+      ptr->disableCollision();
    mCollisionCount++;
    AssertFatal(mCollisionCount < 50, "SceneObject::disableCollision called 50 times on the same object. Is this inside a circular loop?" );
 }
@@ -301,6 +303,8 @@ void SceneObject::disableCollision()
 
 void SceneObject::enableCollision()
 {
+   for (SceneObject* ptr = getMountList(); ptr; ptr = ptr->getMountLink())
+      ptr->enableCollision();
    if (mCollisionCount)
       --mCollisionCount;
 }
@@ -1704,7 +1708,7 @@ void SceneObject::updateRenderChangesByParent(){
 		// This is needed by objects that update their own render transform thru interpolate tick
 		// Mostly for stationary objects.
 
-		if (getClassName() == "Player")
+          if (getClassName() == StringTable->insert("Player"))
 			mat.mul(offset,getRenderTransform());  
 		else										
 			mat.mul(offset,getTransform());	 
@@ -1874,7 +1878,7 @@ DefineEngineMethod(SceneObject, attachToParent, bool, (const char*_sceneObject),
     }
     else
     {      
-        if ((!dStrcmp("0", _sceneObject))|| (!dStrcmp("", _sceneObject)))
+        if ((!String::compare("0", _sceneObject))|| (!String::compare("", _sceneObject)))
             return object->attachToParent(NULL);
         else
         {

@@ -402,7 +402,7 @@ bool TSStatic::onAdd()
    setRenderTransform(mObjToWorld);
 
    // Register for the resource change signal.
-   ResourceManager::get().getChangedSignal().notify(this, &TSStatic::_onResourceChanged);
+   //ResourceManager::get().getChangedSignal().notify(this, &TSStatic::_onResourceChanged);
 
    addToScene();
 
@@ -427,6 +427,11 @@ bool TSStatic::onAdd()
 
 bool TSStatic::setShapeAsset(const StringTableEntry shapeAssetId)
 {
+   if (!mShapeAsset.isNull())
+   {
+      mShapeAsset->getChangedSignal().remove(this, &TSStatic::_onAssetChanged);
+   }
+
    if (ShapeAsset::getAssetById(shapeAssetId, &mShapeAsset))
    {
       //Special exception case. If we've defaulted to the 'no shape' mesh, don't save it out, we'll retain the original ids/paths so it doesn't break
@@ -434,6 +439,8 @@ bool TSStatic::setShapeAsset(const StringTableEntry shapeAssetId)
       if (mShapeAsset.getAssetId() != StringTable->insert("Core_Rendering:noshape"))
       {
          mShapeName = StringTable->EmptyString();
+
+         mShapeAsset->getChangedSignal().notify(this, &TSStatic::_onAssetChanged);
       }
 
       _createShape();
@@ -511,8 +518,9 @@ bool TSStatic::_createShape()
    }
 
    //Set up the material slot vars for easy manipulation
-   S32 materialCount = mShape->materialList->getMaterialNameList().size(); //mMeshAsset->getMaterialCount();
+   /*S32 materialCount = mShape->materialList->getMaterialNameList().size(); //mMeshAsset->getMaterialCount();
 
+   //Temporarily disabled until fixup of materialName->assetId lookup logic is sorted for easy persistance
    if (isServerObject())
    {
       char matFieldName[128];
@@ -526,15 +534,13 @@ bool TSStatic::_createShape()
 
          setDataField(matFld, NULL, materialname);
       }
-   }
+   }*/
 
    return true;
 }
 
 void TSStatic::onDynamicModified(const char* slotName, const char* newValue)
 {
-   bool isSrv = isServerObject();
-
    if (FindMatch::isMatch("materialslot*", slotName, false))
    {
       if (!getShape())
@@ -659,7 +665,7 @@ void TSStatic::onRemove()
    removeFromScene();
 
    // Remove the resource change signal.
-   ResourceManager::get().getChangedSignal().remove(this, &TSStatic::_onResourceChanged);
+   //ResourceManager::get().getChangedSignal().remove(this, &TSStatic::_onResourceChanged);
 
    delete mShapeInstance;
    mShapeInstance = NULL;
@@ -667,6 +673,9 @@ void TSStatic::onRemove()
    mAmbientThread = NULL;
    if (isClientObject())
       mCubeReflector.unregisterReflector();
+
+   if(!mShapeAsset.isNull())
+      mShapeAsset->getChangedSignal().remove(this, &TSStatic::_onAssetChanged);
 
    Parent::onRemove();
 }
@@ -676,6 +685,12 @@ void TSStatic::_onResourceChanged(const Torque::Path& path)
    if (path != Path(mShapeName))
       return;
 
+   _createShape();
+   _updateShouldTick();
+}
+
+void TSStatic::_onAssetChanged()
+{
    _createShape();
    _updateShouldTick();
 }
@@ -918,9 +933,10 @@ void TSStatic::prepRenderImage(SceneRenderState* state)
       state->getRenderPass()->addInst(ri);
    }
 
-   mShapeInstance->animate();
    if (mShapeInstance)
    {
+      mShapeInstance->animate();
+
       if (mUseAlphaFade || smUseStaticObjectFade)
       {
          mShapeInstance->setAlphaAlways(mAlphaFade);
@@ -1428,7 +1444,7 @@ bool TSStatic::buildExportPolyList(ColladaUtils::ExportData* exportData, const B
          ColladaUtils::ExportData::detailLevel* curDetail = &meshData->meshDetailLevels.last();
 
          //Make sure we denote the size this detail level has
-         curDetail->size = detail.size;
+         curDetail->size = getNextPow2(detail.size);
       }
    }
 
@@ -1691,6 +1707,13 @@ void TSStatic::updateMaterials()
    mShapeInstance->initMaterialList();
 }
 
+void TSStatic::getUtilizedAssets(Vector<StringTableEntry>* usedAssetsList)
+{
+   if(!mShapeAsset.isNull() && mShapeAsset->getAssetId() != StringTable->insert("Core_Rendering:noShape"))
+      usedAssetsList->push_back_unique(mShapeAsset->getAssetId());
+
+}
+
 //------------------------------------------------------------------------
 //These functions are duplicated in tsStatic and shapeBase.
 //They each function a little differently; but achieve the same purpose of gathering
@@ -1703,6 +1726,9 @@ void TSStatic::onInspect(GuiInspector* inspector)
 
    //Put the GameObject group before everything that'd be gameobject-effecting, for orginazational purposes
    GuiInspectorGroup* materialGroup = inspector->findExistentGroup(StringTable->insert("Materials"));
+   if (!materialGroup)
+      return;
+
    GuiControl* stack = dynamic_cast<GuiControl*>(materialGroup->findObjectByInternalName(StringTable->insert("Stack")));
 
    //Do this on both the server and client

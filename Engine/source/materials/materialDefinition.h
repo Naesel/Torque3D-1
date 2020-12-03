@@ -41,10 +41,6 @@
    #include "console/dynamicTypes.h"
 #endif
 
-#ifndef CUSTOMSHADERFEATURE_H
-#include "shaderGen/customShaderFeature.h"
-#endif
-
 #ifndef IMAGE_ASSET_H
 #include "T3D/assets/ImageAsset.h"
 #endif
@@ -59,7 +55,6 @@ class FeatureSet;
 class FeatureType;
 class MaterialSoundProfile;
 class MaterialPhysicsProfile;
-class CustomShaderFeatureData;
 
 /// The basic material definition.
 class Material : public BaseMaterialDefinition
@@ -209,27 +204,27 @@ public:
    //-----------------------------------------------------------------------
    // Data
    //-----------------------------------------------------------------------
-   DECLARE_TEXTUREARRAY(DiffuseMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, DiffuseMap, MAX_STAGES);
    bool     mDiffuseMapSRGB[MAX_STAGES];   // SRGB diffuse
-   DECLARE_TEXTUREARRAY(OverlayMap, MAX_STAGES);
-   DECLARE_TEXTUREARRAY(LightMap, MAX_STAGES);;
-   DECLARE_TEXTUREARRAY(ToneMap, MAX_STAGES);
-   DECLARE_TEXTUREARRAY(DetailMap, MAX_STAGES);;
-   DECLARE_TEXTUREARRAY(NormalMap, MAX_STAGES);
-   DECLARE_TEXTUREARRAY(PBRConfigMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, OverlayMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, LightMap, MAX_STAGES);;
+   DECLARE_TEXTUREARRAY(Material, ToneMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, DetailMap, MAX_STAGES);;
+   DECLARE_TEXTUREARRAY(Material, NormalMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, ORMConfigMap, MAX_STAGES);
    bool     mIsSRGb[MAX_STAGES];
-   DECLARE_TEXTUREARRAY(RoughMap, MAX_STAGES);
-   bool     mInvertSmoothness[MAX_STAGES];
-   F32      mSmoothnessChan[MAX_STAGES];
-   DECLARE_TEXTUREARRAY(AOMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, RoughMap, MAX_STAGES);
+   bool     mInvertRoughness[MAX_STAGES];
+   F32      mRoughnessChan[MAX_STAGES];
+   DECLARE_TEXTUREARRAY(Material, AOMap, MAX_STAGES);
    F32      mAOChan[MAX_STAGES];
-   DECLARE_TEXTUREARRAY(MetalMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, MetalMap, MAX_STAGES);
    F32      mMetalChan[MAX_STAGES];
-   DECLARE_TEXTUREARRAY(GlowMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, GlowMap, MAX_STAGES);
    F32      mGlowMul[MAX_STAGES];
    /// A second normal map which repeats at the detail map
    /// scale and blended with the base normal map.
-   DECLARE_TEXTUREARRAY(DetailNormalMap, MAX_STAGES);
+   DECLARE_TEXTUREARRAY(Material, DetailNormalMap, MAX_STAGES);
    /// The strength scalar for the detail normal map.
    F32 mDetailNormalMapStrength[MAX_STAGES];
 
@@ -245,7 +240,7 @@ public:
    /// the diffuse texture color.
    LinearColorF mDiffuse[MAX_STAGES];
    
-   F32 mSmoothness[MAX_STAGES];
+   F32 mRoughness[MAX_STAGES];
    F32 mMetalness[MAX_STAGES];
    
    bool mVertLit[MAX_STAGES];
@@ -356,8 +351,6 @@ public:
    F32 mDirectSoundOcclusion;       ///< Amount of volume occlusion on direct sounds.
    F32 mReverbSoundOcclusion;       ///< Amount of volume occlusion on reverb sounds.
 
-   Vector<CustomShaderFeatureData*> mCustomShaderFeatures;
-
    ///@}
    
    String mMapTo; // map Material to this texture name
@@ -394,9 +387,6 @@ public:
    virtual void onRemove();
    virtual void inspectPostApply();
    virtual bool writeField( StringTableEntry fieldname, const char *value );
-
-   static bool protectedSetCustomShaderFeature(void *object, const char *index, const char *data);
-   static bool protectedSetCustomShaderFeatureUniforms(void *object, const char *index, const char *data);
 
    //
    // ConsoleObject interface

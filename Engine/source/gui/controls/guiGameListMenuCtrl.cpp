@@ -37,7 +37,8 @@ GuiGameListMenuCtrl::GuiGameListMenuCtrl()
  : mSelected(NO_ROW),
    mDebugRender(false),
    mHighlighted(NO_ROW),
-   mCallbackOnInputs(false)
+   mCallbackOnInputs(false),
+   mConsumeKeyInputEvents(false)
 {
    VECTOR_SET_ASSOCIATION(mRows);
 
@@ -391,7 +392,7 @@ void GuiGameListMenuCtrl::onRenderKeybindOption(Row* row, Point2I currentOffset)
    //drawer->drawBitmap(row->mBitmap, )
 
    Point2I button;
-   button.x = currentOffset.x + columnSplit + (columnSplit / 2)/* + (optionWidth / 2)*/;
+   button.x = currentOffset.x + columnSplit + (columnSplit / 2.5)/* + (optionWidth / 2)*/;
    button.y = currentOffset.y + (rowHeight / 4);
 
    Point2I buttonSize;
@@ -500,7 +501,7 @@ void GuiGameListMenuCtrl::addRow(const char* label, const char* optionsList, boo
       const char* option = StringUnit::getUnit(optionsList, i, DELIM);
       options.push_back(StringTable->insert(option, true));
 
-      if (dStrcmp(option, defaultValue) == 0)
+      if (String::compare(option, defaultValue) == 0)
          defaultOption = options.size() - 1;
    }
    row->mOptions = options;
@@ -531,6 +532,14 @@ void GuiGameListMenuCtrl::addRow(const char* label, const char* bitmapName, cons
       row->mBitmapTex.set(row->mBitmap, &GFXDefaultGUIProfile, avar("%s() - mTextureObject (line %d)", __FUNCTION__, __LINE__));
 
    addRow(row, label, callback, icon, yPad, true, enabled, Row::Mode::Keybind, tooltip);
+}
+
+void GuiGameListMenuCtrl::removeRow(const S32& row)
+{
+   if (row == -1 || row >= mRows.size())
+      return;
+
+   mRows.erase(row);
 }
 
 Point2I  GuiGameListMenuCtrl::getMinExtent() const
@@ -810,9 +819,11 @@ bool GuiGameListMenuCtrl::onInputEvent(const InputEventInfo& event)
 {
    if (mCallbackOnInputs)
    {
-      char deviceString[32];
-      if (!ActionMap::getDeviceName(event.deviceType, event.deviceInst, deviceString))
+      char deviceStr[32];
+      if (!ActionMap::getDeviceName(event.deviceType, event.deviceInst, deviceStr))
          return false;
+
+      String deviceString = deviceStr;
 
       if (event.action == SI_MAKE || event.action == SI_BREAK)
       {
@@ -839,12 +850,24 @@ bool GuiGameListMenuCtrl::onInputEvent(const InputEventInfo& event)
             if (!ActionMap::getKeyString(event.objInst, keyString))
                return false;
 
-            onInputEvent_callback(deviceString, keyString, state);
+            onInputEvent_callback(deviceString.c_str(), keyString, state);
+
+            if (mConsumeKeyInputEvents)
+            {
+               if(deviceString.startsWith("keyboard"))
+                  return true;
+            }
          }
          else
          {
             const char* actionString = ActionMap::buildActionString(&event);
-            onInputEvent_callback(deviceString, actionString, state);
+            onInputEvent_callback(deviceString.c_str(), actionString, state);
+
+            if (mConsumeKeyInputEvents)
+            {
+               if (deviceString.startsWith("keyboard") || deviceString.startsWith("gamepad"))
+                  return true;
+            }
          }
       }
       else if (event.objType == SI_AXIS || event.objType == SI_INT || event.objType == SI_FLOAT)
@@ -853,12 +876,12 @@ bool GuiGameListMenuCtrl::onInputEvent(const InputEventInfo& event)
          if (event.objType == SI_INT)
             fValue = (F32)event.iValue;
 
-         if (!ActionMap::getDeviceName(event.deviceType, event.deviceInst, deviceString))
+         if (!ActionMap::getDeviceName(event.deviceType, event.deviceInst, deviceStr))
             return false;
 
          const char* actionString = ActionMap::buildActionString(&event);
 
-         onAxisEvent_callback(deviceString, actionString, fValue);
+         onAxisEvent_callback(deviceStr, actionString, fValue);
       }
    }
 
@@ -875,6 +898,14 @@ bool GuiGameListMenuCtrl::onKeyDown(const GuiEvent &event)
 
       case KEY_DOWN:
          changeRow(1);
+         return true;
+
+      case KEY_LEFT:
+         changeOption(-1);
+         return true;
+
+      case KEY_RIGHT:
+         changeOption(1);
          return true;
 
       case KEY_A:
@@ -1065,7 +1096,7 @@ bool GuiGameListMenuCtrl::selectOption(S32 rowIndex, const char* theOption)
 
    for (Vector<StringTableEntry>::iterator anOption = row->mOptions.begin(); anOption < row->mOptions.end(); ++anOption)
    {
-      if (dStrcmp(*anOption, theOption) == 0)
+      if (String::compare(*anOption, theOption) == 0)
       {
          S32 newIndex = anOption - row->mOptions.begin();
          row->mSelectedOption = newIndex;
@@ -1385,6 +1416,10 @@ void GuiGameListMenuCtrl::initPersistFields()
    addField("callbackOnInputs", TypeBool, Offset(mCallbackOnInputs, GuiGameListMenuCtrl),
       "Script callback when any inputs are detected, even if they aren't the regular 4 face buttons. Useful for secondary/speciality handling of menu navigation.");
 
+   addField("consumeKeyInputEvents", TypeBool, Offset(mConsumeKeyInputEvents, GuiGameListMenuCtrl),
+      "When callbackOnInputs is active, this indicates if the input event should be consumed, or allowed 'through' to let other things respond to the event as well.");
+   
+
    Parent::initPersistFields();
 }
 
@@ -1519,6 +1554,12 @@ DefineEngineMethod(GuiGameListMenuCtrl, addKeybindRow, void,
 "@param enabled [optional] If this row is initially enabled.")
 {
    object->addRow(label, bitmapName, callback, icon, yPad, enabled, tooltip);
+}
+
+DefineEngineMethod(GuiGameListMenuCtrl, removeRow, void, (S32 row),,
+   "Removes the row at the provided index")
+{
+   object->removeRow(row);
 }
 
 DefineEngineMethod(GuiGameListMenuCtrl, getCurrentOption, const char*, (S32 row), ,

@@ -67,6 +67,10 @@
    #include "console/dynamicTypes.h"
 #endif
 
+#ifndef SHAPEASSET_H
+#include "T3D/assets/ShapeAsset.h"
+#endif 
+
 // Need full definition visible for SimObjectPtr<ParticleEmitter>
 #include "T3D/fx/particleEmitter.h"
 
@@ -86,6 +90,7 @@ class SFXProfile;
 
 typedef void* Light;
 
+const F32 gGravity = -20;
 
 //--------------------------------------------------------------------------
 
@@ -535,6 +540,10 @@ public:
 
 
    StringTableEntry  shapeName;
+
+   AssetPtr<ShapeAsset> shapeAsset;
+   StringTableEntry shapeAssetId;
+
    StringTableEntry  cloakTexName;
 
    String cubeDescName;
@@ -914,7 +923,7 @@ protected:
    F32 mWaterCoverage;              ///< Percent of this object covered by water
 
    Point3F mAppliedForce;
-   F32 mGravityMod;
+   F32 mNetGravity;
    /// @}
 
    F32 mDamageFlash;

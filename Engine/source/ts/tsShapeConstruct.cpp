@@ -424,6 +424,8 @@ bool TSShapeConstructor::onAdd()
       group = new SimGroup();
       if ( !group->registerObject("TSShapeConstructorGroup") )
       {
+         SAFE_DELETE(group);
+
          Con::errorf("TSShapeConstructor::onAdd failed: Could not register "
             "TSShapeConstructorGroup");
          return false;
@@ -733,7 +735,7 @@ DefineTSShapeConstructorMethod( writeChangeSet, void, (),,
    while ( !f.isEOF() )
    {
       const char* buffer = (const char *) f.readLine();
-      if ( !dStrcmp( buffer, beginMessage ))
+      if ( !String::compare( buffer, beginMessage ))
          break;
       stream->writeText( buffer );
       stream->writeText( "\r\n" );
@@ -754,7 +756,7 @@ DefineTSShapeConstructorMethod( writeChangeSet, void, (),,
    while ( !f.isEOF() )
    {
       const char* buffer = (const char *) f.readLine();
-      if ( !dStrcmp( buffer, endMessage ))
+      if ( !String::compare( buffer, endMessage ))
          break;
    }
 

@@ -158,6 +158,8 @@ ShapeBaseData::ShapeBaseData()
    shadowProjectionDistance( 10.0f ),
    shadowSphereAdjust( 1.0f ),
    shapeName( StringTable->EmptyString() ),
+   shapeAsset(StringTable->EmptyString()),
+   shapeAssetId(StringTable->EmptyString()),
    cloakTexName( StringTable->EmptyString() ),
    cubeDescId( 0 ),
    reflectorDesc( NULL ),
@@ -212,6 +214,8 @@ ShapeBaseData::ShapeBaseData(const ShapeBaseData& other, bool temp_clone) : Game
    shadowProjectionDistance = other.shadowProjectionDistance;
    shadowSphereAdjust = other.shadowSphereAdjust;
    shapeName = other.shapeName;
+   shapeAsset = other.shapeAsset;
+   shapeAssetId = other.shapeAssetId;
    cloakTexName = other.cloakTexName;
    cubeDescName = other.cubeDescName;
    cubeDescId = other.cubeDescId;
@@ -356,12 +360,29 @@ bool ShapeBaseData::preload(bool server, String &errorStr)
       }
    }
 
-   //
-   if (shapeName && shapeName[0]) {
+   //Legacy catch
+   if (shapeAssetId == StringTable->EmptyString() && shapeName != StringTable->EmptyString())
+   {
+      StringTableEntry assetId = ShapeAsset::getAssetIdByFilename(shapeName);
+      if (assetId != StringTable->EmptyString())
+      {
+         shapeAssetId = assetId;
+      }
+   }
+
+   if (ShapeAsset::getAssetById(shapeAssetId, &shapeAsset))
+   {
+      //Special exception case. If we've defaulted to the 'no shape' mesh, don't save it out, we'll retain the original ids/paths so it doesn't break
+      //the TSStatic
+      if (shapeAsset.getAssetId() != StringTable->insert("Core_Rendering:noshape"))
+      {
+         shapeName = StringTable->EmptyString();
+      }
+   
       S32 i;
 
       // Resolve shapename
-      mShape = ResourceManager::get().load(shapeName);
+      mShape = shapeAsset->getShapeResource();
       if (bool(mShape) == false)
       {
          errorStr = String::ToString("ShapeBaseData: Couldn't load shape \"%s\"",shapeName);
@@ -574,6 +595,9 @@ void ShapeBaseData::initPersistFields()
 
    addGroup( "Render" );
 
+      addField("shapeAsset", TypeShapeAssetId, Offset(shapeAssetId, ShapeBaseData),
+         "The source shape asset.");
+
       addField( "shapeFile", TypeShapeFilename, Offset(shapeName, ShapeBaseData),
          "The DTS or DAE model to use for this object." );
 
@@ -779,7 +803,11 @@ void ShapeBaseData::packData(BitStream* stream)
    stream->write(shadowSphereAdjust);
 
 
-   stream->writeString(shapeName);
+   //if (stream->writeFlag(shapeAsset.notNull()))
+      stream->writeString(shapeAsset.getAssetId());
+   //else
+      stream->writeString(shapeName);
+
    stream->writeString(cloakTexName);
    if(stream->writeFlag(mass != gShapeBaseDataProto.mass))
       stream->write(mass);
@@ -856,7 +884,12 @@ void ShapeBaseData::unpackData(BitStream* stream)
    stream->read(&shadowProjectionDistance);
    stream->read(&shadowSphereAdjust);
 
-   shapeName = stream->readSTString();
+
+   //if (stream->readFlag())
+      shapeAssetId = stream->readSTString();
+   //else
+      shapeName = stream->readSTString();
+
    cloakTexName = stream->readSTString();
    if(stream->readFlag())
       stream->read(&mass);
@@ -1000,7 +1033,7 @@ ShapeBase::ShapeBase()
    mLiquidHeight( 0.0f ),
    mWaterCoverage( 0.0f ),
    mAppliedForce( Point3F::Zero ),
-   mGravityMod( 1.0f ),
+   mNetGravity( 1.0f ),
    mDamageFlash( 0.0f ),
    mWhiteOut( 0.0f ),
    mFlipFadeVal( false ),
@@ -1210,7 +1243,7 @@ bool ShapeBase::onNewDataBlock( GameBaseData *dptr, bool reload )
    }
    ShapeBaseData *prevDB = dynamic_cast<ShapeBaseData*>( mDataBlock );
 
-   bool isInitialDataBlock = ( mDataBlock == 0 );
+   bool isInitialDataBlock = (prevDB == 0);
 
    if ( Parent::onNewDataBlock( dptr, reload ) == false )
       return false;
@@ -1236,13 +1269,14 @@ bool ShapeBase::onNewDataBlock( GameBaseData *dptr, bool reload )
             for (S32 i = 0; i < mDataBlock->txr_tag_remappings.size(); i++)
             {
                ShapeBaseData::TextureTagRemapping* remap = &mDataBlock->txr_tag_remappings[i];
-               Vector<String> & mat_names = (Vector<String>&) mat_list->getMaterialNameList();
-               for (S32 j = 0; j < mat_names.size(); j++) 
+               Vector<String>& mat_names = (Vector<String>&) mat_list->getMaterialNameList();
+               S32 old_tagLen = dStrlen(remap->old_tag);
+               for (S32 j = 0; j < mat_names.size(); j++)
                {
-                  if (mat_names[j].compare(remap->old_tag, dStrlen(remap->old_tag), String::NoCase) == 0)
+                  if (mat_names[j].compare(remap->old_tag, old_tagLen, String::NoCase) == 0)
                   {
                      mat_names[j] = String(remap->new_tag);
-                     mat_names[j].insert(0,'#');
+                     mat_names[j].insert(0, '#');
                      break;
                   }
                }
@@ -1263,14 +1297,15 @@ bool ShapeBase::onNewDataBlock( GameBaseData *dptr, bool reload )
                for (S32 i = 0; i < mDataBlock->txr_tag_remappings.size(); i++)
                {
                   ShapeBaseData::TextureTagRemapping* remap = &mDataBlock->txr_tag_remappings[i];
-                  Vector<String> & mat_names = (Vector<String>&) mat_list->getMaterialNameList();
-                  for (S32 j = 0; j < mat_names.size(); j++) 
+                  Vector<String>& mat_names = (Vector<String>&) mat_list->getMaterialNameList();
+                  S32 new_tagLen = dStrlen(remap->new_tag);
+                  for (S32 j = 0; j < mat_names.size(); j++)
                   {
                      String::SizeType len = mat_names[j].length();
                      if (len > 1)
                      {
-                        String temp_name = mat_names[j].substr(1,len-1);
-                        if (temp_name.compare(remap->new_tag, dStrlen(remap->new_tag)) == 0)
+                        String temp_name = mat_names[j].substr(1, len - 1);
+                        if (temp_name.compare(remap->new_tag, new_tagLen) == 0)
                         {
                            mat_names[j] = String(remap->old_tag);
                            break;
@@ -1286,7 +1321,7 @@ bool ShapeBase::onNewDataBlock( GameBaseData *dptr, bool reload )
       resetWorldBox();
 
       // Set the initial mesh hidden state.
-      mMeshHidden.setSize( mDataBlock->mShape->objects.size() );
+      mMeshHidden.setSize(mDataBlock->mShape->objects.size());
       mMeshHidden.clear();
 
       // Initialize the threads
@@ -1304,37 +1339,37 @@ bool ShapeBase::onNewDataBlock( GameBaseData *dptr, bool reload )
             // initialized either by the constructor or from the server.
             bool reset = st.thread != 0;
             st.thread = 0;
-            
+
             // New datablock/shape may not actually HAVE this sequence.
             // In that case stop playing it.
-            
-            AssertFatal( prevDB != NULL, "ShapeBase::onNewDataBlock - how did you have a sequence playing without a prior datablock?" );
-   
-            const TSShape *prevShape = prevDB->mShape;
-            const TSShape::Sequence &prevSeq = prevShape->sequences[st.sequence];
-            const String &prevSeqName = prevShape->names[prevSeq.nameIndex];
 
-            st.sequence = mDataBlock->mShape->findSequence( prevSeqName );
+            AssertFatal(prevDB != NULL, "ShapeBase::onNewDataBlock - how did you have a sequence playing without a prior datablock?");
 
-            if ( st.sequence != -1 )
+            const TSShape* prevShape = prevDB->mShape;
+            const TSShape::Sequence& prevSeq = prevShape->sequences[st.sequence];
+            const String& prevSeqName = prevShape->names[prevSeq.nameIndex];
+
+            st.sequence = mDataBlock->mShape->findSequence(prevSeqName);
+
+            if (st.sequence != -1)
             {
-               setThreadSequence( i, st.sequence, reset );                              
-            }            
+               setThreadSequence(i, st.sequence, reset);
+            }
          }
       }
 
       if (mDataBlock->damageSequence != -1) {
          mDamageThread = mShapeInstance->addThread();
          mShapeInstance->setSequence(mDamageThread,
-                                     mDataBlock->damageSequence,0);
+            mDataBlock->damageSequence, 0);
       }
       if (mDataBlock->hulkSequence != -1) {
          mHulkThread = mShapeInstance->addThread();
          mShapeInstance->setSequence(mHulkThread,
-                                     mDataBlock->hulkSequence,0);
+            mDataBlock->hulkSequence, 0);
       }
 
-      if( isGhost() )
+      if (isGhost())
       {
          // Reapply the current skin
          mAppliedSkinName = "";
@@ -1766,7 +1801,7 @@ void ShapeBase::updateContainer()
    // Set default values.
    mDrag = mDataBlock->drag;
    mBuoyancy = 0.0f;      
-   mGravityMod = 1.0;
+   mNetGravity = gGravity;
    mAppliedForce.set(0,0,0);
    
    ContainerQueryInfo info;
@@ -1795,7 +1830,7 @@ void ShapeBase::updateContainer()
    }
 
    mAppliedForce = info.appliedForce;
-   mGravityMod = info.gravityScale;
+   mNetGravity = (1.0-mBuoyancy)*info.gravityScale* gGravity;
 
    //Con::printf( "WaterCoverage: %f", mWaterCoverage );
    //Con::printf( "Drag: %f", mDrag );

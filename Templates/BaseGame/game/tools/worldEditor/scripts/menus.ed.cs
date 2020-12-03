@@ -119,11 +119,14 @@ function EditorGui::buildMenus(%this)
       profile = "ToolsGuiMenuBarProfile";
    };
    
-   %recentLevelsMenu = new PopupMenu(RecentLevelsPopupMenu)
+   if(!isObject(RecentLevelsPopupMenu))
    {
-      superClass = "MenuBuilder";
-      class = "EditorFileMenu";
-   };
+      %recentLevelsMenu = new PopupMenu(RecentLevelsPopupMenu)
+      {
+         superClass = "MenuBuilder";
+         class = "EditorFileMenu";
+      };
+   }
    
    // File Menu
    %fileMenu = new PopupMenu()
@@ -205,7 +208,7 @@ function EditorGui::buildMenus(%this)
       item[14] = "Snap Options..." TAB "" TAB "ESnapOptions.ToggleVisibility();";
       item[15] = "-";
       item[16] = "Game Options..." TAB "" TAB "Canvas.pushDialog(optionsDlg);";
-      item[17] = "PostEffect Manager" TAB "" TAB "Canvas.pushDialog(PostFXEditor);";
+      item[17] = "Edit Default PostFX Config" TAB "" TAB "PostFXEditor.editDefaultPostFXSettings();";
    };
    %this.menuBar.insert(%editMenu);
       

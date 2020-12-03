@@ -38,6 +38,8 @@
 #include "console/consoleTypes.h"
 #endif
 
+#include "cinterface/cinterface.h"
+
 #ifndef _MODULE_DEFINITION_H
 #include "module/moduleDefinition.h"
 #endif
@@ -83,7 +85,7 @@ S32 QSORT_CALLBACK moduleDependencySort(const void* a, const void* b)
    bool foundDependant = false;
    for (ModuleDefinition::typeModuleDependencyVector::const_iterator dependencyItr = moduleDependencies.begin(); dependencyItr != moduleDependencies.end(); ++dependencyItr)
    {
-      if (dStrcmp(dependencyItr->mModuleId, pDefinition2->getModuleId())
+      if (String::compare(dependencyItr->mModuleId, pDefinition2->getModuleId())
          && (dependencyItr->mVersionId == pDefinition2->getVersionId()))
             foundDependant = true;
    }
@@ -616,7 +618,7 @@ bool ModuleManager::unloadModuleGroup( const char* pModuleGroup )
             if ( mEchoInfo )
             {
                 Con::printf( "Module Manager: Unloading group '%s' but could not unload module Id '%s' at version Id '%d'.",
-                    moduleGroup, pLoadedEntry->mpModuleDefinition->getModuleId(), pLoadedEntry->mpModuleDefinition->getVersionId() );
+                   moduleGroup, pLoadReadyModuleDefinition->getModuleId(), pLoadReadyModuleDefinition->getVersionId());
             }
             // Skip.
             continue;
@@ -837,21 +839,19 @@ bool ModuleManager::loadModuleExplicit( const char* pModuleId, const U32 version
             const bool scriptFileExecuted = dAtob( Con::executef("exec", pLoadReadyModuleDefinition->getModuleScriptFilePath() ) );
 
             // Did we execute the script file?
-            if ( scriptFileExecuted )
-            {
-                // Yes, so is the create method available?
-                if ( pScopeSet->isMethod( pLoadReadyModuleDefinition->getCreateFunction() ) )
-                {
-                    // Yes, so call the create method.
-                    Con::executef( pScopeSet, pLoadReadyModuleDefinition->getCreateFunction() );
-                }
-            }
-            else
+            if ( !scriptFileExecuted )
             {
                 // No, so warn.
                 Con::errorf( "Module Manager: Cannot load explicit module Id '%s' at version Id '%d' as it failed to have the script file '%s' loaded.",
                     pLoadReadyModuleDefinition->getModuleId(), pLoadReadyModuleDefinition->getVersionId(), pLoadReadyModuleDefinition->getModuleScriptFilePath() );
             }
+        }
+
+        // Is the create method available?
+        if (pScopeSet->isMethod(pLoadReadyModuleDefinition->getCreateFunction()))
+        {
+           // Yes, so call the create method.
+           Con::executef(pScopeSet, pLoadReadyModuleDefinition->getCreateFunction());
         }
 
         // Raise notifications.

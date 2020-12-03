@@ -114,10 +114,6 @@ void DeferredRTLightingFeatGLSL::processPix( Vector<ShaderComponent*> &component
    meta->addStatement( new GenOp( "   @.y = 1.0 - @.y;\r\n", uvScene, uvScene ) ); // flip the y axis 
    meta->addStatement( new GenOp( "   @ = ( @ * @.zw ) + @.xy;\r\n", uvScene, uvScene, rtParams, rtParams) ); // scale it down and offset it to the rt size
 
-   Var *lightInfoSamp = new Var;
-   lightInfoSamp->setType( "vec4" );
-   lightInfoSamp->setName( "lightInfoSample" );
-
    // create texture var
    Var *lightInfoBuffer = new Var;
    lightInfoBuffer->setType( "sampler2D" );
@@ -368,7 +364,7 @@ void DeferredBumpFeatGLSL::processPix( Vector<ShaderComponent*> &componentList,
       Parent::processPix( componentList, fd );
       return;
    }
-   else if (!fd.features[MFT_PBRConfigMap] )
+   else if (!fd.features[MFT_OrmMap] )
    {
       Var *bumpSample = (Var *)LangElement::find( "bumpSample" );
       if( bumpSample == NULL )
@@ -399,7 +395,7 @@ ShaderFeature::Resources DeferredBumpFeatGLSL::getResources( const MaterialFeatu
       return Parent::getResources( fd );
 
    Resources res; 
-   if(!fd.features[MFT_PBRConfigMap])
+   if(!fd.features[MFT_OrmMap])
    {
       res.numTex = 1;
       res.numTexReg = 1;
@@ -442,7 +438,7 @@ void DeferredBumpFeatGLSL::setTexData( Material::StageData &stageDat,
          passData.mTexSlot[texIndex++].texObject = stageDat.getTex(MFT_DetailNormalMap);
       }
    }
-   else if (!fd.features[MFT_Parallax] && !fd.features[MFT_PBRConfigMap] &&
+   else if (!fd.features[MFT_Parallax] && !fd.features[MFT_OrmMap] &&
          ( fd.features[MFT_DeferredConditioner]) )
    {
       passData.mTexType[ texIndex ] = Material::Bump;

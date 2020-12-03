@@ -172,6 +172,7 @@ protected:
    void _renderNormals(ObjectRenderInst* ri, SceneRenderState* state, BaseMatInstance* overrideMat);
 
    void _onResourceChanged(const Torque::Path& path);
+   void _onAssetChanged();
 
    // ProcessObject
    virtual void processTick(const Move* move);
@@ -283,6 +284,10 @@ public:
    virtual void onInspect(GuiInspector*);
 
    void updateMaterials();
+
+   bool isAnimated() { return mPlayAmbient; }
+
+   virtual void getUtilizedAssets(Vector<StringTableEntry>* usedAssetsList);
 
 private:
    virtual void   onStaticModified(const char* slotName, const char* newValue = NULL);

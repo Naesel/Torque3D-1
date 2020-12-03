@@ -46,8 +46,8 @@ public:
    GFXShaderConstHandle* mDiffuseColorSC;
    GFXShaderConstHandle* mToneMapTexSC;
    GFXShaderConstHandle* mTexMatSC;
-   GFXShaderConstHandle* mPBRConfigSC;
-   GFXShaderConstHandle* mSmoothnessSC;
+   GFXShaderConstHandle* mORMConfigSC;
+   GFXShaderConstHandle* mRoughnessSC;
    GFXShaderConstHandle* mMetalnessSC;
    GFXShaderConstHandle* mGlowMulSC;
    GFXShaderConstHandle* mParallaxInfoSC;
@@ -110,7 +110,7 @@ public:
    };
    Vector<customHandleData> mCustomHandles;
 
-   void init( GFXShader* shader, Vector<CustomShaderFeatureData*> customFeatureData, CustomMaterial* mat = NULL);
+   void init( GFXShader* shader, CustomMaterial* mat = NULL);
    
 };
 

@@ -64,6 +64,8 @@ class ShapeAsset : public AssetBase
 protected:
    StringTableEntry   mFileName;
    StringTableEntry   mConstructorFileName;
+   StringTableEntry   mFilePath;
+   StringTableEntry   mConstructorFilePath;
    Resource<TSShape>	 mShape;
 
    //Material assets we're dependent on and use
@@ -73,6 +75,10 @@ protected:
    //Animation assets we're dependent on and use
    Vector<StringTableEntry> mAnimationAssetIds;
    Vector<AssetPtr<ShapeAnimationAsset>> mAnimationAssets;
+
+   typedef Signal<void()> ShapeAssetChanged;
+
+   ShapeAssetChanged mChangeSignal;
 
 public:
    ShapeAsset();
@@ -96,9 +102,9 @@ public:
    Resource<TSShape> getShapeResource() { return mShape; }
 
    void SplitSequencePathAndName(String& srcPath, String& srcName);
-   StringTableEntry getShapeFilename() { return mFileName; }
+   StringTableEntry getShapeFilename() { return mFilePath; }
    
-   U32 getShapeFilenameHash() { return _StringTable::hashString(mFileName); }
+   U32 getShapeFilenameHash() { return _StringTable::hashString(mFilePath); }
 
    Vector<AssetPtr<MaterialAsset>> getMaterialAssets() { return mMaterialAssets; }
 
@@ -120,13 +126,16 @@ public:
 
    void _onResourceChanged(const Torque::Path &path);
 
-   Signal< void(ShapeAsset*) > onShapeChanged;
+   ShapeAssetChanged& getChangedSignal() { return mChangeSignal; }
 
    void                    setShapeFile(const char* pScriptFile);
    inline StringTableEntry getShapeFile(void) const { return mFileName; };
 
    void                    setShapeConstructorFile(const char* pScriptFile);
    inline StringTableEntry getShapeConstructorFile(void) const { return mConstructorFileName; };
+
+   inline StringTableEntry getShapeFilePath(void) const { return mFilePath; };
+   inline StringTableEntry getShapeConstructorFilePath(void) const { return mConstructorFilePath; };
 
    static bool getAssetByFilename(StringTableEntry fileName, AssetPtr<ShapeAsset>* shapeAsset);
    static StringTableEntry getAssetIdByFilename(StringTableEntry fileName);

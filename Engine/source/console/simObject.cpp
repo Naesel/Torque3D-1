@@ -42,6 +42,7 @@
 #include "persistence/taml/tamlCustom.h"
 
 #include "sim/netObject.h"
+#include "cinterface/cinterface.h"
 
 IMPLEMENT_CONOBJECT( SimObject );
 
@@ -421,7 +422,7 @@ bool SimObject::save(const char *pcFileName, bool bOnlySelected, const char *pre
    while(!f.isEOF())
    {
       buffer = (const char *) f.readLine();
-      if(!dStrcmp(buffer, beginMessage))
+      if(!String::compare(buffer, beginMessage))
          break;
       stream->write(dStrlen(buffer), buffer);
       stream->write(2, "\r\n");
@@ -436,7 +437,7 @@ bool SimObject::save(const char *pcFileName, bool bOnlySelected, const char *pre
    while(!f.isEOF())
    {
       buffer = (const char *) f.readLine();
-      if(!dStrcmp(buffer, endMessage))
+      if(!String::compare(buffer, endMessage))
          break;
    }
    while(!f.isEOF())
@@ -830,6 +831,10 @@ bool SimObject::isMethod( const char* methodName )
 {
    if( !methodName || !methodName[0] )
       return false;
+
+   if (CInterface::isMethod(this->getName(), methodName) || CInterface::isMethod(this->getClassName(), methodName)) {
+      return true;
+   }
 
    StringTableEntry stname = StringTable->insert( methodName );
 

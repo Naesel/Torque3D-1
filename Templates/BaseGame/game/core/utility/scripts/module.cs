@@ -112,7 +112,7 @@ function SimSet::registerDatablock(%scopeSet, %datablockFilePath, %isExclusive)
    {
         %check = DatablockFilesList.getKey(%i);
         //look for a substring match
-        %isMatch = strIsMatchExpr("*"@ %datablockFilePath,%check );
+        %isMatch = strIsMatchExpr("*"@ strReplace(%datablockFilePath,"./","/"),%check );
         if (%isMatch)
         {
             //check if we're already locked in
@@ -124,14 +124,16 @@ function SimSet::registerDatablock(%scopeSet, %datablockFilePath, %isExclusive)
             if ((!%locked && !%isExclusive)&&($reportModuleFileConflicts))
                 error("found" SPC %datablockFilePath SPC "duplicate file!");
             if (!%locked || (%locked && %isExclusive))
-            {
-                DatablockFilesList.erase(%i);
+            { // Replacing an existing entry, update in-place
+                DatablockFilesList.setKey(%fullPath, %i);
+                DatablockFilesList.setValue(%isExclusive, %i);
+                %locked = true; //Done, but don't return and bypass trace logging below
             }
+            break;
         }
    }
-   //if we're not locked, or we are exclusive, go ahead and add it to the pile
-   //(ensures exclusives get re-added after that erasure)
-   if (!%locked || %isExclusive)
+   //if we're not locked, go ahead and add it to the pile
+   if (!%locked)
        DatablockFilesList.add(%fullPath,%isExclusive);
    if ($traceModuleCalls)
       DatablockFilesList.echo();
@@ -203,7 +205,7 @@ function SimSet::queueExec(%scopeSet, %execFilePath, %isExclusive)
    if ($traceModuleCalls)
       warn("module root path="@ makeRelativePath(%moduleDef.ModulePath));
   
-   %fullPath = makeRelativePath(%moduleDef.ModulePath) @ %execFilePath;
+   %fullPath = pathConcat(%moduleDef.ModulePath, %execFilePath);
    ///go through all entries
    %locked = false;
    %execFilecount = ExecFilesList.count();
@@ -211,7 +213,7 @@ function SimSet::queueExec(%scopeSet, %execFilePath, %isExclusive)
    {
         %check = ExecFilesList.getKey(%i);
         //look for a substring match
-        %isMatch = strIsMatchExpr("*"@ %execFilePath,%check );
+        %isMatch = strIsMatchExpr("*"@ strReplace(%execFilePath,"./","/"),%check );
         if (%isMatch)
         {
             //check if we're already locked in
@@ -222,14 +224,16 @@ function SimSet::queueExec(%scopeSet, %execFilePath, %isExclusive)
             if ((!%locked && !%isExclusive)&&($reportModuleFileConflicts))
                 error("found" SPC %execFilePath SPC "duplicate file!");
             if (!%locked || (%locked && %isExclusive))
-            {
-                ExecFilesList.erase(%i);
+            { // Replacing an existing entry, update in-place
+                ExecFilesList.setKey(%fullPath, %i);
+                ExecFilesList.setValue(%isExclusive, %i);
+                %locked = true; //Done, but don't return and bypass trace logging below
             }
+            break;
         }
    }
-   //if we're not locked, or we are exclusive, go ahead and add it to the pile
-   //(ensures exclusives get re-added after that erasure)
-   if (!%locked || %isExclusive)
+   //if we're not locked, go ahead and add it to the pile
+   if (!%locked)
        ExecFilesList.add(%fullPath,%isExclusive);
    if ($traceModuleCalls)       
       ExecFilesList.echo();

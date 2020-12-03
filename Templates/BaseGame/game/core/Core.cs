@@ -27,11 +27,10 @@ function CoreModule::onCreate(%this)
    ModuleDatabase.LoadExplicit( "Core_PostFX" );
    ModuleDatabase.LoadExplicit( "Core_GameObjects" );
    
+   exec("data/defaults.cs");
    %prefPath = getPrefpath();
    if ( isFile( %prefPath @ "/clientPrefs.cs" ) )
       exec( %prefPath @ "/clientPrefs.cs" );
-   else
-      exec("data/defaults.cs");
       
    // Seed the random number generator.
    setRandomSeed();
@@ -65,9 +64,6 @@ function CoreModule::onCreate(%this)
    {
       if(isFile("tools/main.cs") && !$isDedicated)
          exec("tools/main.cs");
-         
-      ModuleDatabase.scanModules( "tools", false );
-      ModuleDatabase.LoadGroup( "Tools" );
    }
    
    //This is used to build the remap keybind sets for the different actionMaps.

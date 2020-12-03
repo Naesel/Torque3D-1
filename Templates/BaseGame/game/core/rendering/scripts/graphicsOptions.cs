@@ -100,6 +100,61 @@ new SimGroup( MeshQualityGroup )
   };
 };
 
+new SimGroup( MeshDrawDistQualityGroup )
+{ 
+   class = "GraphicsOptionsMenuGroup";
+   
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "High";
+
+      key["$pref::useStaticObjectFade"] = false;
+      key["$pref::staticObjectFadeStart"] = 75;    
+      key["$pref::staticObjectFadeEnd"] = 100;  
+      key["$pref::staticObjectUnfadeableSize"] = 75;  
+
+   }; 
+   new ArrayObject( )
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "Medium";
+
+      key["$pref::useStaticObjectFade"] = true;
+      key["$pref::staticObjectFadeStart"] = 75;    
+      key["$pref::staticObjectFadeEnd"] = 100;  
+      key["$pref::staticObjectUnfadeableSize"] = 75;    
+   };
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "Low";
+            
+      key["$pref::useStaticObjectFade"] = true;
+      key["$pref::staticObjectFadeStart"] = 50;    
+      key["$pref::staticObjectFadeEnd"] = 75;  
+      key["$pref::staticObjectUnfadeableSize"] = 100;     
+   };
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "Lowest";
+      
+      key["$pref::useStaticObjectFade"] = true;
+      key["$pref::staticObjectFadeStart"] = 25;    
+      key["$pref::staticObjectFadeEnd"] = 50;  
+      key["$pref::staticObjectUnfadeableSize"] = 200;     
+  };
+};
+
 new SimGroup( TextureQualityGroup )
 {
    class = "GraphicsOptionsMenuGroup";
@@ -294,6 +349,8 @@ new SimGroup( ShadowQualityList )
       key["$pref::lightManager"] = "Advanced Lighting";
       key["$pref::Shadows::disable"] = false;
       key["$pref::Shadows::textureScalar"] = 1.0;
+      key["$pref::PSSM::detailAdjustScale"] = 1.0;
+      key["$pref::allowLocalLightShadows"] = true;
    };
    new ArrayObject()
    {
@@ -305,6 +362,8 @@ new SimGroup( ShadowQualityList )
       key["$pref::lightManager"] = "Advanced Lighting";
       key["$pref::Shadows::disable"] = false;
       key["$pref::Shadows::textureScalar"] = 0.5;
+      key["$pref::PSSM::detailAdjustScale"] = 0.5;
+      key["$pref::allowLocalLightShadows"] = true;
    };
    new ArrayObject()
    {
@@ -316,6 +375,8 @@ new SimGroup( ShadowQualityList )
       key["$pref::lightManager"] = "Advanced Lighting";
       key["$pref::Shadows::disable"] = false;
       key["$pref::Shadows::textureScalar"] = 0.25;
+      key["$pref::PSSM::detailAdjustScale"] = 0.25;
+      key["$pref::allowLocalLightShadows"] = false;
 
    };
    new ArrayObject()
@@ -328,6 +389,7 @@ new SimGroup( ShadowQualityList )
       key["$pref::lightManager"] = "Advanced Lighting";
       key["$pref::Shadows::disable"] = true;
       key["$pref::Shadows::textureScalar"] = 0.5;
+      key["$pref::allowLocalLightShadows"] = false;
    };
 };
 
@@ -342,7 +404,7 @@ new SimGroup( ShadowDistanceList )
       
       displayName = "Highest";
       
-      key["$pref::Shadows::drawDistance"] = 2; 
+      key["$pref::Shadows::drawDistance"] = 1; 
    }; 
    new ArrayObject()
    {
@@ -351,7 +413,7 @@ new SimGroup( ShadowDistanceList )
       
       displayName = "High";
       
-      key["$pref::Shadows::drawDistance"] = 1.5;
+      key["$pref::Shadows::drawDistance"] = 0.75;
    };
    new ArrayObject()
    {
@@ -360,7 +422,7 @@ new SimGroup( ShadowDistanceList )
       
       displayName = "Medium";
 
-      key["$pref::Shadows::drawDistance"] = 1; 
+      key["$pref::Shadows::drawDistance"] = 0.5; 
    };
    new ArrayObject()
    {
@@ -369,7 +431,7 @@ new SimGroup( ShadowDistanceList )
       
       displayName = "Low";
                   
-      key["$pref::Shadows::drawDistance"] = 0.5;  
+      key["$pref::Shadows::drawDistance"] = 0.25;  
    };
    new ArrayObject()
    {
@@ -378,8 +440,66 @@ new SimGroup( ShadowDistanceList )
       
       displayName = "Lowest";
       
-      key["$pref::Shadows::drawDistance"] = 0.25;
+      key["$pref::Shadows::drawDistance"] = 0.1;
    };   
+};
+
+new SimGroup( LightingQualityList )
+{
+   class = "GraphicsOptionsMenuGroup";
+   
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "High";
+      
+      key["$pref::maximumNumOfLights"] = -1;
+      key["$pref::useLightFade"] = false;
+      key["$pref::lightFadeStart"] = 50;
+      key["$pref::lightFadeEnd"] = 75;
+   };
+   
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "High";
+      
+      key["$pref::maximumNumOfLights"] = 15;
+      key["$pref::useLightFade"] = true;
+      key["$pref::lightFadeStart"] = 50;
+      key["$pref::lightFadeEnd"] = 75;
+   };
+   
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "Medium";
+      
+      key["$pref::maximumNumOfLights"] = 10;
+      key["$pref::useLightFade"] = true;
+      key["$pref::lightFadeStart"] = 25;
+      key["$pref::lightFadeEnd"] = 50;
+   };
+   
+   new ArrayObject()
+   {
+      class = "GraphicsQualityLevel";
+      caseSensitive = true;
+      
+      displayName = "Low";
+                  
+      key["$pref::maximumNumOfLights"] = 5;
+      key["$pref::useLightFade"] = true;
+      key["$pref::lightFadeStart"] = 10;
+      key["$pref::lightFadeEnd"] = 25;
+
+   };
 };
 
 new SimGroup( SoftShadowList )
@@ -426,7 +546,7 @@ new SimGroup( LightDistanceList )
       
       displayName = "Highest";
       
-      key["$pref::Lights::drawDistance"] = 2; 
+      key["$pref::Lights::drawDistance"] = 1; 
    };
    new ArrayObject()
    {
@@ -435,7 +555,7 @@ new SimGroup( LightDistanceList )
       
       displayName = "High";
       
-      key["$pref::Lights::drawDistance"] = 1.5;
+      key["$pref::Lights::drawDistance"] = 0.75;
    };
    new ArrayObject()
    {
@@ -444,7 +564,7 @@ new SimGroup( LightDistanceList )
       
       displayName = "Medium";
 
-      key["$pref::Lights::drawDistance"] = 1; 
+      key["$pref::Lights::drawDistance"] = 0.5; 
    };
    new ArrayObject()
    {
@@ -453,7 +573,7 @@ new SimGroup( LightDistanceList )
       
       displayName = "Low";
                   
-      key["$pref::Lights::drawDistance"] = 0.5;  
+      key["$pref::Lights::drawDistance"] = 0.25;  
    };
    new ArrayObject()
    {
@@ -689,7 +809,7 @@ function AutodetectGraphics_Apply(%shaderVer, %intel, %videoMem )
    //force postFX updates
    PostFXManager.settingsEffectSetEnabled(SSAOPostFx, $pref::PostFX::EnableSSAO);
    PostFXManager.settingsEffectSetEnabled(HDRPostFX, $pref::PostFX::EnableHDR);
-   PostFXManager.settingsEffectSetEnabled(DOFPostEffect, $pref::PostFX::EnableDOF);
+   PostFXManager.settingsEffectSetEnabled(DepthOfFieldPostFX, $pref::PostFX::EnableDOF);
    PostFXManager.settingsEffectSetEnabled(LightRayPostFX, $pref::PostFX::EnableLightRays);
    PostFXManager.settingsEffectSetEnabled(VignettePostEffect, $pref::PostFX::EnableVignette);
    
@@ -721,14 +841,19 @@ function _makePrettyResString( %resString, %giveAspectRation )
    return %outRes;   
 }
 
-function getScreenResolutionList()
+function getScreenResolutionList(%deviceID, %deviceMode)
 {
    %returnsList = "";
-   
+
    %resCount = Canvas.getModeCount();
    for (%i = 0; %i < %resCount; %i++)
    {
       %testResString = Canvas.getMode( %i );
+
+      // Make sure it's valid for the monitor and mode selections
+      if (!Canvas.checkCanvasRes(%testResString, %deviceID, %deviceMode, false))
+         continue;
+
       %testRes = _makePrettyResString( %testResString );
       
       //sanitize
@@ -747,11 +872,40 @@ function getScreenResolutionList()
       if(%found)
          continue;
                      
-      if(%i != 0)
+      if(%returnsList !$= "")
          %returnsList = %returnsList @ "\t" @ %testRes;
       else
          %returnsList = %testRes;
    }
-   
+
+   return %returnsList;
+}
+
+// Return a sorted tab-separated list of all refresh rates available for %resolution.
+function getScreenRefreshList(%resolution)
+{
+   %rateArray = new ArrayObject();
+   %resCount = Canvas.getModeCount();
+   for (%i = 0; %i < %resCount; %i++)
+   {
+      %testRes = Canvas.getMode(%i);
+      if ((%testRes.x != %resolution.x) || (%testRes.y != %resolution.y))
+         continue;
+      %rate = getWord(%testRes, $WORD::REFRESH);
+      if (%rateArray.getIndexFromKey(%rate) == -1)
+         %rateArray.add(%rate, %rate);
+   }
+
+   %rateArray.sort(true);
+   %returnsList = "";
+   for (%i = 0; %i < %rateArray.count(); %i++)
+   {
+      %rate = %rateArray.getKey(%i);
+      %returnsList = %returnsList @ ((%i == 0) ? %rate : ("\t" @ %rate));
+   }
+   if (%returnsList $= "")
+      %returnsList = "60";
+
+   %rateArray.delete();
    return %returnsList;
 }

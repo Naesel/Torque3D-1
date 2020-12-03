@@ -117,6 +117,8 @@ ShapeAsset::ShapeAsset()
 {
    mFileName = StringTable->EmptyString();
    mConstructorFileName = StringTable->EmptyString();
+   mFilePath = StringTable->EmptyString();
+   mConstructorFilePath = StringTable->EmptyString();
 }
 
 //-----------------------------------------------------------------------------
@@ -163,10 +165,10 @@ void ShapeAsset::initializeAsset()
    ResourceManager::get().getChangedSignal().notify(this, &ShapeAsset::_onResourceChanged);
 
    //Ensure our path is expando'd if it isn't already
-   if (!Platform::isFullPath(mFileName))
-      mFileName = getOwned() ? expandAssetFilePath(mFileName) : mFileName;
+   if (!Platform::isFullPath(mFilePath))
+      mFilePath = getOwned() ? expandAssetFilePath(mFileName) : mFilePath;
 
-   mConstructorFileName = expandAssetFilePath(mConstructorFileName);
+   mConstructorFilePath = expandAssetFilePath(mConstructorFilePath);
 
    loadShape();
 }
@@ -209,7 +211,7 @@ void ShapeAsset::setShapeConstructorFile(const char* pShapeConstructorFile)
 
 void ShapeAsset::_onResourceChanged(const Torque::Path &path)
 {
-   if (path != Torque::Path(mFileName) )
+   if (path != Torque::Path(mFilePath) )
       return;
 
    refreshAsset();
@@ -258,7 +260,7 @@ bool ShapeAsset::loadShape()
       }
    }
 
-   mShape = ResourceManager::get().load(mFileName);
+   mShape = ResourceManager::get().load(mFilePath);
 
    if (!mShape)
    {
@@ -311,7 +313,7 @@ bool ShapeAsset::loadShape()
       }
    }
 
-   onShapeChanged.trigger(this);
+   mChangeSignal.trigger();
 
    return true;
 }
@@ -439,7 +441,7 @@ void ShapeAsset::onAssetRefresh(void)
 
    // Update.
    if(!Platform::isFullPath(mFileName))
-      mFileName = getOwned() ? expandAssetFilePath(mFileName) : mFileName;
+      mFilePath = getOwned() ? expandAssetFilePath(mFileName) : mFilePath;
 
    loadShape();
 }
@@ -592,4 +594,11 @@ void GuiInspectorTypeShapeAssetId::consoleInit()
    Parent::consoleInit();
 
    ConsoleBaseType::getType(TypeShapeAssetId)->setInspectorFieldType("GuiInspectorTypeShapeAssetId");
+}
+
+DefineEngineMethod(ShapeAsset, getShapeFile, const char*, (), ,
+   "Creates a new script asset using the targetFilePath.\n"
+   "@return The bool result of calling exec")
+{
+   return object->getShapeFilePath();
 }

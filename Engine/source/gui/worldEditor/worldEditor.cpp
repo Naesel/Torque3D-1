@@ -52,6 +52,7 @@
 #include "tools/editorTool.h"
 
 #include "T3D/Scene.h"
+#include <T3D/notesObject.h>
 
 IMPLEMENT_CONOBJECT( WorldEditor );
 
@@ -1709,6 +1710,37 @@ void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, con
 		  drawer->drawText(mProfile->mFont, pos, str);
 	  };
    }
+
+   NotesObject* noteObj = dynamic_cast<NotesObject*>(obj);
+   if (noteObj)
+   {
+      Point2I pos(sPos);
+
+      MatrixF cameraMat = mLastCameraQuery.cameraMatrix;
+
+      Point3F camPos = cameraMat.getPosition();
+      Point3F notePos = noteObj->getPosition();
+
+      VectorF distVec = notePos - camPos;
+      F32 dist = distVec.len();
+
+      F32 maxNoteDistance = 100;
+      F32 noteFadeStartDist = 50;
+
+      F32 fade = 1;
+
+      if(dist >= noteFadeStartDist)
+         fade = -((dist - noteFadeStartDist) / (maxNoteDistance - noteFadeStartDist));
+
+      if (dist >= maxNoteDistance)
+         return;
+
+      ColorI noteTextColor = mObjectTextColor;
+      noteTextColor.alpha = 255 * fade;
+
+      drawer->setBitmapModulation(noteTextColor);
+      drawer->drawText(mProfile->mFont, pos, noteObj->getNote().c_str());
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -2135,9 +2167,14 @@ void WorldEditor::on3DMouseUp( const Gui3DMouseEvent &event )
                // this may actually cause things to disappear from mSelected so do the loop
                // in reverse.  This will make the loop work even if items are removed as
                // we go along.
-               for( S32 i = mSelected->size() - 1; i >= 0; -- i )
-                  Con::executef( this, "onUnSelect", ( *mSelected )[ i ]->getIdString() );
-               
+               for (S32 i = mSelected->size() - 1; i >= 0; --i)
+               {
+                  //We'll explicitly inform the object of being unmarked as selected in the editor as well for outlier cases potentially not being told, such as mounted objects
+                  WorldEditor::markAsSelected((*mSelected)[i], false);
+
+                  Con::executef(this, "onUnSelect", (*mSelected)[i]->getIdString());
+               }
+
                mSelected->clear();
                mSelected->addObject( mPossibleHitObject );
                mSelected->storeCurrentCentroid();
@@ -2862,8 +2899,13 @@ void WorldEditor::clearSelection()
    // this may actually cause things to disappear from mSelected so do the loop
    // in reverse.  This will make the loop work even if items are removed as
    // we go along.
-   for( S32 i = mSelected->size() - 1; i >= 0; -- i )
-      Con::executef( this, "onUnSelect", ( *mSelected )[ i ]->getIdString() );
+   for (S32 i = mSelected->size() - 1; i >= 0; --i)
+   {
+      //We'll explicitly inform the object of being unmarked as selected in the editor as well for outlier cases potentially not being told, such as mounted objects
+      WorldEditor::markAsSelected((*mSelected)[i], false);
+
+      Con::executef(this, "onUnSelect", (*mSelected)[i]->getIdString());
+   }
 
    Con::executef(this, "onClearSelection");
    mSelected->clear();
@@ -3668,7 +3710,7 @@ DefineEngineMethod( WorldEditor, colladaExportSelection, void, ( const char* pat
    object->colladaExportSelection( path );
 }
 
-void WorldEditor::makeSelectionPrefab( const char *filename )
+void WorldEditor::makeSelectionPrefab( const char *filename, bool dontReplaceOriginals )
 {
    if ( mSelected->size() == 0 )
    {
@@ -3761,25 +3803,28 @@ void WorldEditor::makeSelectionPrefab( const char *filename )
    }
    
    // Save out .prefab file.
-   group->save( filename, false, "$ThisPrefab = " ); 
+   group->save( filename, false, "$ThisPrefab = " );
 
-   // Allocate Prefab object and add to level.
-   Prefab *fab = new Prefab();
-   fab->setFile( filename );
-   fabMat.inverse();
-   fab->setTransform( fabMat );
-   fab->registerObject();
-   scene->addObject( fab );
+   if (!dontReplaceOriginals)
+   {
+      // Allocate Prefab object and add to level.
+      Prefab* fab = new Prefab();
+      fab->setFile(filename);
+      fabMat.inverse();
+      fab->setTransform(fabMat);
+      fab->registerObject();
+      scene->addObject(fab);
 
-   // Select it, mark level as dirty.
-   clearSelection();
-   selectObject( fab );
-   setDirty();      
+      // Select it, mark level as dirty.
+      clearSelection();
+      selectObject(fab);
+      setDirty();
 
-   // Delete original objects and temporary SimGroup.
-   group->deleteObject();
-   for ( S32 i = 0; i < cleanup.size(); i++ )
-      cleanup[i]->deleteObject();
+      // Delete original objects and temporary SimGroup.
+      group->deleteObject();
+      for (S32 i = 0; i < cleanup.size(); i++)
+         cleanup[i]->deleteObject();
+   }
 }
 
 void WorldEditor::explodeSelectedPrefab()
@@ -3827,19 +3872,19 @@ void WorldEditor::explodeSelectedPrefab()
    setDirty();
 }
 
-void WorldEditor::makeSelectionAMesh(const char *filename)
+bool WorldEditor::makeSelectionAMesh(const char *filename)
 {
    if (mSelected->size() == 0)
    {
       Con::errorf("WorldEditor::makeSelectionAMesh - Nothing selected.");
-      return;
+      return false;
    }
 
    Scene* scene = Scene::getRootScene();
    if (!scene)
    {
       Con::errorf("WorldEditor::makeSelectionAMesh - Could not find root Scene.");
-      return;
+      return false;
    }
 
    Vector< SimObject* > stack;
@@ -3887,7 +3932,7 @@ void WorldEditor::makeSelectionAMesh(const char *filename)
    if (found.empty())
    {
       Con::warnf("WorldEditor::makeSelectionPrefab - No valid objects selected.");
-      return;
+      return false;
    }
 
    // SimGroup we collect prefab objects into.
@@ -3906,12 +3951,22 @@ void WorldEditor::makeSelectionAMesh(const char *filename)
    for ( S32 i = 0; i < mSelected->size(); i++ )
    {
       SceneObject *pObj = dynamic_cast< SceneObject* >( ( *mSelected )[i] );
-      if ( pObj )
-         objectList.push_back( pObj );
+      if (pObj)
+      {
+         //Minor sanity check to avoid baking animated shapes
+         TSStatic* staticShape = dynamic_cast<TSStatic*>(pObj);
+         if (staticShape)
+         {
+            if (staticShape->isAnimated() && staticShape->hasAnim())
+               continue;
+         }
+
+         objectList.push_back(pObj);
+      }
    }
 
    if ( objectList.empty() )
-      return;
+      return false;
 
    //
    Point3F centroid;
@@ -3953,6 +4008,7 @@ void WorldEditor::makeSelectionAMesh(const char *filename)
    for (S32 i = 0; i < objectList.size(); i++)
    {
       SceneObject *pObj = objectList[i];
+
       if (!pObj->buildExportPolyList(&exportData, pObj->getWorldBox(), pObj->getWorldSphere()))
          Con::warnf("colladaExportObjectList() - object %i returned no geometry.", pObj->getId());
    }
@@ -3982,29 +4038,17 @@ void WorldEditor::makeSelectionAMesh(const char *filename)
    ColladaUtils::exportToCollada(filename, exportData);
    //
 
-   // Allocate TSStatic object and add to level.
-   TSStatic *ts = new TSStatic();
-   ts->setShapeFileName(StringTable->insert(filename));
-   fabMat.inverse();
-   ts->setTransform(fabMat);
-   ts->registerObject();
-   scene->addObject(ts);
-
-   // Select it, mark level as dirty.
-   clearSelection();
-   selectObject(ts);
-   setDirty();
-
-   // Delete original objects and temporary SimGroup.
-   for (S32 i = 0; i < objectList.size(); i++)
-      objectList[i]->deleteObject();
+   if (Platform::isFile(filename))
+      return true;
+   else
+      return false;
 }
 
-DefineEngineMethod( WorldEditor, makeSelectionPrefab, void, ( const char* filename ),,
+DefineEngineMethod( WorldEditor, makeSelectionPrefab, void, ( const char* filename, bool dontDeleteOriginals ), (false),
 	"Save selected objects to a .prefab file and replace them in the level with a Prefab object."
 	"@param filename Prefab file to save the selected objects to.")
 {
-   object->makeSelectionPrefab( filename );
+   object->makeSelectionPrefab( filename, dontDeleteOriginals);
 }
 
 DefineEngineMethod( WorldEditor, explodeSelectedPrefab, void, (),,
@@ -4013,11 +4057,11 @@ DefineEngineMethod( WorldEditor, explodeSelectedPrefab, void, (),,
    object->explodeSelectedPrefab();
 }
 
-DefineEngineMethod(WorldEditor, makeSelectionAMesh, void, (const char* filename), ,
+DefineEngineMethod(WorldEditor, makeSelectionAMesh, bool, (const char* filename), ,
    "Save selected objects to a .dae collada file and replace them in the level with a TSStatic object."
    "@param filename collada file to save the selected objects to.")
 {
-   object->makeSelectionAMesh(filename);
+   return object->makeSelectionAMesh(filename);
 }
 
 DefineEngineMethod( WorldEditor, mountRelative, void, ( SceneObject *objA, SceneObject *objB ),,

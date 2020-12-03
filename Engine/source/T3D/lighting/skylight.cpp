@@ -135,6 +135,11 @@ void Skylight::unpackUpdate(NetConnection *conn, BitStream *stream)
 {
    // Let the Parent read any info it sent
    Parent::unpackUpdate(conn, stream);
+
+   if (mDirty)
+   {
+      updateProbeParams();
+   }
 }
 
 //-----------------------------------------------------------------------------
@@ -143,9 +148,6 @@ void Skylight::unpackUpdate(NetConnection *conn, BitStream *stream)
 
 void Skylight::updateProbeParams()
 {
-   if (!mProbeInfo)
-      return;
-
    mProbeShapeType = ProbeRenderInst::Skylight;
    Parent::updateProbeParams();
 }
@@ -157,16 +159,17 @@ void Skylight::prepRenderImage(SceneRenderState *state)
 
    //special hook-in for skylights
    Point3F camPos = state->getCameraPosition();
-   mProbeInfo->mBounds.setCenter(camPos);
+   mProbeInfo.mBounds.setCenter(camPos);
 
-   mProbeInfo->setPosition(camPos);
+   mProbeInfo.setPosition(camPos);
 
    //Submit our probe to actually do the probe action
    // Get a handy pointer to our RenderPassmanager
    //RenderPassManager *renderPass = state->getRenderPass();
 
-   //PROBEMGR->registerSkylight(mProbeInfo, this);
+   PROBEMGR->submitProbe(mProbeInfo);
 
+#ifdef TORQUE_TOOLS
    if (Skylight::smRenderPreviewProbes && gEditingMission && mEditorShapeInst && mPrefilterMap != nullptr)
    {
       GFXTransformSaver saver;
@@ -227,6 +230,7 @@ void Skylight::prepRenderImage(SceneRenderState *state)
    if (isSelectedInEditor)
    {
    }
+#endif
 }
 
 void Skylight::setPreviewMatParameters(SceneRenderState* renderState, BaseMatInstance* mat)

@@ -44,7 +44,7 @@
 //#define DEBUG_SPEW
 
 
-IMPLEMENT_CONOBJECT( GuiControl );
+IMPLEMENT_CONOBJECT_CHILDREN( GuiControl );
 
 ConsoleDocClass( GuiControl,
    "@brief Base class for all Gui control objects.\n\n"
@@ -692,7 +692,7 @@ bool GuiControl::onAdd()
    const char *cName = getClassName();
 
    // if we're a pure GuiControl, then we're a container by default.
-   if ( dStrcmp( "GuiControl", cName ) == 0 )
+   if ( String::compare( "GuiControl", cName ) == 0 )
       mIsContainer = true;
 
    // Add to root group.
