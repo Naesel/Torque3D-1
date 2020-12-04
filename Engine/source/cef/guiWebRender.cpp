@@ -252,6 +252,24 @@ bool GuiWebRender::OnCursorChange(CefRefPtr<CefBrowser> browser,
 }
 
 //------------------------------------------------------------------------------
+bool GuiWebRender::OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text)
+{
+   String toolTipText = text.c_str();
+   if (mWebGui)
+      mWebGui->setTooltipText(toolTipText);
+
+   return true;
+}
+
+//------------------------------------------------------------------------------
+void GuiWebRender::OnTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title)
+{
+   String pageTitle = title.c_str();
+   if (mWebGui)
+      mWebGui->setPageTitle(pageTitle);
+}
+
+//------------------------------------------------------------------------------
 void GuiWebRender::getPopupRect(RectI &rect)
 {
    rect = mPopupRect;

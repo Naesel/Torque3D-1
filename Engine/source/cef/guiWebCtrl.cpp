@@ -66,6 +66,10 @@ IMPLEMENT_CALLBACK(GuiWebCtrl, onPopupRequested, bool, (const char* url, S32 wid
    "@param width Window width if included with the request, otherwise 0.\n"
    "@param height Window height if included with the request, otherwise 0.\n");
 
+IMPLEMENT_CALLBACK(GuiWebCtrl, onTitleChange, void, (const char* newTitle), (newTitle),
+   "Called when the page title changes.\n\n"
+   "@param newTitle The page title text.");
+
 //------------------------------------------------------------------------------
 GuiWebCtrl::GuiWebCtrl()
 :  mWebRenderer(NULL),
@@ -990,6 +994,11 @@ void GuiWebCtrl::setZoomLevel(F32 zoomLevel)
    mZoomLevel = zoomLevel;
    if (mBrowser && !mBrowser->IsLoading() && mBrowser->GetHost()->GetZoomLevel() != (double)mZoomLevel)
       mBrowser->GetHost()->SetZoomLevel((double)mZoomLevel);
+}
+
+void GuiWebCtrl::setPageTitle(const String& title)
+{
+   onTitleChange_callback(title.c_str());
 }
 
 DefineEngineMethod(GuiWebCtrl, loadURL, void, (const char *url), ,

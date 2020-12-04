@@ -76,10 +76,12 @@ public:
       cef_cursor_type_t type,
       const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
+   virtual void OnTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title) OVERRIDE;
+   virtual bool OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text) OVERRIDE;
+
    // CefBase interface
 public:
    IMPLEMENT_REFCOUNTING(GuiWebRender);
 };
 
 #endif // _GUIWEBRENDER_H_
-

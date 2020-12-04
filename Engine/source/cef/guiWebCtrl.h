@@ -69,6 +69,7 @@ protected:
    DECLARE_CALLBACK(void, onLoadError, (S32 errorCode, const char* errorText, const char* failedURL));
    DECLARE_CALLBACK(void, onControlModeChange, (bool isKeyboardMouse));
    DECLARE_CALLBACK(bool, onPopupRequested, (const char* url, S32 width, S32 height));
+   DECLARE_CALLBACK(void, onTitleChange, (const char* newTitle));
 
 public:
    DECLARE_CONOBJECT(GuiWebCtrl);
@@ -133,6 +134,8 @@ public:
    bool onPopupRequest(const char* url, S32 width, S32 height);
    void setFrameRate(U32 fps);
    void setZoomLevel(F32 zoomLevel);
+   void setTooltipText(const String& text) { mTooltip = text; }
+   void setPageTitle(const String& title);
 
 protected:
    GFXTexHandle mTextureObject;

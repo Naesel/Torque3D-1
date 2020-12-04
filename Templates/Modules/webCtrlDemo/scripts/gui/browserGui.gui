@@ -193,6 +193,8 @@
          Profile = "GuiWebCtrlProfile";
          internalName = "DemoCEFBrowser";
          superClass = "BrowserSite";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
          canSave = "1";
          canSaveDynamicFields = "0";
       };

@@ -66,6 +66,11 @@ function BrowserSite::onLoadError(%this, %errorCode, %errorText, %errorURL)
    %this.errorCount++;
 }
 
+function BrowserSite::onTitleChange(%this, %pageTitle)
+{
+   %this.getParent().text = %pageTitle;
+}
+
 function BrowserAddress::onReturn(%this)
 {
    %address = %this.getText();
