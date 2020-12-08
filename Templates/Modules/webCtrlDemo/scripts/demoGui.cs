@@ -68,10 +68,19 @@ function GuiWebCtrl::onLoadError(%this, %errorCode, %errorText, %errorURL)
 
 function playDemoVid(%volume, %video)
 {
+   // This touchPage call is only needed if you issue the script command before
+   // clicking in the web gui. It gets around a browser restriction that
+   // prevents JS commands from a page that the user hasn't interacted with yet.
+   WebDemoControl.touchPage();
    WebDemoControl.execJavaScript("StartVideo(" @ %volume @ ", \"" @ %video @ "\");");
 }
 
-//playDemoVid(0.2, "portal.webm");
+// The following 3 commands are identical. Assuming a file (portal_long.webm) in
+// the same directory as the loaded html demo page.
+//playDemoVid(0.2, "portal_long.webm");
+//playDemoVid(0.2, "T3D:///data/webCtrlDemo/html/portal_long.webm");
+//playDemoVid(0.2, "file:///<DriveLeter:/Project Path>/My Projects/<Project Name>/game/data/webCtrlDemo/html/portal_long.webm");
+
 //WebDemoControl.execJavaScript("HideVideoCtrl();");
 //WebDemoControl.loadURL("www.torque3d.org");
 //WebDemoControl.pageBack();

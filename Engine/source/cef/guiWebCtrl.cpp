@@ -211,6 +211,8 @@ bool GuiWebCtrl::createBrowser(const char *startUrl)
    CefWindowInfo window_info;
    CefBrowserSettings browserSettings;
    browserSettings.windowless_frame_rate = mClamp(mFramerate, 1, 60);
+   if (Con::getBoolVariable("$CefSettings::disableGPU", true))
+      browserSettings.webgl = STATE_DISABLED;
 
    PlatformWindowSDL *window = static_cast<PlatformWindowSDL*>(WindowManager->getFirstWindow());
 #ifdef TORQUE_OS_WIN

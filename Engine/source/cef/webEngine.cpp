@@ -218,7 +218,7 @@ bool WebEngine::initCef()
    CefSettings settings;
    CefString(&settings.browser_subprocess_path).FromASCII(exePath);
    settings.command_line_args_disabled = true;
-   settings.no_sandbox = true;
+   settings.no_sandbox = false;
    settings.multi_threaded_message_loop = false;
    settings.external_message_pump = true;
    settings.windowless_rendering_enabled = true;

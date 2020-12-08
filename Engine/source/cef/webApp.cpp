@@ -24,6 +24,21 @@
 
 WebApp::WebApp() {}
 
+void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type,
+   CefRefPtr<CefCommandLine> command_line)
+{
+   // Pass additional command-line flags to the browser process.
+   if (process_type.empty()) {
+      if (Con::getBoolVariable("$CefSettings::disableGPU", true))
+      {
+         command_line->AppendSwitch("disable-gpu");
+         command_line->AppendSwitch("disable-gpu-compositing");
+         command_line->AppendSwitch("disable-gpu-program-cache");
+         command_line->AppendSwitch("disable-gpu-shader-disk-cache");
+      }
+   }
+}
+
 void WebApp::OnContextInitialized()
 {
    CEF_REQUIRE_UI_THREAD();

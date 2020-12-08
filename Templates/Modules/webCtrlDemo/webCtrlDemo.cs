@@ -5,8 +5,6 @@
 function webCtrlDemo::create( %this )
 {
    %this.startupCEF();
-   if (!UI.isMethod("initClient"))
-      %this.initClient();
 }
 
 function webCtrlDemo::destroy( %this )
@@ -86,8 +84,8 @@ function webCtrlDemo::startupCEF( %this )
    // The directory and file name to use for the debug log. If empty, the default
    // name of "debug.log" will be used and the file will be written to the
    // application directory.  Cef will need write permission to this file.
-   //$Cef::logPath = getUserPath() @ "/cef.log";
-   $Cef::logPath = "cef/cef.log";
+   $Cef::logPath = getUserPath() @ "/cef/cef.log";
+   //$Cef::logPath = "cef/cef.log";
 
    // The log severity. Only messages of this severity level or higher will be
    // logged. Options are: Default, Verbose, Info, Warning, Error and None
@@ -103,10 +101,19 @@ function webCtrlDemo::startupCEF( %this )
    // on Mac OS X where pack files are always loaded from the app bundle Resources directory.
    $Cef::localesPath = getMainDotCsDir() @ "/cef/locales";
 
-  // Value that will be returned as the User-Agent HTTP header. If empty the
-  // default User-Agent string will be used.
-  // default(~): "Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
-   $Cef::userAgent = "Torque3D 3.10";
+   // Value that will be returned as the User-Agent HTTP header. If empty the
+   // default User-Agent string will be used.
+   // https://www.whatismybrowser.com/detect/what-is-my-user-agent
+   // default(~): "Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36"
+   $Cef::userAgent = "Torque3D/4.0";
+
+   // With CEF in windowless rendering mode (needed for T3D), use software
+   // rendering and compositing (disable GPU) for increased FPS and decreased
+   // CPU usage. 
+   // See https://bitbucket.org/chromiumembedded/cef/issues/1257 for details.
+   // This will also disable WebGL. If you need WebGL, set false and inclued
+   // libEGL.dll and libGLESv2.dll in your game install directory.
+   $CefSettings::disableGPU = true;
 
    // Now that the values are set, start the cef process.
    WebEngine::initializeCEF();

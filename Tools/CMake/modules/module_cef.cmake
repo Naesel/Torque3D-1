@@ -69,8 +69,8 @@ if( WIN32 )
     # Install files
     INSTALL(FILES "${TORQUE_CEF_PATH}/Release/chrome_elf.dll" DESTINATION "${projectOutDir}")
     INSTALL(FILES "${TORQUE_CEF_PATH}/Release/libcef.dll" DESTINATION "${projectOutDir}")
-    INSTALL(FILES "${TORQUE_CEF_PATH}/Release/libEGL.dll" DESTINATION "${projectOutDir}")
-    INSTALL(FILES "${TORQUE_CEF_PATH}/Release/libGLESv2.dll" DESTINATION "${projectOutDir}")
+    #INSTALL(FILES "${TORQUE_CEF_PATH}/Release/libEGL.dll" DESTINATION "${projectOutDir}")
+    #INSTALL(FILES "${TORQUE_CEF_PATH}/Release/libGLESv2.dll" DESTINATION "${projectOutDir}")
     INSTALL(FILES "${TORQUE_CEF_PATH}/Release/snapshot_blob.bin" DESTINATION "${projectOutDir}")
     INSTALL(FILES "${TORQUE_CEF_PATH}/Release/v8_context_snapshot.bin" DESTINATION "${projectOutDir}")
 
