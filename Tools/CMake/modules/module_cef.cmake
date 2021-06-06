@@ -136,6 +136,8 @@ file(GLOB_RECURSE WEBDEMO_FILES_AND_DIRS "${CMAKE_SOURCE_DIR}/Templates/Modules/
 
 foreach(ITEM ${WEBDEMO_FILES_AND_DIRS})
     get_filename_component( dir ${ITEM} DIRECTORY )
+    get_filename_component( scriptName ${ITEM} NAME )
     STRING(REGEX REPLACE "${CMAKE_SOURCE_DIR}/Templates/Modules/webCtrlDemo" "${projectOutDir}/data/webCtrlDemo/" INSTALL_DIR ${dir})
-    install( FILES ${ITEM} DESTINATION ${INSTALL_DIR} )
+    STRING(REGEX REPLACE ".tscript" ".${TORQUE_SCRIPT_EXTENSION}" newScriptName ${scriptName})
+    install(FILES ${ITEM} DESTINATION ${INSTALL_DIR} RENAME ${newScriptName})
 endforeach()

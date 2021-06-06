@@ -5,13 +5,13 @@
 
 function webCtrlDemo::lateInitClient( %this )
 {
-   exec("./customProfiles.cs");
-   exec("./demoGui.cs");
+   exec("./customProfiles." @ $TorqueScriptFileExtension);
+   exec("./demoGui." @ $TorqueScriptFileExtension);
    exec("./gui/demoGui.gui");
-   exec("./browserGui.cs");
+   exec("./browserGui." @ $TorqueScriptFileExtension);
    exec("./gui/browserGui.gui");
-   exec("./urlRequest.cs");
-   exec("./urlTest.cs");
+   exec("./urlRequest." @ $TorqueScriptFileExtension);
+   exec("./urlTest." @ $TorqueScriptFileExtension);
    exec("./gui/urltester.gui");
    exec("./gui/headerTemplate.gui");
 
