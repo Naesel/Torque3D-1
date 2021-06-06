@@ -48,6 +48,16 @@ public:
    bool ImportMesh;
 
    /// <summary>
+   /// When importing a shape, this indicates if it should automatically add a standard suffix onto the name
+   /// </summary>
+   bool AlwaysAddShapeSuffix;
+
+   /// <summary>
+   /// If AlwaysAddShapeSuffix is on, this is the suffix to be added
+   /// </summary>
+   String AddedShapeSuffix;
+
+   /// <summary>
    /// Indicates if this config should override the per-format sis files with the config's specific settings
    /// </summary>
    bool UseManualShapeConfigRules;
@@ -101,22 +111,22 @@ public:
    /// <summary>
    /// A list of what nodes should be guaranteed to be imported if found in the model file. Separated by either , or ;
    /// </summary>
-   String ImportedNodes;
+   String AlwaysImportedNodes;
 
    /// <summary>
    /// A list of what nodes should be guaranteed to not be imported if found in the model file. Separated by either , or ;
    /// </summary>
-   String IgnoreNodes;
+   String AlwaysIgnoreNodes;
 
    /// <summary>
    /// A list of what mesh objects should be guaranteed to be imported if found in the model file. Separated by either , or ;
    /// </summary>
-   String ImportMeshes;
+   String AlwaysImportMeshes;
 
    /// <summary>
    /// A list of what mesh objects should be guaranteed to not be imported if found in the model file. Separated by either , or ;
    /// </summary>
-   String IgnoreMeshes;
+   String AlwaysIgnoreMeshes;
 
    //Assimp/Collada params
    /// <summary>
@@ -186,6 +196,16 @@ public:
    /// When importing a material, should it automatically attempt to merge Roughness, AO and Metalness maps into a single, composited PBR Configuration map
    /// </summary>
    bool CreateORMConfig;
+
+   /// <summary>
+   /// When creating a material on import, this indicates if it should automatically add a standard suffix onto the name
+   /// </summary>
+   bool AlwaysAddMaterialSuffix;
+
+   /// <summary>
+   /// If AlwaysAddMaterialSuffix is on, this is the suffix to be added
+   /// </summary>
+   String AddedMaterialSuffix;
 
    /// <summary>
    /// When generating a material off of an importing image, should the importer force appending a diffusemap suffix onto the end to avoid potential naming confusion.
@@ -274,6 +294,16 @@ public:
    /// Does this configuration support importing images.
    /// </summary>
    bool importImages;
+
+   /// <summary>
+   /// When importing an image, this indicates if it should automatically add a standard suffix onto the name
+   /// </summary>
+   bool AlwaysAddImageSuffix;
+
+   /// <summary>
+   /// If AlwaysAddImageSuffix is on, this is the suffix to be added
+   /// </summary>
+   String AddedImageSuffix;
 
    /// <summary>
    /// What is the default ImageType images are imported as. Options are: N/A, Diffuse, Normal, Metalness, Roughness, AO, ORMConfig, GUI, Cubemap
@@ -847,6 +877,12 @@ public:
          activeImportConfig = importConfig;
    }
 
+   /// <summary>
+   /// Resets the active import config to whatever the default is. Either a clean slate if one isn't defined
+   /// or loading one if defined via the editor config
+   /// </summary>
+   void resetImportConfig();
+
    //
    static String getTrueFilename(const String& fileName);
 
@@ -881,4 +917,8 @@ public:
 
       return qualifiedFilePath;
    }
+
+   //
+   void setTargetModuleId(const String& moduleId) { targetModuleId = moduleId; }
+   const String& getTargetModuleId() { return targetModuleId; }
 };

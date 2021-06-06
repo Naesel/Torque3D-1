@@ -271,7 +271,7 @@ GFXTextureObject *GFXTextureManager::_lookupTexture( const char *hashName, const
    if (ret && (ret->mProfile->compareFlags(*profile)))
       return ret;
    else if (ret)
-      Con::warnf("GFXTextureManager::_lookupTexture: Cached texture %s has a different profile flag", hashName);
+      Con::warnf("GFXTextureManager::_lookupTexture: Cached texture %s has different profile flags: (%s,%s) ", hashName, ret->mProfile->getName().c_str(), profile->getName().c_str());
 
    return NULL;
 }
@@ -892,6 +892,45 @@ Torque::Path GFXTextureManager::validatePath(const Torque::Path &path)
       correctPath.setExtension(String::EmptyString);
    }
    return correctPath;
+}
+
+GBitmap *GFXTextureManager::loadUncompressedTexture(const Torque::Path &path, GFXTextureProfile *profile, U32 width, U32 height, bool genMips)
+{
+   GBitmap* inBitmap = loadUncompressedTexture(path, &GFXTexturePersistentProfile);
+
+   if (inBitmap == NULL)
+   {
+      Con::warnf("GFXTextureManager::loadUncompressedTexture unable to load texture: %s", path.getFullPath().c_str());
+      return NULL;
+   }
+
+   // Set the format so we don't have to handle which channels are where.
+   if (!inBitmap->setFormat(GFXFormatR8G8B8A8))
+   {
+      Con::warnf("GFXTextureManager::loadUncompressedTexture unable to handle texture format: %s", path.getFullPath().c_str());
+      return NULL;
+   }
+
+   GBitmap* outBmp = new GBitmap(width, height, true, GFXFormatR8G8B8A8);
+
+   U8* oBits = (U8*)outBmp->getWritableBits();
+   for (S32 y = 0; y < width; y++)
+   {
+      for (S32 x = 0; x < height; x++)
+      {
+         ColorI texelColor = inBitmap->sampleTexel(x / F32(width), y / F32(height), true).toColorI(true);
+
+         oBits[(y * width + x) * 4] = texelColor.red;
+         oBits[(y * width + x) * 4 + 1] = texelColor.green;
+         oBits[(y * width + x) * 4 + 2] = texelColor.blue;
+         oBits[(y * width + x) * 4 + 3] = texelColor.alpha;
+      }
+   }
+
+   if (genMips)
+      outBmp->extrudeMipLevels();
+
+   return outBmp;
 }
 
 GBitmap *GFXTextureManager::loadUncompressedTexture(const Torque::Path &path, GFXTextureProfile *profile)
