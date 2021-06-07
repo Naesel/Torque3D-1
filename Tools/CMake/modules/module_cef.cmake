@@ -49,6 +49,12 @@ addInclude( "${TORQUE_CEF_PATH}" )
 
 if( WIN32 )
     #find lib_cef & libcef_dll_wrapper
+    #clear cached paths to force a current search
+    unset(CEF_LIBRARY CACHE)
+    unset(CEF_LIBRARY_DEBUG CACHE)
+    unset(CEF_DLL_WRAPPER_LIBRARY CACHE)
+    unset(CEF_DLL_WRAPPER_LIBRARY_DEBUG CACHE)
+
     #release
     find_library(CEF_LIBRARY NAMES cef libcef PATHS ${TORQUE_CEF_PATH}/Release/ REQUIRED)
     find_library(CEF_DLL_WRAPPER_LIBRARY NAMES cef_dll_wrapper libcef_dll_wrapper PATHS ${TORQUE_CEF_PATH}/libcef_dll_wrapper/Release/ REQUIRED)
@@ -116,11 +122,11 @@ endif()
 # Install the cef .pak files
 INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/icudtl.dat" DESTINATION "${projectOutDir}")
 INSTALL(FILES "${TORQUE_CEF_PATH}/LICENSE.txt" DESTINATION "${projectOutDir}/cef")
-INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/cef.pak" DESTINATION "${projectOutDir}/cef")
-INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/cef_100_percent.pak" DESTINATION "${projectOutDir}/cef")
-INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/cef_200_percent.pak" DESTINATION "${projectOutDir}/cef")
-INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/cef_extensions.pak" DESTINATION "${projectOutDir}/cef")
-INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/devtools_resources.pak" DESTINATION "${projectOutDir}/cef")
+INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/resources.pak" DESTINATION "${projectOutDir}/cef")
+INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/chrome_100_percent.pak" DESTINATION "${projectOutDir}/cef")
+INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/chrome_200_percent.pak" DESTINATION "${projectOutDir}/cef")
+#INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/cef_extensions.pak" DESTINATION "${projectOutDir}/cef")
+#INSTALL(FILES "${TORQUE_CEF_PATH}/Resources/devtools_resources.pak" DESTINATION "${projectOutDir}/cef")
 
 # Install the Locale files
 file(GLOB_RECURSE CEFLOCALE_FILES_AND_DIRS "${TORQUE_CEF_PATH}/Resources/locales/*")
