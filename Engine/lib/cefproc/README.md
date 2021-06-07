@@ -11,7 +11,7 @@ Pull https://github.com/OTHGMars/Torque3D-1/tree/CEFPlugin into your local branc
    * Configure cef for static linking to T3D.
      * Under the folder you extracted cef to, open *cmake/cef_variables.cmake* in an editor.
      * Remove (or comment out) the following (lines 494-496 in 90.6.7):
-     * ```
+       ```
        list(APPEND CEF_COMPILER_DEFINES_DEBUG
          _HAS_ITERATOR_DEBUGGING=0   # Disable iterator debugging
          )
