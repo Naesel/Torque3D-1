@@ -2,7 +2,7 @@
 	ModuleId="webCtrlDemo"
 	VersionId="1"
 	Description="GuiWebCtrl demo."
-	ScriptFile="webCtrlDemo.cs"
+	ScriptFile="webCtrlDemo"
 	CreateFunction="create"
 	DestroyFunction="destroy"
 	Group="Game">
