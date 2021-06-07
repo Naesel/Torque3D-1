@@ -8,15 +8,21 @@ function GuiWebCtrl::onPopupRequested(%this, %url, %width, %height)
    %popup.canSave = false;
    %popup.isPopup = true;
 
+   %frame = %popup->browserFrame;
+   %frame.canMove = true;
+
    if ((%width > 0) && (%height > 0))
-   {
-      %frame = %popup->browserFrame;
-      %frame.canMove = true;
+   {  // Make sure the dimensions passed meet minimums.
       %minExtents = %frame.minExtent;
       %width = (%width < %minExtents.x) ? %minExtents.x : %width;
       %height = (%height < %minExtents.y) ? %minExtents.y : %height;
       %frame.setExtent(%width, %height);
    }
+
+   // Cascade the popup from this one
+   %parentPos = %this.getParent().position;
+   %frame.position.x = %parentPos.x + 20;
+   %frame.position.y = %parentPos.y + 20;
 
    %webCanvas = %this.getRoot();
    %webCanvas.pushDialog(%popup);
