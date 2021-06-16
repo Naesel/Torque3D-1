@@ -22,13 +22,8 @@
 
 #include "webEngine.h"
 #include "webApp.h"
-#include "console/console.h"
-#include "core/module.h"
-#include "materials/materialManager.h"
 #include "T3D/gameBase/gameProcess.h"
-#include "platformSDL/sdlInput.h"
 #include "gui/core/guiCanvas.h"
-#include "gui/core/guiControl.h"
 #include "sim/actionMap.h"
 #include "SDL_keyboard.h"
 
@@ -111,11 +106,13 @@ WebEngine::WebEngine()
 {
    mProcessList = NULL;
    mCefInitialized = false;
+   mResourceMutex = Mutex::createMutex();
 }
 
 //------------------------------------------------------------------------------
 WebEngine::~WebEngine()
 {
+   Mutex::destroyMutex(mResourceMutex);
 }
 
 //------------------------------------------------------------------------------
@@ -273,7 +270,21 @@ void WebEngine::shutdown()
 //------------------------------------------------------------------------------
 void WebEngine::process()
 {
+   // Process any cef messages
    CefDoMessageLoopWork();
+
+   // If there are any pending file resource requests, open them.
+   if (Mutex::lockMutex(mResourceMutex, false))
+   {  // Don't block if we can't lock the mutex, we'll try again next tick.
+      while (mResourceHandlers.size() > 0)
+      {
+         CefRefPtr<FileRequestHandler> handler = mResourceHandlers.first();
+         handler->tryOpenFile();
+         mResourceHandlers.pop_front();
+      }
+
+      Mutex::unlockMutex(mResourceMutex);
+   }
 }
 
 //------------------------------------------------------------------------------

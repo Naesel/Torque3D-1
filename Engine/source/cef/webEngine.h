@@ -25,11 +25,14 @@
 #ifndef _TDICTIONARY_H_
 #include "core/util/tDictionary.h"
 #endif
+
 #ifndef _ENGINEAPI_H_
-   #include "console/engineAPI.h"
+#include "console/engineAPI.h"
 #endif
+
 #include "platform/types.h"
 #include "include/cef_app.h"
+#include "fileRequestHandler.h"
 
 class ProcessList;
 class WebEngine
@@ -65,6 +68,9 @@ public:
    typedef Map<U32, KeyEventMap> KeyDeviceMap;
 
 private:
+   void* mResourceMutex;
+   Vector<CefRefPtr<FileRequestHandler>> mResourceHandlers;
+
    ProcessList* mProcessList;
    bool mCefInitialized;
    KeyDeviceMap mMappedDevices;
@@ -111,6 +117,8 @@ public:
    static U32 getVKCodefromX(U32 keysym);
 #endif
 
+   inline void* getResourceMutex() { return mResourceMutex;  }
+   inline void addResourceHandler(CefRefPtr<FileRequestHandler> handler) { mResourceHandlers.push_back(handler); }
    inline static U32 getTorqueCursorFromCEF(U8 cefCursor) { return CEFCursorToTorque[cefCursor]; }
 
    bool getMappedCefEvent(const U32 deviceType, const U32 deviceNum, const U32 deviceCode, S32& keyCode, U32& flags, U16& asciiChar);

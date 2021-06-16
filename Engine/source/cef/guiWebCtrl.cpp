@@ -971,6 +971,9 @@ void GuiWebCtrl::onLoadingStateChange(bool isLoading, bool canGoBack, bool canGo
 {
    mIsPageLoading = isLoading;
    onLoadingStateChange_callback(isLoading, canGoBack, canGoForward);
+   if (!mBrowser)
+      return;
+
    if (!isLoading && mBrowser->GetHost()->GetZoomLevel() != (double) mZoomLevel)
       mBrowser->GetHost()->SetZoomLevel((double) mZoomLevel);
 }

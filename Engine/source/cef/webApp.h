@@ -24,25 +24,6 @@
 #define _WEBAPP_H_
 
 #include "include/cef_app.h"
-#include "include/wrapper/cef_helpers.h"
-#include "console/console.h"
-#include "core/stream/fileStream.h"
-
-// Implementation of the factory for creating scheme handlers.
-class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
-public:
-   ClientSchemeHandlerFactory() {}
-
-   // Return a new scheme handler instance to handle the request.
-   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) OVERRIDE;
-
-private:
-   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
-   DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandlerFactory);
-};
 
 // Implement application-level callbacks for the browser process.
 class WebApp : public CefApp, public CefBrowserProcessHandler
@@ -75,7 +56,7 @@ public:
    ///
    /*--cef()--*/
    void OnRegisterCustomSchemes(
-   CefRawPtr<CefSchemeRegistrar> registrar)  OVERRIDE
+      CefRawPtr<CefSchemeRegistrar> registrar)  OVERRIDE
    {
       // Register the t3d custom scheme as standard and secure.
       // Must be the same implementation in all processes.
@@ -91,35 +72,6 @@ private:
    // Include the default reference counting implementation.
    IMPLEMENT_REFCOUNTING(WebApp);
    DISALLOW_COPY_AND_ASSIGN(WebApp);
-};
-
-// Implementation of the scheme handler for t3d:// requests.
-class ClientSchemeHandler : public CefResourceHandler {
-public:
-   ClientSchemeHandler() : offset_(0) {}
-
-   bool ProcessRequest(CefRefPtr<CefRequest> request,
-      CefRefPtr<CefCallback> callback) OVERRIDE;
-
-   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-      int64& response_length,
-      CefString& redirectUrl) OVERRIDE;
-
-   void Cancel() OVERRIDE { CEF_REQUIRE_IO_THREAD(); }
-
-   bool ReadResponse(void* data_out,
-      int bytes_to_read,
-      int& bytes_read,
-      CefRefPtr<CefCallback> callback) OVERRIDE;
-
-private:
-   Torque::Path file_path_;
-   std::string mime_type_;
-   size_t offset_;
-   size_t data_size_;
-
-   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
-   DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandler);
 };
 
 #endif  // _WEBAPP_H_
