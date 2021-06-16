@@ -1,6 +1,6 @@
 # CEF T3D Plugin Installation Instructions
 
-Download and extract the CEF 'Standard Distribution' for your target platform from: (https://cef-builds.spotifycdn.com/index.html). The most recently tested build is cef 90.6.7 + chromium-90.0.4430.212, stable binary May 27, 2021.
+Download and extract the CEF 'Standard Distribution' for your target platform from: (https://cef-builds.spotifycdn.com/index.html). The most recently tested build is cef 91.1.17 + chromium-91.0.4472.101, stable binary June 15, 2021.
 
 Clone [Torque3D](https://github.com/TorqueGameEngines/Torque3D).
 
@@ -10,7 +10,7 @@ Pull https://github.com/OTHGMars/Torque3D-1/tree/CEFPlugin into your local branc
 1. Build the cef wrapper binary. (This step is only needed to build the dll wrapper. All other required binaries are provided in the distribution).
    * Configure cef for static linking to T3D.
      * Under the folder you extracted cef to, open *cmake/cef_variables.cmake* in an editor.
-     * Remove (or comment out) the following (lines 494-496 in 90.6.7):
+     * Remove (or comment out) the following (lines 494-496 in 91.1.17):
        ```
        list(APPEND CEF_COMPILER_DEFINES_DEBUG
          _HAS_ITERATOR_DEBUGGING=0   # Disable iterator debugging
