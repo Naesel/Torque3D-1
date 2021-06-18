@@ -3,29 +3,13 @@
 function GuiWebCtrl::onPopupRequested(%this, %url, %width, %height)
 {
    echo("GuiWebCtrl::onPopupRequested(" @ %url @ ", " @ %width @ ", " @ %height @ ")");
-   %popup = WebBrowserGui.deepClone();
-   %popup-->DemoCEFBrowser.loadURL(%url);
-   %popup.canSave = false;
-   %popup.isPopup = true;
-
-   %frame = %popup->browserFrame;
-   %frame.canMove = true;
-
-   if ((%width > 0) && (%height > 0))
-   {  // Make sure the dimensions passed meet minimums.
-      %minExtents = %frame.minExtent;
-      %width = (%width < %minExtents.x) ? %minExtents.x : %width;
-      %height = (%height < %minExtents.y) ? %minExtents.y : %height;
-      %frame.setExtent(%width, %height);
+   %parent = %this.getParent();
+   if ((%width == 0) || (%height == 0))
+   {  // No dimensions requested, make the popup match the parent.
+      %width = %parent.extent.x;
+      %height = %parent.extent.y;
    }
-
-   // Cascade the popup from this one
-   %parentPos = %this.getParent().position;
-   %frame.position.x = %parentPos.x + 20;
-   %frame.position.y = %parentPos.y + 20;
-
-   %webCanvas = %this.getRoot();
-   %webCanvas.pushDialog(%popup);
+   webCtrlDemo.createBrowser(%parent, %url, %width, %height);
    return true;
 }
 

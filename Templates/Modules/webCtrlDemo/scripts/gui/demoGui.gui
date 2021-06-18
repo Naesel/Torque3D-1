@@ -36,8 +36,8 @@
       canSaveDynamicFields = "0";
 
       new GuiWebCtrl(WebDemoControl) {
+         StartURL = "t3d://data/webCtrlDemo/html/demoTestGui.html";
          Framerate = "30";
-         StartURL = "";
          UnloadOnSleep = "1";
          IsTransparent = "1";
 

@@ -1,5 +1,4 @@
-//--- OBJECT WRITE BEGIN ---
-%guiContent = new GuiControl(WebBrowserGui) {
+$GuiBrowserCtrl = new GuiControl() {
    position = "0 0";
    extent = "1024 768";
    minExtent = "8 8";
@@ -24,14 +23,9 @@
       canMinimize = "1";
       canMaximize = "1";
       canCollapse = "0";
-      closeCommand = "$GameCanvas.popDialog($ThisControl.getParent());";
+      closeCommand = "$ThisControl.getRoot().popDialog($ThisControl.getParent());";
       edgeSnap = "1";
-      margin = "0 0 0 0";
-      padding = "0 0 0 0";
-      anchorTop = "1";
-      anchorBottom = "0";
-      anchorLeft = "1";
-      anchorRight = "0";
+      docking = "None";
       position = "0 0";
       extent = "760 584";
       minExtent = "400 300";
@@ -200,4 +194,3 @@
       };
    };
 };
-//--- OBJECT WRITE END ---

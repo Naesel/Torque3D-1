@@ -51,7 +51,7 @@ function webCtrlDemo::lateInitClient( %this )
          profile = "GuiBlankMenuButtonProfile";
          visible = "1";
          active = "1";
-         command = "webCtrlDemo.toggleBrowser();";
+         command = "webCtrlDemo.createBrowser($ThisControl,\"torque3d.org\", 800, 600);";
          tooltipProfile = "GuiToolTipProfile";
          tooltip = "Web browser window";
          isContainer = "0";
@@ -115,9 +115,6 @@ function webCtrlDemo::lateInitClient( %this )
       MMTestContainer.add(%browserBtn);
       MMTestContainer.add(%urlBtn);
    }
-
-   // Convert our local html path
-   WebDemoControl.StartURL = "file:///" @ getMainDotCsDir() @ "/data/webCtrlDemo/html/demoTestGui.html";
 }
 
 webCtrlDemo.lateInitClient();

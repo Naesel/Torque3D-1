@@ -20,17 +20,6 @@ function webCtrlDemo::toggleDemo( %this )
       $GameCanvas.pushDialog(WebDemoDlg);
 }
 
-function webCtrlDemo::toggleBrowser( %this )
-{
-   if (WebBrowserGui.isAwake())
-      $GameCanvas.popDialog(WebBrowserGui);
-   else
-   {
-      WebBrowserGui-->DemoCEFBrowser.loadURL("torque3d.org");
-      $GameCanvas.pushDialog(WebBrowserGui);
-   }
-}
-
 function webCtrlDemo::toggleURLTester( %this )
 {
    if (WebURLGui.isAwake())
@@ -92,13 +81,19 @@ function webCtrlDemo::startupCEF( %this )
    $Cef::logSeverity = "Warning";
 
    // The fully qualified path for the resources directory. If this value is empty
-   // the cef.pak and/or devtools_resources.pak files must be located in the module
-   // directory on Windows/Linux or the app bundle Resources directory on Mac OS X.
+   // the resources.pak, chrome_100_percent.pak and chrome_200_percent.pak files
+   // must be located in the module directory on Windows/Linux or the app bundle
+   // Resources directory on Mac OS X. These files are not loaded through the T3D
+   // virtual file system, so they must be loose files and cannot be included in
+   // a zipped file.
    $Cef::resourcePath = getMainDotCsDir() @ "/cef";
 
-   // The fully qualified path for the locales directory. If this value is empty the
-   // locales directory must be located in the module directory. This value is ignored
-   // on Mac OS X where pack files are always loaded from the app bundle Resources directory.
+   // The fully qualified path for the locales directory. If this value is empty
+   // the locales directory must be located in the module directory. This value
+   // is ignored on Mac OS X where pack files are always loaded from the app
+   // bundle Resources directory. These files are not loaded through the T3D
+   // virtual file system, so they must be loose files and cannot be included in
+   // a zipped file.
    $Cef::localesPath = getMainDotCsDir() @ "/cef/locales";
 
    // Value that will be returned as the User-Agent HTTP header. If empty the
@@ -118,6 +113,7 @@ function webCtrlDemo::startupCEF( %this )
    // Now that the values are set, start the cef process.
    WebEngine::initializeCEF();
 
+   // Map device events to keyboard navigation for controler accessible html guis.
    %this.loadControllerMap();
 }
 
@@ -138,4 +134,41 @@ function webCtrlDemo::loadControllerMap( %this )
 function webCtrlDemo::initClient( %this )
 {
    %this.queueExec("./scripts/initWebDemo." @ $TorqueScriptFileExtension);
+}
+
+/// Create a browser popup window by cloning the gui prototype $GuiBrowserCtrl.
+/// %parent - If a parent gui is provided (can be 0), the popup browser will be
+///   offset 20x+20y from the parent and placed on the same canvas. If 0, the 
+///   popup will be placed at 0,0 on the default game canvas.
+/// %url - Initial url to load.
+/// %width, %height - The size of the popup. If either value is 0, the extent
+///   will not be set and the size will be the same as the cloned prototype.
+function webCtrlDemo::createBrowser(%this, %parent, %url, %width, %height)
+{
+   %popup = $GuiBrowserCtrl.deepClone();
+   %popup-->DemoCEFBrowser.loadURL(%url);
+   %popup.canSave = false;
+   %popup.isPopup = true;
+
+   %frame = %popup->browserFrame;
+
+   if ((%width > 0) && (%height > 0))
+   {  // Make sure the dimensions passed meet minimums.
+      %minExtents = %frame.minExtent;
+      %width = (%width < %minExtents.x) ? %minExtents.x : %width;
+      %height = (%height < %minExtents.y) ? %minExtents.y : %height;
+      %frame.setExtent(%width, %height);
+   }
+
+   if (isObject(%parent))
+   {  // Cascade the popup from the parent
+      %parentPos = %parent.getGlobalPosition();
+      %frame.position.x = %parentPos.x + 20;
+      %frame.position.y = %parentPos.y + 20;
+      %webCanvas = %parent.getRoot();
+   }
+   else
+      %webCanvas = $GameCanvas;
+
+   %webCanvas.pushDialog(%popup);
 }
