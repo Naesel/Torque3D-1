@@ -1012,10 +1012,10 @@ void Vehicle::updateMove(const Move* move)
    // Steering
    if (move != &NullMove) {
       F32 y = move->yaw;
-      mSteering.x = mClampF(mSteering.x + y,-mDataBlock->maxSteeringAngle,
+      mSteering.x = mClampF(y,-mDataBlock->maxSteeringAngle,
                             mDataBlock->maxSteeringAngle);
       F32 p = move->pitch;
-      mSteering.y = mClampF(mSteering.y + p,-mDataBlock->maxSteeringAngle,
+      mSteering.y = mClampF(p,-mDataBlock->maxSteeringAngle,
                             mDataBlock->maxSteeringAngle);
    }
    else {
@@ -1594,4 +1594,30 @@ void Vehicle::_renderMuzzleVector( ObjectRenderInst *ri, SceneRenderState *state
 	PrimBuild::vertex3fv(endpoint);
 
    PrimBuild::end();
+}
+
+void Vehicle::getEyeCameraTransform(IDisplayDevice* displayDevice, S32 eyeId, MatrixF* outMat)
+{
+   DisplayPose newPose;
+   displayDevice->getFrameEyePose(&newPose, eyeId);
+   Point3F eyePosition[2];
+   displayDevice->getEyeOffsets(eyePosition);
+
+   MatrixF hmdMat(1);
+   newPose.orientation.setMatrix(&hmdMat);
+   hmdMat.setPosition(newPose.position);
+
+   MatrixF cameraTransform(1);
+   getVRCameraTransform(&cameraTransform);
+   *outMat = cameraTransform * hmdMat;
+}
+
+void Vehicle::getVRCameraTransform(MatrixF* mat)
+{
+   // Returns eye to world space transform
+   S32 eyeNode = mDataBlock->eyeNode;
+   if (eyeNode != -1 && mShapeInstance)
+      mat->mul(getRenderTransform(), mShapeInstance->mNodeTransforms[eyeNode]);
+   else
+      *mat = getRenderTransform();
 }

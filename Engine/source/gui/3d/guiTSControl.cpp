@@ -389,7 +389,6 @@ void GuiTSCtrl::_internalRender(RectI guiViewport, RectI renderViewport, Frustum
    GFX->clear(GFXClearZBuffer, ColorI(20, 20, 20), 1.0f, 0);
 
    GFX->setFrustum(frustum);
-   mSaveProjection = GFX->getProjectionMatrix();
 
    if (mLastCameraQuery.ortho)
    {
@@ -771,8 +770,6 @@ void GuiTSCtrl::renderDisplayPreview(const RectI &updateRect, GFXTexHandle &prev
    GFX->setViewMatrix(MatrixF::Identity);
    GFX->setClipRect(updateRect);
 
-   GFX->getDrawUtil()->drawRectFill(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::BLACK);
-   GFX->getDrawUtil()->drawRect(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::RED);
 
    if (!mStereoPreviewVB.getPointer())
    {
@@ -786,6 +783,25 @@ void GuiTSCtrl::renderDisplayPreview(const RectI &updateRect, GFXTexHandle &prev
 
       F32 rectWidth = updateRect.extent.x;
       F32 rectHeight = updateRect.extent.y;
+      // Keep the aspect ratio of the preview texture so it isn't distorted on screen
+      F32 previewWidth = previewTexture.getWidth();
+      F32 previewHeight = previewTexture.getHeight();
+      F32 previewAspect = previewHeight / previewWidth;
+      F32 updateAspect = rectHeight / rectWidth;
+      if (previewAspect > updateAspect)
+      {  // Screen rect is wider
+         F32 Py = updateAspect * previewWidth;
+         F32 texOffset = (previewHeight - Py) / (2.0f * previewHeight);
+         texTop = texOffset;
+         texBottom = 1.0f - texOffset;
+      }
+      else
+      {  // Screen rect is taller
+         F32 Px = (previewHeight * rectWidth) / rectHeight;
+         F32 texOffset = (previewWidth - Px) / (2.0f * previewWidth);
+         texLeft = texOffset;
+         texRight = 1.0f - texOffset;
+      }
 
       F32 screenLeft = 0;
       F32 screenRight = rectWidth;

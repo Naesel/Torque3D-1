@@ -610,6 +610,7 @@ public:
    S32 debrisDetail;                    ///< Detail level used to generate debris
    S32 damageSequence;                  ///< Damage level decals
    S32 hulkSequence;                    ///< Destroyed hulk
+   F32 eyeHeight;                       ///< Shape's eye height
 
    bool              observeThroughObject;   // observe this object through its camera transform and default fov
 
@@ -1606,7 +1607,10 @@ public:
 
    /// Gets the view transform for a particular eye, taking into account the current absolute 
    /// orient and position values of the display device.
-   virtual void getEyeCameraTransform( IDisplayDevice *display, U32 eyeId, MatrixF *outMat );
+   virtual void getEyeCameraTransform( IDisplayDevice* display, S32 eyeId, MatrixF* outMat );
+
+   /// Gets the transform for base VR tracking
+   virtual void getVRCameraTransform(MatrixF* mat);
 
    /// Gets the index of a node inside a mounted image given the name
    /// @param   imageSlot   Image slot

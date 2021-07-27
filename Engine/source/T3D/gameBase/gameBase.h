@@ -429,7 +429,8 @@ public:
    
    // Not implemented here, but should return the Camera to world transformation matrix
    virtual void getCameraTransform (F32 *pos, MatrixF *mat ) { *mat = MatrixF::Identity; }
-   virtual void getEyeCameraTransform ( IDisplayDevice *device, U32 eyeId, MatrixF *mat ) { *mat = MatrixF::Identity; }
+   virtual void getEyeCameraTransform ( IDisplayDevice *device, S32 eyeId, MatrixF *mat ) { *mat = MatrixF::Identity; }
+   virtual void getVRCameraTransform ( MatrixF *mat ) { *mat = MatrixF::Identity; }
 
    /// Returns the water object we are colliding with, it is up to derived
    /// classes to actually set this object.
@@ -443,7 +444,7 @@ public:
 
    /// @name Callbacks
    /// @{
-   DECLARE_CALLBACK( void, setControl, ( bool controlled ) );
+   DECLARE_CALLBACK( void, setControl, ( bool controlled, GameConnection *client ) );
    /// @}
 
 private:
