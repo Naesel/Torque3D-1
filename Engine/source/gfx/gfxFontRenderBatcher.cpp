@@ -45,7 +45,8 @@ FontRenderBatcher::FontRenderBatcher() : mStorage(8096)
       f.samplers[0].addressModeU = GFXAddressClamp;
       f.samplers[0].addressModeV = GFXAddressClamp;
 
-      f.setColorWrites(true, true, true, false); // NOTE: comment this out if alpha write is needed
+      //f.setColorWrites(true, true, true, false); // NOTE: comment this out if alpha write is needed
+      f.setSeparateAlphaBlend(true, GFXBlendOne, GFXBlendOne, GFXBlendOpMax);
       mFontSB = GFX->createStateBlock(f);
    }
 }
