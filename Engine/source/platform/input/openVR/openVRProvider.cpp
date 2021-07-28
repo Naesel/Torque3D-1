@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "platform/input/openVR/openVRProvider.h"
+#include "platform/input/openVR/openVRChaperone.h"
 #include "platform/input/openVR/openVRRenderModel.h"
 #include "platform/input/openVR/openVROverlay.h"
 #include "platform/platformInput.h"
@@ -50,11 +51,11 @@
 
 #include "gfx/gfxTextureManager.h"
 
-struct OpenVRLoadedTexture
-{
-   vr::TextureID_t texId;
-   NamedTexTarget texTarget;
-};
+//struct OpenVRLoadedTexture
+//{
+//   vr::TextureID_t texId;
+//   NamedTexTarget texTarget;
+//};
 
 namespace OpenVRUtil
 {
@@ -204,10 +205,12 @@ MODULE_INIT
 {
    OpenVRProvider::staticInit();
    ManagedSingleton< OpenVRProvider >::createSingleton();
+   ManagedSingleton< OpenVRChaperone >::createSingleton();
 }
 
 MODULE_SHUTDOWN
 {
+   ManagedSingleton< OpenVRChaperone >::deleteSingleton();
    ManagedSingleton< OpenVRProvider >::deleteSingleton();
 }
 
@@ -562,11 +565,6 @@ bool OpenVRProvider::process()
 bool OpenVRProvider::providesFrameEyePose() const
 {
    return mHMD != NULL;
-}
-
-inline Point3F OpenVRVecToTorqueVec(vr::HmdVector3_t vec)
-{
-   return Point3F(-vec.v[0], vec.v[2], -vec.v[1]);
 }
 
 void OpenVRTransformToRotPos(MatrixF mat, QuatF &outRot, Point3F &outPos)
@@ -934,8 +932,8 @@ void OpenVRProvider::updateHMDPose()
       inPose.valid = outPose.bPoseIsValid;
       inPose.connected = outPose.bDeviceIsConnected;
 
-      inPose.velocity = OpenVRVecToTorqueVec(outPose.vVelocity);
-      inPose.angularVelocity = OpenVRVecToTorqueVec(outPose.vAngularVelocity);
+      inPose.velocity = OpenVRUtil::convertPointFromOVR(outPose.vVelocity);
+      inPose.angularVelocity = OpenVRUtil::convertPointFromOVR(outPose.vAngularVelocity);
 
       Point4F hmdRot(inPose.orientation.x, inPose.orientation.y, inPose.orientation.z, inPose.orientation.w);
       onHMDPose_callback(inPose.position, hmdRot, inPose.velocity, inPose.angularVelocity);
@@ -943,15 +941,6 @@ void OpenVRProvider::updateHMDPose()
    else
    {
       inPose.valid = false;
-   }
-}
-
-void OpenVRProvider::resetSensors()
-{
-   if (mHMD)
-   {
-      // TODO: (VR) This is now implemented via the IVChaperone system. Needs update
-      //mHMD->ResetSeatedZeroPose();
    }
 }
 
@@ -1917,3 +1906,4 @@ void OpenVRProvider::showActionSetBinds(U32 setIndex)
    if (vr::VRInputError_None != vr::VRInput()->ShowBindingsForActionSet(&activeSet, sizeof(vr::VRActiveActionSet_t), 1, vr::k_ulInvalidInputValueHandle))
       Con::warnf("OpenVRProvider::showActionSetBinds - Error displaying action set.");
 }
+

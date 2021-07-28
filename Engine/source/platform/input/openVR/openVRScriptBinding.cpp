@@ -36,24 +36,29 @@ ConsoleDoc(
 // Enum impls
 
 ImplementEnumType(OpenVROverlayInputMethod,
-   "Types of input supported by VR Overlays. .\n\n"
+   "Types of input supported by VR Overlays.\n\n"
    "@ingroup OpenVR")
-{ vr::VROverlayInputMethod_None, "None" },
-{ vr::VROverlayInputMethod_Mouse, "Mouse" },
+{ vr::VROverlayInputMethod_None, "None", "No input events will be generated automatically for this overlay" },
+{ vr::VROverlayInputMethod_Mouse, "Mouse", "Tracked controllers will get mouse events automatically" },
 //{ vr::VROverlayInputMethod_DualAnalog, "DualAnalog" }, // No longer supported
 EndImplementEnumType;
 
 ImplementEnumType(OpenVROverlayTransformType,
-   "Allows the caller to figure out which overlay transform getter to call. .\n\n"
+   "Allows the caller to figure out which overlay transform getter to call.\n\n"
    "@ingroup OpenVR")
 { vr::VROverlayTransform_Absolute, "Absolute" },
 { vr::VROverlayTransform_TrackedDeviceRelative, "TrackedDeviceRelative" },
 { vr::VROverlayTransform_SystemOverlay, "SystemOverlay" },
 { vr::VROverlayTransform_TrackedComponent, "TrackedComponent" },
+{ vr::VROverlayTransform_Cursor, "Cursor" },
+{ vr::VROverlayTransform_DashboardTab, "DashboardTab" },
+{ vr::VROverlayTransform_DashboardThumb, "DashboardThumb" },
+{ vr::VROverlayTransform_Mountable, "Mountable" },
+{ vr::VROverlayTransform_Projection, "Projection" },
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRGamepadTextInputMode,
-   "Types of input supported by VR Overlays. .\n\n"
+   "Input modes for the Big Picture gamepad text entry.\n\n"
    "@ingroup OpenVR")
 { vr::k_EGamepadTextInputModeNormal, "Normal", },
 { vr::k_EGamepadTextInputModePassword, "Password", },
@@ -61,28 +66,29 @@ ImplementEnumType(OpenVRGamepadTextInputMode,
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRGamepadTextInputLineMode,
-   "Types of input supported by VR Overlays. .\n\n"
+   "Controls number of allowed lines for the Big Picture gamepad text entry.\n\n"
    "@ingroup OpenVR")
 { vr::k_EGamepadTextInputLineModeSingleLine, "SingleLine" },
 { vr::k_EGamepadTextInputLineModeMultipleLines, "MultipleLines" },
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRTrackingResult,
-   ". .\n\n"
+   "\n\n"
    "@ingroup OpenVR")
 { vr::TrackingResult_Uninitialized, "None" },
 { vr::TrackingResult_Calibrating_InProgress, "Calibrating_InProgress" },
 { vr::TrackingResult_Calibrating_OutOfRange, "Calibrating_OutOfRange" },
 { vr::TrackingResult_Running_OK, "Running_Ok" },
 { vr::TrackingResult_Running_OutOfRange, "Running_OutOfRange" },
+{ vr::TrackingResult_Fallback_RotationOnly, "Fallback_RotationOnly" },
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRTrackingUniverseOrigin,
-   "Identifies which style of tracking origin the application wants to use for the poses it is requesting. .\n\n"
+   "Identifies which style of tracking origin the application wants to use for the poses it is requesting.\n\n"
    "@ingroup OpenVR")
-{ vr::TrackingUniverseSeated, "Seated" },
-{ vr::TrackingUniverseStanding, "Standing" },
-{ vr::TrackingUniverseRawAndUncalibrated, "RawAndUncalibrated" },
+{ vr::TrackingUniverseSeated, "Seated", "Poses are provided relative to the seated zero pose" },
+{ vr::TrackingUniverseStanding, "Standing", "Poses are provided relative to the safe bounds configured by the user" },
+{ vr::TrackingUniverseRawAndUncalibrated, "RawAndUncalibrated", "Poses are provided in the coordinate system defined by the driver.  It has Y up and is unified for devices of the same driver. You usually don't want this one."},
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRState,
@@ -95,17 +101,19 @@ ImplementEnumType(OpenVRState,
 { vr::VRState_Ready, "Ready" },
 { vr::VRState_Ready_Alert, "Ready_Alert" },
 { vr::VRState_NotReady, "NotReady" },
+{ vr::VRState_Standby, "Standby" },
+{ vr::VRState_Ready_Alert_Low, "Ready_Alert_Low" },
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRTrackedDeviceClass,
    "Types of devices which are tracked .\n\n"
    "@ingroup OpenVR")
-{ vr::TrackedDeviceClass_Invalid, "Invalid" },
-{ vr::TrackedDeviceClass_HMD, "HMD" },
-{ vr::TrackedDeviceClass_Controller, "Controller" },
-{ vr::TrackedDeviceClass_GenericTracker, "GenericTracker" },
-{ vr::TrackedDeviceClass_TrackingReference, "TrackingReference" },
-{ vr::TrackedDeviceClass_DisplayRedirect, "Other" },
+{ vr::TrackedDeviceClass_Invalid, "Invalid", "The ID was not valid" },
+{ vr::TrackedDeviceClass_HMD, "HMD", "Head-Mounted Displays" },
+{ vr::TrackedDeviceClass_Controller, "Controller", "Tracked controllers" },
+{ vr::TrackedDeviceClass_GenericTracker, "GenericTracker", "Generic trackers, similar to controllers" },
+{ vr::TrackedDeviceClass_TrackingReference, "TrackingReference", "Camera and base stations that serve as tracking reference points" },
+{ vr::TrackedDeviceClass_DisplayRedirect, "Other", "Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices" },
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRControllerAxisType,
@@ -118,11 +126,14 @@ ImplementEnumType(OpenVRControllerAxisType,
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRTrackedControllerRole,
-   "Types of controller roles.\n\n"
+   "Describes the specific role associated with a tracked device.\n\n"
    "@ingroup OpenVR")
-{ vr::TrackedControllerRole_Invalid, "Invalid" },
-{ vr::TrackedControllerRole_LeftHand, "LeftHand" },
-{ vr::TrackedControllerRole_RightHand, "RightHand" },
+{ vr::TrackedControllerRole_Invalid, "Invalid", "Invalid value for controller type" },
+{ vr::TrackedControllerRole_LeftHand, "LeftHand", "Tracked device associated with the left hand"},
+{ vr::TrackedControllerRole_RightHand, "RightHand", "Tracked device associated with the right hand"},
+{ vr::TrackedControllerRole_OptOut, "OptOut", "Tracked device is opting out of left/right hand selection"},
+{ vr::TrackedControllerRole_Treadmill, "Treadmill", "Tracked device is a treadmill or other locomotion device"},
+{ vr::TrackedControllerRole_Stylus, "Stylus", "Tracked device is a stylus"},
 EndImplementEnumType;
 
 ImplementEnumType(OpenVRActionType,
@@ -209,22 +220,6 @@ DefineEngineStaticMethod(OpenVR, setHMDAsGameConnectionDisplayDevice, bool, (Gam
 
    conn->setDisplayDevice(OPENVR);
    return true;
-}
-
-DefineEngineStaticMethod(OpenVR, resetSensors, void, (), ,
-   "@brief Sets the zero pose for the seated tracker coordinate system to the "
-   "current position and yaw of the HMD.\n"
-   "NOTE: This function overrides the user's previously saved seated zero pose "
-   "and should only be called as the result of a user action. Users are also "
-   "able to set their seated zero pose via the OpenVR Dashboard.\n"
-   "@ingroup OpenVR")
-{
-   if (!ManagedSingleton<OpenVRProvider>::instanceOrNull())
-   {
-      return;
-   }
-
-   OPENVR->resetSensors();
 }
 
 DefineEngineStaticMethod(OpenVR, setRoomTracking, void, (bool roomTracking), (true),

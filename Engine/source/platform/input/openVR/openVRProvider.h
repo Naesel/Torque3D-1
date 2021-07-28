@@ -185,7 +185,6 @@ public:
    void updateHMDPose();
    IDevicePose getTrackedDevicePose(U32 idx);
 
-   void resetSensors();
    void orientUniverse(const MatrixF &mat);
    void rotateUniverse(const F32 yaw);
 
