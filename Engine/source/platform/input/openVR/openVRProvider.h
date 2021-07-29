@@ -121,12 +121,6 @@ DefineEnumType(OpenVRActionType);
 
 class OpenVRProvider : public IDisplayDevice, public IInputDevice
 {
-protected:
-   enum
-   {
-      MaxActiveActionSets = 5,  // The maximum number of action set layers that can be active at one time.
-   };
-
 public:
 
    OpenVRProvider();
@@ -233,7 +227,6 @@ public:
    String getDevicePropertyUInt(U32 deviceIdx, U32 propID);
    F32 getDevicePropertyFloat(U32 deviceIdx, U32 propID);
    String getControllerAxisType(U32 deviceIdx, U32 axisID);
-   String getControllerRole(U32 deviceIdx);
    /// }
 
    /// @name OpenVR state
@@ -270,53 +263,6 @@ public:
    /// }
 
    static String smShapeCachePath;
-   static String smManifestPath;
-
-   /// @name IVRInput handling
-   /// {
-private:
-   bool mInputInitialized;
-   Vector<VRActionSet> mActionSets;
-   Vector<VRAnalogAction> mAnalogActions;
-   Vector<VRDigitalAction> mDigitalActions;
-   Vector<VRPoseAction> mPoseActions;
-   Vector<VRSkeletalAction> mSkeletalActions;
-   Vector<vr::VRActionHandle_t> mHapticOutputs;
-
-   U32 mNumSetsActive;
-   vr::VRActiveActionSet_t mActiveSets[MaxActiveActionSets];
-   S32 mActiveSetIndexes[MaxActiveActionSets];
-   void resetActiveSets();
-
-   bool initInput();
-   void processDigitalActions();
-   void processAnalogActions();
-   void processPoseActions();
-   void processSkeletalActions();
-
-public:
-   S32 addActionSet(const char* setName);
-   S32 addAnalogAction(U32 setIndex, const char* actionName, const char* callbackFunc);
-   S32 addDigitalAction(U32 setIndex, const char* actionName, const char* callbackFunc);
-   S32 addPoseAction(U32 setIndex, const char* actionName, const char* poseCallback, const char* velocityCallback, S32 moveIndex);
-   S32 addSkeletalAction(U32 setIndex, const char* actionName, S32 moveIndex);
-   S32 addHapticOutput(const char* outputName);
-
-   S32 getPoseIndex(const char* actionName);
-   bool getCurrentPose(S32 poseIndex, Point3F& position, QuatF& rotation);
-   bool setPoseCallbacks(S32 poseIndex, const char* poseCallback, const char* velocityCallback);
-   S32 getSkeletonIndex(const char* actionName);
-   bool getSkeletonNodes(S32 skeletonIndex, vr::VRBoneTransform_t* boneData);
-   bool setSkeletonMode(S32 skeletonIndex, bool withController);
-
-   bool activateActionSet(S32 controllerIndex, U32 setIndex);
-   bool pushActionSetLayer(S32 controllerIndex, U32 setIndex);
-   bool popActionSetLayer(S32 controllerIndex, U32 setIndex);
-   bool triggerHapticEvent(U32 actionIndex, float fStartSecondsFromNow, float fDurationSeconds, float fFrequency, float fAmplitude);
-
-   void showActionOrigins(U32 setIndex, OpenVRActionType actionType, U32 actionIndex);
-   void showActionSetBinds(U32 setIndex);
-   /// }
 
 public:
    // For ManagedSingleton.

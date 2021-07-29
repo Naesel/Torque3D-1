@@ -23,6 +23,7 @@
 #include "platform/platform.h"
 #include "platform/input/openVR/openVRTrackedObject.h"
 #include "platform/input/openVR/openVRProvider.h"
+#include "platform/input/openVR/openVRInput.h"
 
 #include "math/mathIO.h"
 #include "scene/sceneRenderState.h"
@@ -205,7 +206,7 @@ void OpenVRTrackedObject::getActionIndex()
       return;
 
    if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
-      mPoseActionIndex = OPENVR->getPoseIndex(mPoseSourceStringHandle.getString());
+      mPoseActionIndex = OVRINPUT->getPoseIndex(mPoseSourceStringHandle.getString());
 }
 
 //-----------------------------------------------------------------------------
@@ -334,7 +335,7 @@ void OpenVRTrackedObject::setLocalRenderTransform()
    QuatF rotVal;
    MatrixF trackedMat(1);
    
-   if (OPENVR->getCurrentPose(mPoseActionIndex, posVal, rotVal))
+   if (OVRINPUT->getCurrentPose(mPoseActionIndex, posVal, rotVal))
    {
       Point3F pos;
       rotVal.mulP(mDataBlock->mShapeOffset.mPosition, &pos);

@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "platform/input/openVR/openVRProvider.h"
+#include "platform/input/openVR/openVRInput.h"
 #include "platform/input/openVR/openVRChaperone.h"
 #include "platform/input/openVR/openVRRenderModel.h"
 #include "platform/input/openVR/openVROverlay.h"
@@ -33,7 +34,7 @@
 #include "materials/baseMatInstance.h"
 #include "materials/materialManager.h"
 #include "math/mathUtils.h"
-#include "T3D/gameBase/extended/extendedMove.h"
+//#include "T3D/gameBase/extended/extendedMove.h"
 
 #ifndef LINUX
 #include "gfx/D3D11/gfxD3D11Device.h"
@@ -179,8 +180,6 @@ F32 OpenVRProvider::smHMDmvYaw = 0;
 bool OpenVRProvider::smRotateYawWithMoveActions = false;
 String OpenVRProvider::smShapeCachePath("");
 
-String OpenVRProvider::smManifestPath("");
-
 static String GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL)
 {
    uint32_t unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, NULL, 0, peError);
@@ -219,11 +218,6 @@ MODULE_END;
 IMPLEMENT_GLOBAL_CALLBACK(onHMDPose, void, (Point3F position, Point4F rotation, Point3F linVel, Point3F angVel),
    (position, rotation, linVel, angVel),
    "Callback posted with updated hmd tracking data.\n"
-   "@ingroup OpenVR");
-
-IMPLEMENT_GLOBAL_CALLBACK(onOVRInputReady, void, (), (),
-   "Callback posted when the IVRInput api has been initialized. Game scripts should "
-   "respond to this callback by loading all action and actionset handles.\n"
    "@ingroup OpenVR");
 
 IMPLEMENT_GLOBAL_CALLBACK(onOVRDeviceActivated, void, (S32 deviceIndex), (deviceIndex),
@@ -359,9 +353,7 @@ OpenVRProvider::OpenVRProvider() :
    mTrackingSpace(vr::TrackingUniverseStanding),
    mStandingHMDHeight(1.571f),
    mDrawCanvas(NULL),
-   mGameConnection(NULL),
-   mInputInitialized(false),
-   mNumSetsActive(0U)
+   mGameConnection(NULL)
 {
    mDeviceType = INPUTMGR->getNextDeviceType();
    GFXDevice::getDeviceEventSignal().notify(this, &OpenVRProvider::_handleDeviceEvent);
@@ -443,8 +435,6 @@ void OpenVRProvider::staticInit()
    Con::addVariable("$OpenVR::HMDRotateYawWithMoveActions", TypeBool, &smRotateYawWithMoveActions);
    Con::addVariable( "$OpenVR::cachePath", TypeRealString, &smShapeCachePath,
       "The file path to the directory where texture and shape data are to be cached.\n" );
-   Con::addVariable("$OpenVR::inputManifestPath", TypeRealString, &smManifestPath,
-      "The file path to the input manifest json file that defines all bindable controller events for the game.\n");
 }
 
 bool OpenVRProvider::enable()
@@ -477,8 +467,6 @@ bool OpenVRProvider::enable()
       Con::printf(buf);
       return false;
    }
-
-   initInput();
 
    mDriver = GetTrackedDeviceString(mHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
    mDisplay = GetTrackedDeviceString(mHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
@@ -549,15 +537,7 @@ bool OpenVRProvider::process()
    // Update the hmd pose
    updateHMDPose();
 
-   // Process IVRInput action events
-   if (mInputInitialized && mNumSetsActive)
-   {
-      vr::VRInput()->UpdateActionState(mActiveSets, sizeof(vr::VRActiveActionSet_t), mNumSetsActive);
-      processDigitalActions();
-      processAnalogActions();
-      processPoseActions();
-      processSkeletalActions();
-   }
+   OVRINPUT->processInput();
 
    return true;
 }
@@ -1285,16 +1265,6 @@ String OpenVRProvider::getControllerAxisType(U32 deviceIdx, U32 axisID)
    return castConsoleTypeToString(axisType);
 }
 
-String OpenVRProvider::getControllerRole(U32 deviceIdx)
-{
-   if (deviceIdx >= vr::k_unMaxTrackedDeviceCount || !mHMD)
-      return String::EmptyString;
-
-   OpenVRTrackedControllerRole role = mHMD->GetControllerRoleForTrackedDeviceIndex(deviceIdx);
-
-   return castConsoleTypeToString(role);
-}
-
 String OpenVRProvider::getDevicePropertyString(U32 deviceIdx, U32 propID)
 {
    if (deviceIdx >= vr::k_unMaxTrackedDeviceCount || !mHMD)
@@ -1361,549 +1331,3 @@ void OpenVRProvider::rotateUniverse(const F32 yaw)
    smUniverseYawOffset = yaw;
    smUniverseRotMat.set(EulerF(0.0f, smUniverseYawOffset, 0.0f));
 }
-
-bool OpenVRProvider::initInput()
-{
-   if (!mInputInitialized)
-   {
-      if (smManifestPath.isEmpty())
-      {
-         Con::errorf("OpenVRInput::init() No action manifest path provided.");
-         return false;
-      }
-
-      String manifestPath = Platform::getMainDotCsDir();
-      manifestPath = String::ToString("%s/%s", manifestPath.c_str(), smManifestPath.c_str());
-
-      // Not finding the file is not a fatal error since the runtime can override the path setting
-      if (!Platform::isFile(manifestPath.c_str()))
-         Con::warnf("OpenVR action manifest file not found (%s)!", manifestPath.c_str());
-
-      vr::EVRInputError vrError = vr::VRInput()->SetActionManifestPath(manifestPath.c_str());
-      if (vrError != vr::VRInputError_None && vrError != vr::VRInputError_MismatchedActionManifest)
-      {
-         Con::errorf("OpenVRProvider::initInput() failed to initialize IVRInput");
-         return false;
-      }
-
-      // Tell scripts to load the handles
-      onOVRInputReady_callback();
-
-      mInputInitialized = true;
-   }
-
-   return true;
-}
-
-void OpenVRProvider::processDigitalActions()
-{
-   static const char *argv[3];
-   int numDigital = mDigitalActions.size();
-
-   vr::InputDigitalActionData_t digitalData;
-   for (int i = 0; i < numDigital; ++i)
-   {
-      if (mDigitalActions[i].active)
-      {
-         vr::EVRInputError vrError = vr::VRInput()->GetDigitalActionData(mDigitalActions[i].actionHandle,
-            &digitalData, sizeof(vr::InputDigitalActionData_t), vr::k_ulInvalidInputValueHandle);
-         if ((vrError == vr::VRInputError_None) && digitalData.bActive && digitalData.bChanged)
-         {
-            argv[0] = mDigitalActions[i].callback;
-            argv[1] = Con::getIntArg((S32)digitalData.activeOrigin);
-            argv[2] = Con::getBoolArg(digitalData.bState);
-            Con::execute(3, argv);
-         }
-      }
-   }
-}
-
-void OpenVRProvider::processAnalogActions()
-{
-   static const char *argv[5];
-   int numAnalog = mAnalogActions.size();
-
-   vr::InputAnalogActionData_t analogData;
-   for (int i = 0; i < numAnalog; ++i)
-   {
-      if (mAnalogActions[i].active)
-      {
-         vr::EVRInputError vrError = vr::VRInput()->GetAnalogActionData(mAnalogActions[i].actionHandle,
-            &analogData, sizeof(vr::InputAnalogActionData_t), vr::k_ulInvalidInputValueHandle);
-         if ((vrError == vr::VRInputError_None) && analogData.bActive && 
-            ((analogData.deltaX != 0.0f) || (analogData.deltaY != 0.0f) || (analogData.deltaZ != 0.0f)))
-         {
-            argv[0] = mAnalogActions[i].callback;
-            argv[1] = Con::getIntArg((S32)analogData.activeOrigin);
-            argv[2] = Con::getFloatArg(analogData.x);
-            argv[3] = Con::getFloatArg(analogData.y);
-            argv[4] = Con::getFloatArg(analogData.z);
-            Con::execute(5, argv);
-         }
-      }
-   }
-}
-
-void OpenVRProvider::processPoseActions()
-{
-   static const char *argv[9];
-   int numPoses = mPoseActions.size();
-
-   vr::InputPoseActionData_t poseData;
-   Point3F posVal;
-   QuatF rotVal;
-   for (int i = 0; i < numPoses; ++i)
-   {
-      if (mPoseActions[i].active)
-      {
-         vr::EVRInputError vrError = vr::VRInput()->GetPoseActionDataRelativeToNow(mPoseActions[i].actionHandle,
-            mTrackingSpace, 0.0f, &poseData, sizeof(vr::InputPoseActionData_t), vr::k_ulInvalidInputValueHandle);
-         if ((vrError == vr::VRInputError_None) && poseData.bActive &&
-            poseData.pose.bPoseIsValid && poseData.pose.bDeviceIsConnected)
-         {
-            MatrixF mat = OpenVRUtil::convertSteamVRAffineMatrixToMatrixFPlain(poseData.pose.mDeviceToAbsoluteTracking);
-            if (!mIsZero(smUniverseYawOffset))
-               mat.mulL(smUniverseRotMat);
-
-            MatrixF torqueMat;
-            OpenVRUtil::convertTransformFromOVR(mat, torqueMat);
-
-            posVal = torqueMat.getPosition();
-            if (mTrackingSpace == vr::TrackingUniverseStanding)
-               posVal.z -= mStandingHMDHeight;
-            mPoseActions[i].lastPosition = posVal;
-
-            rotVal = QuatF(torqueMat);
-            mPoseActions[i].lastRotation = rotVal;
-            mPoseActions[i].validPose = true;
-
-            S32 idx = mPoseActions[i].eMoveIndex;
-            if (idx >= 0 && idx < ExtendedMove::MaxPositionsRotations)
-            {
-               ExtendedMoveManager::mDeviceIsActive[idx] = true;
-               ExtendedMoveManager::mPosX[idx] = posVal.x;
-               ExtendedMoveManager::mPosY[idx] = posVal.y;
-               ExtendedMoveManager::mPosZ[idx] = posVal.z;
-               ExtendedMoveManager::mRotAX[idx] = rotVal.x;
-               ExtendedMoveManager::mRotAY[idx] = rotVal.y;
-               ExtendedMoveManager::mRotAZ[idx] = rotVal.z;
-               ExtendedMoveManager::mRotAW[idx] = rotVal.w;
-            }
-
-            if (mPoseActions[i].poseCallback && mPoseActions[i].poseCallback[0])
-            {
-               argv[0] = mPoseActions[i].poseCallback;
-               argv[1] = Con::getIntArg((S32)poseData.activeOrigin);
-               argv[2] = Con::getFloatArg(posVal.x);
-               argv[3] = Con::getFloatArg(posVal.y);
-               argv[4] = Con::getFloatArg(posVal.z);
-               argv[5] = Con::getFloatArg(rotVal.x);
-               argv[6] = Con::getFloatArg(rotVal.y);
-               argv[7] = Con::getFloatArg(rotVal.z);
-               argv[8] = Con::getFloatArg(rotVal.w);
-               Con::execute(9, argv);
-            }
-
-            if (mPoseActions[i].velocityCallback && mPoseActions[i].velocityCallback[0])
-            {
-               argv[0] = mPoseActions[i].velocityCallback;
-               argv[1] = Con::getIntArg((S32)poseData.activeOrigin);
-               argv[2] = Con::getFloatArg(poseData.pose.vVelocity.v[0]);
-               argv[3] = Con::getFloatArg(-poseData.pose.vVelocity.v[2]);
-               argv[4] = Con::getFloatArg(poseData.pose.vVelocity.v[1]);
-               argv[5] = Con::getFloatArg(poseData.pose.vAngularVelocity.v[0]);
-               argv[6] = Con::getFloatArg(-poseData.pose.vAngularVelocity.v[2]);
-               argv[7] = Con::getFloatArg(poseData.pose.vAngularVelocity.v[1]);
-               Con::execute(8, argv);
-            }
-         }
-      }
-   }
-}
-
-void OpenVRProvider::processSkeletalActions()
-{
-   int numActions = mSkeletalActions.size();
-
-   vr::InputSkeletalActionData_t skeletonData;
-   for (int i = 0; i < numActions; ++i)
-   {
-      if (mSkeletalActions[i].active)
-      {
-         vr::EVRInputError vrError = vr::VRInput()->GetSkeletalActionData(mSkeletalActions[i].actionHandle,
-            &skeletonData, sizeof(vr::InputSkeletalActionData_t));
-         if ((vrError == vr::VRInputError_None) && skeletonData.bActive)
-         {
-            U32 requiredSize;
-            vr::EVRSkeletalMotionRange motionRange = mSkeletalActions[i].rangeWithController ?
-               vr::VRSkeletalMotionRange_WithController : vr::VRSkeletalMotionRange_WithoutController;
-            if (vr::VRInputError_None == vr::VRInput()->GetSkeletalBoneDataCompressed(mSkeletalActions[i].actionHandle,
-               motionRange, (void*) &ExtendedMoveManager::mBinaryBlob[mSkeletalActions[i].eMoveIndex],
-               ExtendedMove::MaxBinBlobSize, &requiredSize))
-            {
-               ExtendedMoveManager::mBinBlobSize[mSkeletalActions[i].eMoveIndex] = requiredSize;
-            }
-            else
-            {
-               AssertWarn(requiredSize < ExtendedMove::MaxBinBlobSize, "GetSkeletalBoneDataCompressed buffer size too small! Increase ExtendedMove::MaxBinBlobSize.");
-            }
-         }
-      }
-   }
-}
-
-S32 OpenVRProvider::addActionSet(const char* setName)
-{
-   if (setName)
-   {
-      vr::VRActionSetHandle_t setHandle;
-      vr::EVRInputError vrError = vr::VRInput()->GetActionSetHandle(setName, &setHandle);
-      if (vrError == vr::VRInputError_None)
-      {
-         S32 retIndex = mActionSets.size();
-         mActionSets.push_back(VRActionSet(setHandle, setName));
-         //Con::printf("VRInput Action Set %s, Handle: %I64u, Index: %d", setName, setHandle, retIndex);
-         return retIndex;
-      }
-      Con::warnf("OpenVRProvider::addActionSet failed for action set: %s.", setName);
-   }
-   return -1;
-}
-
-S32 OpenVRProvider::addAnalogAction(U32 setIndex, const char* actionName, const char* callbackFunc)
-{
-   if (actionName && callbackFunc && setIndex < mActionSets.size())
-   {
-      vr::VRActionHandle_t actionHandle;
-      vr::EVRInputError vrError = vr::VRInput()->GetActionHandle(actionName, &actionHandle);
-      if (vrError == vr::VRInputError_None)
-      {
-         S32 retIndex = mAnalogActions.size();
-         mAnalogActions.push_back(VRAnalogAction(setIndex, actionHandle, actionName, callbackFunc));
-         //Con::printf("VRInput Analog Action %s, Handle: %I64u, Index: %d", actionName, actionHandle, retIndex);
-         return retIndex;
-      }
-      Con::warnf("OpenVRProvider::addAnalogAction failed for action: %s.", actionName);
-   }
-   return -1;
-}
-
-S32 OpenVRProvider::addDigitalAction(U32 setIndex, const char* actionName, const char * callbackFunc)
-{
-   if (actionName && callbackFunc && setIndex < mActionSets.size())
-   {
-      vr::VRActionHandle_t actionHandle;
-      vr::EVRInputError vrError = vr::VRInput()->GetActionHandle(actionName, &actionHandle);
-      if (vrError == vr::VRInputError_None)
-      {
-         S32 retIndex = mDigitalActions.size();
-         mDigitalActions.push_back(VRDigitalAction(setIndex, actionHandle, actionName, callbackFunc));
-         //Con::printf("VRInput Boolean Action %s, Handle: %I64u, Index: %d", actionName, actionHandle, retIndex);
-         return retIndex;
-      }
-      Con::warnf("OpenVRProvider::addDigitalAction failed for action: %s.", actionName);
-   }
-   return -1;
-}
-
-S32 OpenVRProvider::addPoseAction(U32 setIndex, const char* actionName,
-   const char* poseCallback, const char* velocityCallback, S32 moveIndex)
-{
-   if (actionName && setIndex < mActionSets.size())
-   {
-      vr::VRActionHandle_t actionHandle;
-      vr::EVRInputError vrError = vr::VRInput()->GetActionHandle(actionName, &actionHandle);
-      if (vrError == vr::VRInputError_None)
-      {
-         S32 retIndex = mPoseActions.size();
-         mPoseActions.push_back(VRPoseAction(setIndex, actionHandle, actionName, poseCallback, velocityCallback, moveIndex));
-         //Con::printf("VRInput Pose Action %s, Handle: %I64u, Index: %d", actionName, actionHandle, retIndex);
-         return retIndex;
-      }
-      Con::warnf("OpenVRProvider::addPoseAction failed for action: %s.", actionName);
-   }
-   return -1;
-}
-
-S32 OpenVRProvider::addSkeletalAction(U32 setIndex, const char* actionName, S32 moveIndex)
-{
-   if (actionName && setIndex < mActionSets.size() && moveIndex >= 0 && moveIndex < ExtendedMove::MaxPositionsRotations)
-   {
-      vr::VRActionHandle_t actionHandle;
-      vr::EVRInputError vrError = vr::VRInput()->GetActionHandle(actionName, &actionHandle);
-      if (vrError == vr::VRInputError_None)
-      {
-         S32 retIndex = mSkeletalActions.size();
-         mSkeletalActions.push_back(VRSkeletalAction(setIndex, actionHandle, actionName, moveIndex));
-         //Con::printf("VRInput Skeletal Action %s, Handle: %I64u, Index: %d", actionName, actionHandle, retIndex);
-         return retIndex;
-      }
-      Con::warnf("OpenVRProvider::addSkeletalAction failed for action: %s.", actionName);
-   }
-   return -1;
-}
-
-S32 OpenVRProvider::addHapticOutput(const char* outputName)
-{
-   if (outputName)
-   {
-      vr::VRActionHandle_t actionHandle;
-      vr::EVRInputError vrError = vr::VRInput()->GetActionHandle(outputName, &actionHandle);
-      if (vrError == vr::VRInputError_None)
-      {
-         S32 retIndex = mHapticOutputs.size();
-         mHapticOutputs.push_back(actionHandle);
-         //Con::printf("VRInput Haptic Output %s, Handle: %I64u, Index: %d", outputName, actionHandle, retIndex);
-         return retIndex;
-      }
-      Con::warnf("OpenVRProvider::addHapticOutput failed for action: %s.", outputName);
-   }
-   return -1;
-}
-
-S32 OpenVRProvider::getPoseIndex(const char* actionName)
-{
-   int numPoses = mPoseActions.size();
-   for (int i = 0; i < numPoses; ++i)
-   {
-      if (dStrncmp(actionName, mPoseActions[i].actionName, dStrlen(mPoseActions[i].actionName)) == 0)
-         return i;
-   }
-   return -1;
-}
-
-bool OpenVRProvider::getCurrentPose(S32 poseIndex, Point3F& position, QuatF& rotation)
-{
-   if (poseIndex >= 0 && poseIndex < mPoseActions.size())
-   {
-      position = mPoseActions[poseIndex].lastPosition;
-      rotation = mPoseActions[poseIndex].lastRotation;
-      return mPoseActions[poseIndex].validPose;
-   }
-   return false;
-}
-
-bool OpenVRProvider::setPoseCallbacks(S32 poseIndex, const char* poseCallback, const char* velocityCallback)
-{
-   if (poseIndex >= 0 && poseIndex < mPoseActions.size())
-   {
-      mPoseActions[poseIndex].poseCallback = StringTable->insert(poseCallback, false);
-      mPoseActions[poseIndex].velocityCallback = StringTable->insert(velocityCallback, false);
-      return true;
-   }
-   return false;
-}
-
-S32 OpenVRProvider::getSkeletonIndex(const char* actionName)
-{
-   int numActions = mSkeletalActions.size();
-   for (int i = 0; i < numActions; ++i)
-   {
-      if (dStrncmp(actionName, mSkeletalActions[i].actionName, dStrlen(mSkeletalActions[i].actionName)) == 0)
-         return i;
-   }
-   return -1;
-}
-
-bool OpenVRProvider::getSkeletonNodes(S32 skeletonIndex, vr::VRBoneTransform_t* boneData)
-{
-   if (skeletonIndex >= 0 && skeletonIndex < mSkeletalActions.size())
-   {
-      vr::InputSkeletalActionData_t skeletonData;
-      vr::EVRInputError vrError = vr::VRInput()->GetSkeletalActionData(mSkeletalActions[skeletonIndex].actionHandle,
-         &skeletonData, sizeof(vr::InputSkeletalActionData_t));
-      if ((vrError != vr::VRInputError_None) || !skeletonData.bActive)
-      {
-         return false;
-      }
-
-      vr::EVRSkeletalMotionRange motionRange = mSkeletalActions[skeletonIndex].rangeWithController ?
-         vr::VRSkeletalMotionRange_WithController : vr::VRSkeletalMotionRange_WithoutController;
-
-      if (vr::VRInputError_None == vr::VRInput()->GetSkeletalBoneData(mSkeletalActions[skeletonIndex].actionHandle,
-         vr::VRSkeletalTransformSpace_Model, motionRange, boneData, /*eBone_Count*/ 31)) // TODO: (VR) Read bone count from API
-         return true;
-   }
-   return false;
-}
-
-bool OpenVRProvider::setSkeletonMode(S32 skeletonIndex, bool withController)
-{
-   if (skeletonIndex >= 0 && skeletonIndex < mSkeletalActions.size())
-   {
-      mSkeletalActions[skeletonIndex].rangeWithController = withController;
-      return true;
-   }
-   return false;
-}
-
-bool OpenVRProvider::activateActionSet(S32 controllerIndex, U32 setIndex)
-{
-   if (setIndex < mActionSets.size())
-   {
-      mNumSetsActive = 1U;
-      mActiveSetIndexes[0] = setIndex;
-      resetActiveSets();
-      return true;
-   }
-
-   return false;
-}
-
-bool OpenVRProvider::pushActionSetLayer(S32 controllerIndex, U32 setIndex)
-{
-   if (setIndex >= mActionSets.size())
-      return false;
-
-   // If it's already on the stack and not at the top pop it first
-   for (S32 i = 0; i < mNumSetsActive; ++i)
-   {
-      if (mActiveSetIndexes[i] == setIndex)
-      {
-         if (i == (mNumSetsActive - 1))
-            return true;  // It's already the top
-         popActionSetLayer(controllerIndex, setIndex);
-         break;
-      }
-   }
-
-   if (mNumSetsActive < MaxActiveActionSets)
-   {
-      mActiveSetIndexes[mNumSetsActive] = setIndex;
-      mNumSetsActive++;
-      resetActiveSets();
-      return true;
-   }
-   else
-      Con::errorf("OpenVRProvider::pushActionSetLayer - Too many action set layers are already active.");
-
-   return false;
-}
-
-bool OpenVRProvider::popActionSetLayer(S32 controllerIndex, U32 setIndex)
-{
-   if (setIndex >= mActionSets.size())
-      return false;
-
-   if (mNumSetsActive < 2)
-   {
-      Con::errorf("OpenVRProvider::popActionSetLayer - You cannot pop the last action set layer.");
-      return false;
-   }
-
-   bool setRemoved = false;
-   for (U32 i = 0; i < mNumSetsActive; ++i)
-   {
-      if (mActiveSetIndexes[i] == setIndex)
-      {
-         setRemoved = true;
-         mNumSetsActive--;
-      }
-
-      if (setRemoved && (i < mNumSetsActive))
-         mActiveSetIndexes[i] = mActiveSetIndexes[i + 1];
-   }
-   resetActiveSets();
-   return setRemoved;
-}
-
-void OpenVRProvider::resetActiveSets()
-{
-   for (U32 activeIndex = 0; activeIndex < mNumSetsActive; ++activeIndex)
-   {
-      U32 setIndex = mActiveSetIndexes[activeIndex];
-      mActiveSets[activeIndex].ulActionSet = mActionSets[setIndex].setHandle;
-      mActiveSets[activeIndex].ulRestrictedToDevice = vr::k_ulInvalidInputValueHandle;
-      mActiveSets[activeIndex].ulSecondaryActionSet = vr::k_ulInvalidInputValueHandle;
-      mActiveSets[activeIndex].nPriority = activeIndex + 1;
-
-      for (int i = 0; i < mAnalogActions.size(); ++i)
-      {
-         if ((activeIndex == 0) || (mAnalogActions[i].setIndex == setIndex))
-            mAnalogActions[i].active = (mAnalogActions[i].setIndex == setIndex);
-      }
-
-      for (int i = 0; i < mDigitalActions.size(); ++i)
-      {
-         if ((activeIndex == 0) || (mDigitalActions[i].setIndex == setIndex))
-            mDigitalActions[i].active = (mDigitalActions[i].setIndex == setIndex);
-      }
-
-      for (int i = 0; i < mPoseActions.size(); ++i)
-      {
-         if ((activeIndex == 0) || (mPoseActions[i].setIndex == setIndex))
-            mPoseActions[i].active = (mPoseActions[i].setIndex == setIndex);
-      }
-
-      for (int i = 0; i < mSkeletalActions.size(); ++i)
-      {
-         if ((activeIndex == 0) || (mSkeletalActions[i].setIndex == setIndex))
-            mSkeletalActions[i].active = (mSkeletalActions[i].setIndex == setIndex);
-      }
-   }
-}
-
-bool OpenVRProvider::triggerHapticEvent(U32 actionIndex, float fStartSecondsFromNow, float fDurationSeconds, float fFrequency, float fAmplitude)
-{
-   if ((actionIndex < mHapticOutputs.size()) && (actionIndex >= 0))
-   {
-      vr::VRActionHandle_t actionHandle = mHapticOutputs[actionIndex];
-      vr::EVRInputError vrError = vr::VRInput()->TriggerHapticVibrationAction(
-         actionHandle, fStartSecondsFromNow, fDurationSeconds, fFrequency, fAmplitude, vr::k_ulInvalidInputValueHandle);
-      if (vrError == vr::VRInputError_None)
-         return true;
-   }
-
-   return false;
-}
-
-void OpenVRProvider::showActionOrigins(U32 setIndex, OpenVRActionType actionType, U32 actionIndex)
-{
-   if (setIndex < mActionSets.size())
-   {
-      vr::VRActionHandle_t actionHandle = vr::k_ulInvalidInputValueHandle;
-      switch (actionType)
-      {
-      case OpenVRActionType_Digital:
-         if (actionIndex < mDigitalActions.size())
-            actionHandle = mDigitalActions[actionIndex].actionHandle;
-         break;
-      case OpenVRActionType_Analog:
-         if (actionIndex < mAnalogActions.size())
-            actionHandle = mAnalogActions[actionIndex].actionHandle;
-         break;
-      case OpenVRActionType_Pose:
-         if (actionIndex < mPoseActions.size())
-            actionHandle = mPoseActions[actionIndex].actionHandle;
-         break;
-      //case OpenVRActionType_Skeleton:
-      //   if (actionIndex < mSkeletalActions.size())
-      //      actionHandle = mSkeletalActions[actionIndex].actionHandle;
-      //   break;
-      default:
-         return;
-      }
-
-      if (actionHandle != vr::k_ulInvalidActionHandle)
-      {
-         if (vr::VRInputError_None != vr::VRInput()->ShowActionOrigins(mActionSets[setIndex].setHandle, actionHandle))
-            Con::warnf("OpenVRProvider::showActionOrigins - Error displaying action origins.");
-      }
-   }
-}
-
-void OpenVRProvider::showActionSetBinds(U32 setIndex)
-{
-   if (setIndex >= mActionSets.size())
-      return;
-
-   vr::VRActiveActionSet_t activeSet;
-   activeSet.ulActionSet = mActionSets[setIndex].setHandle;
-   activeSet.ulRestrictedToDevice = vr::k_ulInvalidInputValueHandle;
-   activeSet.ulSecondaryActionSet = vr::k_ulInvalidInputValueHandle;
-   activeSet.nPriority = 1;
-
-   if (vr::VRInputError_None != vr::VRInput()->ShowBindingsForActionSet(&activeSet, sizeof(vr::VRActiveActionSet_t), 1, vr::k_ulInvalidInputValueHandle))
-      Con::warnf("OpenVRProvider::showActionSetBinds - Error displaying action set.");
-}
-

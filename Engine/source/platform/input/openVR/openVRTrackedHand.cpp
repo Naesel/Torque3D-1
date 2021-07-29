@@ -23,6 +23,7 @@
 #include "platform/platform.h"
 #include "platform/input/openVR/openVRTrackedHand.h"
 #include "platform/input/openVR/openVRProvider.h"
+#include "platform/input/openVR/openVRInput.h"
 
 #include "core/stream/bitStream.h"
 #include "sim/netConnection.h"
@@ -92,13 +93,13 @@ void OpenVRTrackedHand::getSkeletonIndex()
       return;
 
    if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
-      mAnimationActionIndex = OPENVR->getSkeletonIndex(mAnimationSourceStringHandle.getString());
+      mAnimationActionIndex = OVRINPUT->getSkeletonIndex(mAnimationSourceStringHandle.getString());
 }
 
 void OpenVRTrackedHand::setLocalSkeletonPose()
 {
    vr::VRBoneTransform_t boneData[eBone_Count];
-   if (OPENVR->getSkeletonNodes(mAnimationActionIndex, boneData))
+   if (OVRINPUT->getSkeletonNodes(mAnimationActionIndex, boneData))
    {
       setBonePoses(boneData);
 

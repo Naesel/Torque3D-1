@@ -24,7 +24,7 @@
 #include "platform/input/openVR/openVRClientTObj.h"
 #include "platform/input/openVR/openVRProvider.h"
 #include "platform/input/openVR/openVRRenderModel.h"
-//#include "platform/input/openVR/openVRInput.h"
+#include "platform/input/openVR/openVRInput.h"
 
 #include "T3D/gameBase/gameConnection.h"
 
@@ -307,7 +307,7 @@ bool OpenVRClientTObj::onAdd()
 
    mPoseActionIndex = -1;
    if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
-      mPoseActionIndex = OPENVR->getPoseIndex(mPoseActionName);
+      mPoseActionIndex = OVRINPUT->getPoseIndex(mPoseActionName);
    if (mPoseActionIndex == -1)
       return false;
 
@@ -366,7 +366,7 @@ void OpenVRClientTObj::processTick(const Move *move)
 
    Point3F posVal;
    QuatF rotVal;
-   if (!OPENVR->getCurrentPose(mPoseActionIndex, posVal, rotVal))
+   if (!OVRINPUT->getCurrentPose(mPoseActionIndex, posVal, rotVal))
       return;
 
    MatrixF temp(1);
@@ -412,7 +412,7 @@ void OpenVRClientTObj::interpolateTick(F32 delta)
 
    Point3F posVal;
    QuatF rotVal;
-   if (!OPENVR->getCurrentPose(mPoseActionIndex, posVal, rotVal))
+   if (!OVRINPUT->getCurrentPose(mPoseActionIndex, posVal, rotVal))
       return;
 
    MatrixF temp(1);
