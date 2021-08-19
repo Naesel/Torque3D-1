@@ -564,6 +564,9 @@ void OpenVRClientTObj::prepRenderImage(SceneRenderState *state)
    if (!mConnection || (mDeviceIndex < 0) || (mDeviceHandle == vr::k_ulInvalidInputValueHandle))
       return;
 
+   if (vr::VRSystem()->IsSteamVRDrawingControllers())
+      return;
+
    if( mRenderHand && mShapeInstance )
    {
       mShapeInstance->setCurrentDetail( 0 );

@@ -63,7 +63,7 @@ bool OpenVRTrackedHand::extractBlobData(U8* dataPtr, U32 dataSize)
 
    if (vr::VRInput())
    {
-      vr::EVRSkeletalTransformSpace poseSpace;
+      //vr::EVRSkeletalTransformSpace poseSpace;
       vr::VRBoneTransform_t boneData[eBone_Count];
       vr::EVRInputError vrError = vr::VRInput()->DecompressSkeletalBoneData(
          (void *)dataPtr, dataSize, vr::VRSkeletalTransformSpace_Model, boneData, eBone_Count);

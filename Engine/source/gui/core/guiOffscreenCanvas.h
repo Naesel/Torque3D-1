@@ -19,6 +19,18 @@ class GuiOffscreenCanvas : public GuiCanvas
 {
 public:
    typedef GuiCanvas Parent;
+   typedef Signal< void() > OffscreenRenderSignal;
+
+   enum KeyTranslationMode
+   {
+      TranslationMode_Platform,
+      TranslationMode_Callback,
+      TranslationMode_Ignore,
+   };
+
+   DECLARE_CALLBACK(bool, onEnableKeyboardTranslation, ());
+   DECLARE_CALLBACK(bool, onDisableKeyboardTranslation, ());
+   DECLARE_CALLBACK(bool, onSetNativeAcceleratorsEnabled, (bool enable));
    
    GuiOffscreenCanvas();
    ~GuiOffscreenCanvas();
@@ -55,6 +67,10 @@ public:
 
    static void initPersistFields();
    
+   virtual void enableKeyboardTranslation();
+   virtual void disableKeyboardTranslation();
+   virtual void setNativeAcceleratorsEnabled(bool enabled);
+
    DECLARE_CONOBJECT(GuiOffscreenCanvas);
 
 protected:
@@ -75,10 +91,21 @@ protected:
    F32 mMaxInteractDistance;
    U32 mRenderCount;
 
+   OffscreenRenderSignal mRenderSignal;
+
+   KeyTranslationMode mKeyTranslationMode;
+   KeyTranslationMode mNativeAcceleratorMode;
+
 public:
    static GuiOffscreenCanvas* sActiveOffscreenCanvas;
    static Vector<GuiOffscreenCanvas*> sList;
    static GuiOffscreenCanvas *getCanvasFromRayInfo(RayInfo &info);
+
+   OffscreenRenderSignal& getRenderSignal() { return mRenderSignal; }
+   U32 getRenderCount() { return mRenderCount; }
 };
+
+typedef GuiOffscreenCanvas::KeyTranslationMode OSCanvasTranslationMode;
+DefineEnumType(OSCanvasTranslationMode);
 
 #endif

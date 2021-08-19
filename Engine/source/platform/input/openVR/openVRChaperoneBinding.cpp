@@ -150,10 +150,10 @@ DefineEngineStaticMethod(OVRChaperone, resetZeroPose, void, (OpenVRTrackingUnive
    "calls as the origin will be relative to this new zero pose. The new zero coordinate "
    "system will not change the fact that the Z axis is up in the real world, so the next "
    "pose returned from GetDeviceToAbsoluteTrackingPose after a call to ResetZeroPose may "
-   "not be exactly an identity matrix..\n\n"
-   "NOTE: This function overrides the user's previously saved seated zero pose "
+   "not be exactly an identity matrix.\n\n"
+   "NOTE: This function overrides the user's previously saved zero pose "
    "and should only be called as the result of a user action. Users are also "
-   "able to set their seated zero pose via the OpenVR Dashboard.\n\n"
+   "able to set their zero pose via the OpenVR Dashboard.\n\n"
    "@param universeOrigin The universe to zero. \"Seated\" or \"Standing\". Default \"Seated\".\n"
    "@ingroup OVRChaperone\n"
    "@ingroup OpenVR\n")

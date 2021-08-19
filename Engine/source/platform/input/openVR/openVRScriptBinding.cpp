@@ -34,44 +34,6 @@ ConsoleDoc(
 );
 
 // Enum impls
-
-ImplementEnumType(OpenVROverlayInputMethod,
-   "Types of input supported by VR Overlays.\n\n"
-   "@ingroup OpenVR")
-{ vr::VROverlayInputMethod_None, "None", "No input events will be generated automatically for this overlay" },
-{ vr::VROverlayInputMethod_Mouse, "Mouse", "Tracked controllers will get mouse events automatically" },
-//{ vr::VROverlayInputMethod_DualAnalog, "DualAnalog" }, // No longer supported
-EndImplementEnumType;
-
-ImplementEnumType(OpenVROverlayTransformType,
-   "Allows the caller to figure out which overlay transform getter to call.\n\n"
-   "@ingroup OpenVR")
-{ vr::VROverlayTransform_Absolute, "Absolute" },
-{ vr::VROverlayTransform_TrackedDeviceRelative, "TrackedDeviceRelative" },
-{ vr::VROverlayTransform_SystemOverlay, "SystemOverlay" },
-{ vr::VROverlayTransform_TrackedComponent, "TrackedComponent" },
-{ vr::VROverlayTransform_Cursor, "Cursor" },
-{ vr::VROverlayTransform_DashboardTab, "DashboardTab" },
-{ vr::VROverlayTransform_DashboardThumb, "DashboardThumb" },
-{ vr::VROverlayTransform_Mountable, "Mountable" },
-{ vr::VROverlayTransform_Projection, "Projection" },
-EndImplementEnumType;
-
-ImplementEnumType(OpenVRGamepadTextInputMode,
-   "Input modes for the Big Picture gamepad text entry.\n\n"
-   "@ingroup OpenVR")
-{ vr::k_EGamepadTextInputModeNormal, "Normal", },
-{ vr::k_EGamepadTextInputModePassword, "Password", },
-{ vr::k_EGamepadTextInputModeSubmit, "Submit" },
-EndImplementEnumType;
-
-ImplementEnumType(OpenVRGamepadTextInputLineMode,
-   "Controls number of allowed lines for the Big Picture gamepad text entry.\n\n"
-   "@ingroup OpenVR")
-{ vr::k_EGamepadTextInputLineModeSingleLine, "SingleLine" },
-{ vr::k_EGamepadTextInputLineModeMultipleLines, "MultipleLines" },
-EndImplementEnumType;
-
 ImplementEnumType(OpenVRTrackingResult,
    "\n\n"
    "@ingroup OpenVR")
@@ -273,6 +235,14 @@ DefineEngineStaticMethod(OpenVR, rotateUniverse, void, (F32 yaw), (0.0f),
    OPENVR->rotateUniverse(yaw);
 }
 
+DefineEngineStaticMethod(OpenVR, isSteamVRDrawingControllers, bool, (), ,
+   "Returns true if SteamVR is drawing controllers on top of the application. Applications "
+   "should consider not drawing anything attached to the user's hands in this case.\n"
+   "@ingroup OpenVR")
+{
+   return vr::VRSystem() && vr::VRSystem()->IsSteamVRDrawingControllers();
+}
+
 DefineEngineStaticMethod(OpenVR, getDevicePropertyString, String, (U32 deviceIdx, U32 propID), ,
    "Returns a device property string value.\n"
    "@param deviceIdx device to read property value for.\n"
@@ -341,6 +311,21 @@ DefineEngineStaticMethod(OpenVR, getDevicePropertyFloat, F32, (U32 deviceIdx, U3
       return 0.0f;
    }
    return OPENVR->getDevicePropertyFloat(deviceIdx, propID);
+}
+
+DefineEngineStaticMethod(OpenVR, getTrackedDeviceIndices, String, (OpenVRTrackedDeviceClass deviceClass), ,
+   "Get a sorted array of device indices of a given class of tracked devices "
+   "(e.g. controllers).  Devices are sorted right to left relative to the specified "
+   "tracked device.\n"
+   "@param deviceClass device class to obtain indices for. One of: HMD, Controller, GenericTracker, TrackingReference or Other.\n"
+   "@return A space separated list of device indices.\n"
+   "@ingroup OpenVR")
+{
+   if (!ManagedSingleton<OpenVRProvider>::instanceOrNull())
+   {
+      return String::EmptyString;
+   }
+   return OPENVR->getTrackedDeviceIndices(deviceClass);
 }
 
 DefineEngineStaticMethod(OpenVR, getDeviceClass, String, (U32 deviceIdx), ,

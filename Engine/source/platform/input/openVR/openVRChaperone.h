@@ -48,7 +48,7 @@ public:
    static const char* getSingletonName() { return "OpenVRChaperone"; }
 };
 
-/// Returns the OpenVRProvider singleton.
+/// Returns the OpenVRChaperone singleton.
 #define OVRCHAPERONE ManagedSingleton<OpenVRChaperone>::instance()
 
 #endif

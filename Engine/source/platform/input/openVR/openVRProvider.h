@@ -49,10 +49,6 @@ class Namespace;
 class NamedTexTarget;
 class OpenVRRenderModel;
 
-typedef vr::VROverlayInputMethod OpenVROverlayInputMethod;
-typedef vr::VROverlayTransformType OpenVROverlayTransformType;
-typedef vr::EGamepadTextInputMode OpenVRGamepadTextInputMode;
-typedef vr::EGamepadTextInputLineMode OpenVRGamepadTextInputLineMode;
 typedef vr::ETrackingResult OpenVRTrackingResult;
 typedef vr::ETrackingUniverseOrigin OpenVRTrackingUniverseOrigin;
 typedef vr::EVRState OpenVRState;
@@ -60,10 +56,6 @@ typedef vr::TrackedDeviceClass OpenVRTrackedDeviceClass;
 typedef vr::EVRControllerAxisType OpenVRControllerAxisType;
 typedef vr::ETrackedControllerRole OpenVRTrackedControllerRole;
 
-DefineEnumType(OpenVROverlayInputMethod);
-DefineEnumType(OpenVROverlayTransformType);
-DefineEnumType(OpenVRGamepadTextInputMode);
-DefineEnumType(OpenVRGamepadTextInputLineMode);
 DefineEnumType(OpenVRTrackingResult);
 DefineEnumType(OpenVRTrackingUniverseOrigin);
 DefineEnumType(OpenVRState);
@@ -227,6 +219,7 @@ public:
    String getDevicePropertyUInt(U32 deviceIdx, U32 propID);
    F32 getDevicePropertyFloat(U32 deviceIdx, U32 propID);
    String getControllerAxisType(U32 deviceIdx, U32 axisID);
+   String getTrackedDeviceIndices(OpenVRTrackedDeviceClass deviceClass);
    /// }
 
    /// @name OpenVR state

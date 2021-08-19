@@ -205,10 +205,12 @@ MODULE_INIT
    OpenVRProvider::staticInit();
    ManagedSingleton< OpenVRProvider >::createSingleton();
    ManagedSingleton< OpenVRChaperone >::createSingleton();
+   ManagedSingleton< OpenVRInput >::createSingleton();
 }
 
 MODULE_SHUTDOWN
 {
+   ManagedSingleton< OpenVRInput >::deleteSingleton();
    ManagedSingleton< OpenVRChaperone >::deleteSingleton();
    ManagedSingleton< OpenVRProvider >::deleteSingleton();
 }
@@ -404,9 +406,12 @@ void OpenVRProvider::staticInit()
    // will be sorted with the "Other" overlays on top of all other scene overlays
    Con::setIntVariable("$OpenVR::OverlayFlags_SortWithNonSceneOverlays", vr::VROverlayFlags_SortWithNonSceneOverlays);
 
+   // // If set, the overlay will be shown in the dashboard, otherwise it will be hidden.
+   Con::setIntVariable("$OpenVR::OverlayFlags_VisibleInDashboard", vr::VROverlayFlags_VisibleInDashboard);
+
    // If this is set and the overlay's input method is not none, the system-wide laser mouse
    // mode will be activated whenever this overlay is visible.
-   Con::setIntVariable("$OpenVR::OverlayFlags_VisibleInDashboard", vr::VROverlayFlags_VisibleInDashboard);
+   Con::setIntVariable("$OpenVR::MakeOverlaysInteractiveIfVisible", vr::VROverlayFlags_MakeOverlaysInteractiveIfVisible);
 
    // If this is set the overlay will receive smooth VREvent_ScrollSmooth that emulate trackpad scrolling.
    // Requires mouse input mode.
@@ -1263,6 +1268,26 @@ String OpenVRProvider::getControllerAxisType(U32 deviceIdx, U32 axisID)
          (vr::TrackedDeviceProperty) (vr::Prop_Axis0Type_Int32 + axisID), NULL);
 
    return castConsoleTypeToString(axisType);
+}
+
+String OpenVRProvider::getTrackedDeviceIndices(OpenVRTrackedDeviceClass deviceClass)
+{
+   if (!mHMD)
+      return String::EmptyString;
+
+   vr::TrackedDeviceIndex_t indexArray[vr::k_unMaxTrackedDeviceCount];
+   String results;
+   U32 numDevices = mHMD->GetSortedTrackedDeviceIndicesOfClass(deviceClass, indexArray, vr::k_unMaxTrackedDeviceCount, vr::k_unTrackedDeviceIndexInvalid);
+   if (numDevices < vr::k_unMaxTrackedDeviceCount)
+   {
+      for (U32 i = 0; i < numDevices; ++i)
+      {
+         if (i > 0)
+            results += " ";
+         results += String::ToString(indexArray[i]);
+      }
+   }
+   return results;
 }
 
 String OpenVRProvider::getDevicePropertyString(U32 deviceIdx, U32 propID)

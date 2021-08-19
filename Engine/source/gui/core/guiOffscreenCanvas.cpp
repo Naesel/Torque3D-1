@@ -11,6 +11,39 @@
 #include "console/consoleTypes.h"
 #include "console/console.h"
 
+ImplementEnumType(OSCanvasTranslationMode,
+   "Modes for handling keyboard translation or native accelerator requests.\n\n" )
+   { GuiOffscreenCanvas::TranslationMode_Platform, "Platform",
+      "Requests will be passed to the platform window duplicating the behavior of a normal canvas." },
+   { GuiOffscreenCanvas::TranslationMode_Callback, "Callback",
+      "Script callbacks will be issued to notify and allow override of these events." },
+   { GuiOffscreenCanvas::TranslationMode_Ignore, "Ignore",
+      "Requsts to enable/disable keyboard translations or native accelerators will be ignored "
+      "with no callback triggered." },
+EndImplementEnumType;
+
+IMPLEMENT_CALLBACK(GuiOffscreenCanvas, onEnableKeyboardTranslation, bool, (), (),
+   "Called when the canvas receives an enableKeyboardTranslation request. This is usually the "
+   "result of a GuitTextInputCtrl gaining focus. Return false to allow the request to be passed "
+   "to the platform window. Return true to override the request and handle it in script.\n\n"
+   "@note This callback is only issued if keyTranslationMode is set to \"Callback\" for this canvas.\n"
+   "@see OSCanvasTranslationMode\n");
+
+IMPLEMENT_CALLBACK(GuiOffscreenCanvas, onDisableKeyboardTranslation, bool, (), (),
+   "Called when the canvas receives a disableKeyboardTranslation request. This is usually the "
+   "result of a GuitTextInputCtrl losing focus. Return false to allow the request to be passed "
+   "to the platform window. Return true to override the request and handle it in script.\n\n"
+   "@note This callback is only issued if keyTranslationMode is set to \"Callback\" for this canvas.\n"
+   "@see OSCanvasTranslationMode\n");
+
+IMPLEMENT_CALLBACK(GuiOffscreenCanvas, onSetNativeAcceleratorsEnabled, bool, (bool enable), (enable),
+   "Called when the canvas receives a setNativeAcceleratorsEnabled request. This is usually the "
+   "result of a GuitTextInputCtrl gaining or losing focus. Return false to allow the request to "
+   "be passed to the platform window. Return true to override the request and handle it in script.\n\n"
+   "@note This callback is only issued if nativeAcceleratorMode is set to \"Callback\" for this canvas.\n"
+   "@param enable Requested accelerator state.\n"
+   "@see OSCanvasTranslationMode\n");
+
 IMPLEMENT_CONOBJECT(GuiOffscreenCanvas);
 
 GuiOffscreenCanvas* GuiOffscreenCanvas::sActiveOffscreenCanvas = NULL;
@@ -27,6 +60,8 @@ GuiOffscreenCanvas::GuiOffscreenCanvas()
    mCanInteract = false;
    mMaxInteractDistance = 0.0f;
    mRenderCount = 0;
+   mKeyTranslationMode = TranslationMode_Platform;
+   mNativeAcceleratorMode = TranslationMode_Platform;
 }
 
 GuiOffscreenCanvas::~GuiOffscreenCanvas()
@@ -43,7 +78,11 @@ void GuiOffscreenCanvas::initPersistFields()
    addField( "useDepth", TypeBool, Offset( mUseDepth, GuiOffscreenCanvas ), "");
    addField( "canInteract", TypeBool, Offset( mCanInteract, GuiOffscreenCanvas ), "If true the user can interact with this object via crosshair and mouse click when the canvas is rendered on a TSShapeInstance.");
    addField( "maxInteractDistance", TypeF32, Offset( mMaxInteractDistance, GuiOffscreenCanvas ), "The camera must be within this distance to enable user interaction with the canvas if canInteract is true.");
-   addField( "renderCount", TypeS32, Offset( mRenderCount, GuiOffscreenCanvas ), "");
+   addField( "renderCount", TypeS32, Offset( mRenderCount, GuiOffscreenCanvas ), "The number of times the canvas has rendered.");
+   addField( "keyTranslationMode", TYPEID< KeyTranslationMode >(), Offset(mKeyTranslationMode, GuiOffscreenCanvas ),
+      "How to handle enable/disable keyboard translation requests. \"Platform\", \"Callback\" or \"Ignore\".\n");
+   addField( "nativeAcceleratorMode", TYPEID< KeyTranslationMode >(), Offset(mNativeAcceleratorMode, GuiOffscreenCanvas ),
+      "How to handle enable/disable native accelerator requests. \"Platform\", \"Callback\" or \"Ignore\".\n");
 
    Parent::initPersistFields();
 }
@@ -277,6 +316,7 @@ void GuiOffscreenCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = tr
 
 void GuiOffscreenCanvas::onFrameRendered()
 {
+   mRenderSignal.trigger();
    mRenderCount++;
 }
 
@@ -332,7 +372,10 @@ void GuiOffscreenCanvas::_onTextureEvent( GFXTexCallbackCode code )
 void GuiOffscreenCanvas::setCanvasActive(bool active)
 {
    if (active)
+   {
       sActiveOffscreenCanvas = this;
+      mTargetDirty = true;
+   }
    else
    {
       if (isActiveCanvas())
@@ -341,6 +384,27 @@ void GuiOffscreenCanvas::setCanvasActive(bool active)
       if (mPlatformWindow && mPlatformWindow->getKeyboardTranslation())
          mPlatformWindow->setKeyboardTranslation(false);
    }
+}
+
+void GuiOffscreenCanvas::enableKeyboardTranslation()
+{
+   if ((mKeyTranslationMode == TranslationMode_Platform) ||
+      ((mKeyTranslationMode == TranslationMode_Callback) && onEnableKeyboardTranslation_callback()))
+      Parent::enableKeyboardTranslation();
+}
+
+void GuiOffscreenCanvas::disableKeyboardTranslation()
+{
+   if ((mKeyTranslationMode == TranslationMode_Platform) ||
+      ((mKeyTranslationMode == TranslationMode_Callback) && onDisableKeyboardTranslation_callback()))
+      Parent::disableKeyboardTranslation();
+}
+
+void GuiOffscreenCanvas::setNativeAcceleratorsEnabled(bool enabled)
+{
+   if ((mNativeAcceleratorMode == TranslationMode_Platform) ||
+      ((mNativeAcceleratorMode == TranslationMode_Callback) && onSetNativeAcceleratorsEnabled_callback(enabled)))
+      Parent::setNativeAcceleratorsEnabled(enabled);
 }
 
 void GuiOffscreenCanvas::dumpTarget(const char *filename)

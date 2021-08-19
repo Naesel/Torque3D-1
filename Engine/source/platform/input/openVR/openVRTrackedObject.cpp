@@ -455,6 +455,9 @@ void OpenVRTrackedObject::prepRenderImage(SceneRenderState *state)
    if (mbOwnedByClient && !mbRenderFirstPerson)
       return;
 
+   if (vr::VRSystem()->IsSteamVRDrawingControllers())
+      return;
+
    // Render the shape
    if (mShapeInstance)
    {
