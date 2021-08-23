@@ -25,6 +25,7 @@
 #include "platform/input/openVR/openVRChaperone.h"
 #include "platform/input/openVR/openVRRenderModel.h"
 #include "platform/input/openVR/openVROverlay.h"
+#include "platform/input/openVR/openVRStageModelData.h"
 #include "platform/platformInput.h"
 #include "core/module.h"
 #include "T3D/gameBase/gameConnection.h"
@@ -34,7 +35,7 @@
 #include "materials/baseMatInstance.h"
 #include "materials/materialManager.h"
 #include "math/mathUtils.h"
-//#include "T3D/gameBase/extended/extendedMove.h"
+#include "gfx/sim/cubemapData.h"
 
 #ifndef LINUX
 #include "gfx/D3D11/gfxD3D11Device.h"
@@ -233,6 +234,11 @@ IMPLEMENT_GLOBAL_CALLBACK(onOVRDeviceActivated, void, (S32 deviceIndex), (device
 IMPLEMENT_GLOBAL_CALLBACK(onOVRDeviceRoleChanged, void, (), (),
    "Callback posted when a tracked device has changed roles. Usually in response to an "
    "ambidextrous controller being assigned to a different hand.\n"
+   "@ingroup OpenVR");
+
+IMPLEMENT_GLOBAL_CALLBACK(onStageOverrideReady, void, (), (),
+   "Callback posted when SteamVR has finished reading the compositor stage model's "
+   "geometry and texture from disk and uploading to the gpu.\n"
    "@ingroup OpenVR");
 
 bool OpenVRRenderState::setupRenderTargets(GFXDevice::GFXDeviceRenderStyles mode)
@@ -828,9 +834,6 @@ bool OpenVRProvider::_handleDeviceEvent(GFXDevice::GFXDeviceEventType evt)
 
 void OpenVRProvider::processVREvent(const vr::VREvent_t & evt)
 {
-//#ifdef TORQUE_DEBUG
-//   Con::printf("OpenVR Event: %s", mHMD->GetEventTypeNameFromEnum((vr::EVREventType) evt.eventType));
-//#endif
    switch (evt.eventType)
    {
    case vr::VREvent_InputFocusCaptured:
@@ -865,6 +868,19 @@ void OpenVRProvider::processVREvent(const vr::VREvent_t & evt)
       onOVRDeviceRoleChanged_callback();
    }
    break;
+
+   case vr::VREvent_Compositor_StageOverrideReady:
+   {
+      // Send script callback that a stage override model is ready
+      onStageOverrideReady_callback();
+   }
+   break;
+
+   default:
+      #ifdef TORQUE_DEBUG
+         Con::printf("Unhandled OpenVR Event: %s", mHMD->GetEventTypeNameFromEnum((vr::EVREventType) evt.eventType));
+      #endif
+      break;
    }
 }
 
@@ -1209,6 +1225,142 @@ void OpenVRProvider::resetRenderModels()
    mLoadedTextures.clear();
    mLoadedModelLookup.clear();
    mLoadedTextureLookup.clear();
+}
+
+bool OpenVRProvider::setSkyboxOverride(CubemapData* cubemap)
+{
+   if (!mHMD || !vr::VRCompositor())
+      return false;
+
+   // Make sure the cubemap faces have been loaded.
+   cubemap->createMap();
+
+   // VR face order: Front, Back, Left, Right, Top, Bottom.
+   // T3D face order: Right, Left, Back, Front, Top, Bottom.
+   const U32 vrToT3dOrder[] = { 3, 2, 1, 0, 4, 5 };
+
+   vr::Texture_t vrTex[6];
+   for (U32 i = 0; i < 6; ++i)
+   {
+      GFXTexHandle* faceHandle = cubemap->getCubeMapFace(vrToT3dOrder[i]);
+      if (!faceHandle)
+         return false;
+
+      vrTex[i] = { NULL, vr::TextureType_Invalid, vr::ColorSpace_Auto };
+#if defined(TORQUE_OS_WIN64) || defined(TORQUE_D3D11)
+      if (GFX->getAdapterType() == Direct3D11)
+         vrTex[i] = { (void*)static_cast<GFXD3D11TextureObject*>((GFXTextureObject*)(*faceHandle))->getResource(), vr::TextureType_DirectX, vr::ColorSpace_Auto };
+#endif
+#ifdef TORQUE_OPENGL
+      if (GFX->getAdapterType() == OpenGL)
+         vrTex[i] = { (void*)(uintptr_t)static_cast<GFXGLTextureObject*>((GFXTextureObject*)(*faceHandle))->getHandle(), vr::TextureType_OpenGL, vr::ColorSpace_Auto };
+#endif
+      if (vrTex[i].eType == vr::TextureType_Invalid)
+         return false;
+   }
+
+   vr::EVRCompositorError err = vr::VRCompositor()->SetSkyboxOverride(vrTex, 6);
+   if (err != vr::VRCompositorError_None)
+   {
+      Con::errorf("VR Compositor error %u in OpenVRProvider::setSkyboxOverride().", (U32) err);
+      return false;
+   }
+   return true;
+}
+
+void OpenVRProvider::clearSkyboxOverride()
+{
+   if (!mHMD || !vr::VRCompositor())
+      return;
+
+   vr::VRCompositor()->ClearSkyboxOverride();
+}
+
+bool OpenVRProvider::setStageOverride_Async(const OpenVRStageModelData* modelData, const MatrixF& transform)
+{
+   if (!mHMD || !vr::VRCompositor() || !modelData)
+      return false;
+
+   // Convert the model path to a full path and verify it's a loose file.
+   char pathBuffer[1024];
+   Platform::makeFullPathName(modelData->mObjModelFile, pathBuffer, sizeof(pathBuffer), Platform::getMainDotCsDir());
+   if (!Platform::isFile(pathBuffer))
+   {
+      Con::errorf("Stage model (%s) not found for OpenVRStageModelData(%s).", pathBuffer, modelData->getName());
+      return false;
+   }
+
+   // Copy render settings
+   vr::Compositor_StageRenderSettings settings = vr::DefaultStageRenderSettings();
+   settings.m_PrimaryColor.r = modelData->mPrimaryColor.red;
+   settings.m_PrimaryColor.g = modelData->mPrimaryColor.green;
+   settings.m_PrimaryColor.b = modelData->mPrimaryColor.blue;
+   settings.m_PrimaryColor.a = modelData->mPrimaryColor.alpha;
+   settings.m_SecondaryColor.r = modelData->mSecondaryColor.red;
+   settings.m_SecondaryColor.g = modelData->mSecondaryColor.green;
+   settings.m_SecondaryColor.b = modelData->mSecondaryColor.blue;
+   settings.m_SecondaryColor.a = modelData->mSecondaryColor.alpha;
+   settings.m_flVignetteInnerRadius = modelData->mVignetteInnerRadius;
+   settings.m_flVignetteOuterRadius = modelData->mVignetteOuterRadius;
+   settings.m_flFresnelStrength = modelData->mFresnelStrength;
+   settings.m_bBackfaceCulling = modelData->mbBackfaceCulling;
+   settings.m_bGreyscale = modelData->mbGreyscale;
+   settings.m_bWireframe = modelData->mbWireframe;
+
+   // Convert transform for OpenVR
+   MatrixF vrMat(1);
+   vr::HmdMatrix34_t ovrMat;
+   OpenVRUtil::convertTransformToOVR(transform, vrMat);
+   OpenVRUtil::convertMatrixFPlainToSteamVRAffineMatrix(vrMat, ovrMat);
+
+   vr::EVRCompositorError err = vr::VRCompositor()->SetStageOverride_Async(pathBuffer, &ovrMat, &settings, sizeof(settings));
+   if (err != vr::VRCompositorError_None)
+   {
+      Con::errorf("VR Compositor error %u in OpenVRProvider::setStageOverride_Async(%s, ...).", (U32)err, modelData->getName());
+      return false;
+   }
+   return true;
+}
+
+void OpenVRProvider::clearStageOverride()
+{
+   if (!mHMD || !vr::VRCompositor())
+      return;
+
+   vr::VRCompositor()->ClearStageOverride();
+}
+
+void OpenVRProvider::fadeGrid(F32 fSeconds, bool bFadeGridIn)
+{
+   if (!mHMD || !vr::VRCompositor())
+      return;
+
+   vr::VRCompositor()->FadeGrid(fSeconds, bFadeGridIn);
+}
+
+float OpenVRProvider::getCurrentGridAlpha()
+{
+   if (!mHMD || !vr::VRCompositor())
+      return 0.0f;
+
+   return vr::VRCompositor()->GetCurrentGridAlpha();
+}
+
+void OpenVRProvider::fadeToColor(F32 fSeconds, LinearColorF& color, bool bBackground)
+{
+   if (!mHMD || !vr::VRCompositor())
+      return;
+
+   vr::VRCompositor()->FadeToColor(fSeconds, color.red, color.green, color.blue, color.alpha, bBackground);
+}
+
+LinearColorF OpenVRProvider::getCurrentFadeColor(bool bBackground)
+{
+   if (!mHMD || !vr::VRCompositor())
+      return LinearColorF::ZERO;
+
+   vr::HmdColor_t vrColor = vr::VRCompositor()->GetCurrentFadeColor();
+   return LinearColorF(vrColor.r, vrColor.g, vrColor.b, vrColor.a);
 }
 
 OpenVROverlay *OpenVRProvider::getGamepadFocusOverlay()

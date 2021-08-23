@@ -22,8 +22,10 @@
 
 #include "console/engineAPI.h"
 #include "platform/input/openVR/openVRProvider.h"
+#include "platform/input/openVR/openVRStageModelData.h"
 #include "T3D/gameBase/gameConnection.h"
 #include "math/mTransform.h"
+#include "gfx/sim/cubemapData.h"
 
 DECLARE_SCOPE(OpenVR);
 IMPLEMENT_SCOPE(OpenVR, OpenVRProvider, , "");
@@ -375,4 +377,96 @@ DefineEngineStaticMethod(OpenVR, getHMDTrackingHeight, F32, (), ,
    if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
       return OPENVR->mStandingHMDHeight;
    return 0.0f;
+}
+
+// Compositor Skinning
+DefineEngineStaticMethod(OpenVR, setSkyboxOverride, bool, (CubemapData* cubemap), ,
+   "Override the skybox used in the compositor (e.g. for during level loads when the app can't "
+   "feed scene images fast enough).\n\n"
+   "@param cubemap The cubemap to display as the compositor skybox.\n"
+   "@returns true if the command was successful. false on error.\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull() && cubemap)
+      return OPENVR->setSkyboxOverride(cubemap);
+   return false;
+}
+
+DefineEngineStaticMethod(OpenVR, clearSkyboxOverride, void, (), ,
+   "Resets the compositor skybox back to defaults.\n\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
+      OPENVR->clearSkyboxOverride();
+}
+
+DefineEngineStaticMethod(OpenVR, setStageOverride_Async, bool, (OpenVRStageModelData* modelData, TransformF transform), ,
+   "Override the stage model used in the compositor to replace the grid. The render model "
+   "and texture will be loaded asynchronously from disk and uploaded to the gpu by the runtime. "
+   "Once ready for rendering, the onStageOverrideReady() callback will be called. Use "
+   "fadeGrid() to reveal. Call clearStageOverride() to free the associated resources "
+   "when finished.\n\n"
+   "@param modelData An OpenVRStageModelData object initialized with the model path and render "
+   "settings for the compositor stage.\n"
+   "@see OpenVRStageModelData\n"
+   "@param transform Position and orientation for the stage model relative to the tracking universe origin.\n"
+   "@returns true if the command was successful. false on error.\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull() && modelData)
+      return OPENVR->setStageOverride_Async(modelData, transform.getMatrix());
+   return false;
+}
+
+DefineEngineStaticMethod(OpenVR, clearStageOverride, void, (), ,
+   "Resets the compositor stage to its default user specified setting.\n\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
+      OPENVR->clearStageOverride();
+}
+
+DefineEngineStaticMethod(OpenVR, fadeGrid, void, (F32 fSeconds, bool bFadeGridIn), ,
+   "Fade the Grid in or out over fSeconds.\n\n"
+   "@param fSeconds Duration of the fade effect in seconds.\n"
+   "@param bFadeGridIn Direction of fade. True - fade to grid. False - fade to scene.\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
+      OPENVR->fadeGrid(fSeconds, bFadeGridIn);
+}
+
+DefineEngineStaticMethod(OpenVR, getCurrentGridAlpha, F32, (), ,
+   "Get current alpha value of the grid. This can be used to determine the current state "
+   "of the grid fade effect.\n\n"
+   "@returns the current alpha value of the grid fade effect.\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
+      return OPENVR->getCurrentGridAlpha();
+   return false;
+}
+
+DefineEngineStaticMethod(OpenVR, fadeToColor, void, (F32 fSeconds, LinearColorF color, bool bBackground), (false),
+   "Fades the view on the HMD to the specified color. This color is faded on top of the scene "
+   "based on the alpha parameter. Removing the fade color instantly would be "
+   "FadeToColor(0.0, \"0.0, 0.0, 0.0, 0.0\").\n\n"
+   "@param fSeconds Duration of the fade effect in seconds.\n"
+   "@param color The color to fade to.\n"
+   "@param bBackground Undocumented parameter, default false.\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
+      OPENVR->fadeToColor(fSeconds, color, bBackground);
+}
+
+DefineEngineStaticMethod(OpenVR, getCurrentFadeColor, LinearColorF, (bool bBackground), (false),
+   "Get current fade color value. This can be used to determine the current state of the color fade effect.\n\n"
+   "@param bBackground Undocumented parameter, default false.\n"
+   "@returns the current color value of the fade effect.\n"
+   "@ingroup OpenVR")
+{
+   if (ManagedSingleton<OpenVRProvider>::instanceOrNull())
+      return OPENVR->getCurrentFadeColor(bBackground);
+   return LinearColorF::ZERO;
 }

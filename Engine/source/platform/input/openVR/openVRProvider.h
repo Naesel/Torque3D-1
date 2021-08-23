@@ -48,6 +48,7 @@ struct MeshRenderInst;
 class Namespace;
 class NamedTexTarget;
 class OpenVRRenderModel;
+class OpenVRStageModelData;
 
 typedef vr::ETrackingResult OpenVRTrackingResult;
 typedef vr::ETrackingUniverseOrigin OpenVRTrackingUniverseOrigin;
@@ -195,6 +196,39 @@ public:
    void resetRenderModels();
    /// }
 
+   /// @name Compositor Skinning
+   /// {
+   /// Override the skybox used in the compositor (e.g. for during level loads when the app can't feed scene images fast enough).
+   /// Returns true on success.
+   bool setSkyboxOverride(CubemapData *cubemap);
+
+   /// Resets the compositor skybox back to defaults.
+   void clearSkyboxOverride();
+
+   /// Override the stage model used in the compositor to replace the grid. The render model and texture
+   /// will be loaded asynchronously from disk and uploaded to the gpu by the runtime.  Once ready for
+   /// rendering, the VREvent StageOverrideReady will be sent. Use FadeGrid to reveal.
+   /// Call clearStageOverride to free the associated resources when finished.
+   bool setStageOverride_Async(const OpenVRStageModelData* modelData, const MatrixF& transform);
+
+   /// Resets the stage to its default user specified setting.
+   void clearStageOverride();
+
+   /// Fade the Grid in or out over fSeconds.
+   void fadeGrid(F32 fSeconds, bool bFadeGridIn);
+
+   /// Get current alpha value of the grid. This can be used to determine the current state of the grid fade effect.
+   float getCurrentGridAlpha();
+
+   /// Fades the view on the HMD to the specified color. The fade will take fSeconds, and the color values are between
+   /// 0.0 and 1.0. This color is faded on top of the scene based on the alpha parameter. Removing the fade color instantly
+   /// would be FadeToColor( 0.0, 0.0, 0.0, 0.0, 0.0 ). Values are in un-premultiplied alpha space.
+   void fadeToColor(F32 fSeconds, LinearColorF& color, bool bBackground = false);
+
+   /// Get current fade color value. This can be used to determine the current state of the color fade effect.
+   LinearColorF getCurrentFadeColor(bool bBackground = false);
+
+   /// }
 
    /// @name Console API
    /// {
