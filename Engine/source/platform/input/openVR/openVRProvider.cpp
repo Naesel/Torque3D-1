@@ -28,6 +28,7 @@
 #include "platform/input/openVR/openVRStageModelData.h"
 #include "platform/platformInput.h"
 #include "core/module.h"
+#include "core/util/path.h"
 #include "T3D/gameBase/gameConnection.h"
 #include "gui/core/guiCanvas.h"
 #include "postFx/postEffectCommon.h"
@@ -1290,6 +1291,9 @@ bool OpenVRProvider::setStageOverride_Async(const OpenVRStageModelData* modelDat
       return false;
    }
 
+   // Change path separator to backslashes on windows.
+   String platformPath = Torque::PathToOS(pathBuffer);
+
    // Copy render settings
    vr::Compositor_StageRenderSettings settings = vr::DefaultStageRenderSettings();
    settings.m_PrimaryColor.r = modelData->mPrimaryColor.red;
@@ -1313,7 +1317,7 @@ bool OpenVRProvider::setStageOverride_Async(const OpenVRStageModelData* modelDat
    OpenVRUtil::convertTransformToOVR(transform, vrMat);
    OpenVRUtil::convertMatrixFPlainToSteamVRAffineMatrix(vrMat, ovrMat);
 
-   vr::EVRCompositorError err = vr::VRCompositor()->SetStageOverride_Async(pathBuffer, &ovrMat, &settings, sizeof(settings));
+   vr::EVRCompositorError err = vr::VRCompositor()->SetStageOverride_Async(platformPath.c_str(), &ovrMat, &settings, sizeof(settings));
    if (err != vr::VRCompositorError_None)
    {
       Con::errorf("VR Compositor error %u in OpenVRProvider::setStageOverride_Async(%s, ...).", (U32)err, modelData->getName());
