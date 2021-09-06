@@ -139,7 +139,10 @@ class GuiWindowCtrl : public GuiContainer
       
       /// Window title string.
       String mText;
-      
+
+      ///  Localized title tag
+      StringTableEntry mInitialTextID;
+
       S32 mResizeEdge; ///< Resizing Edges Mask (See Edges Enumeration)
 
       S32 mTitleHeight;
@@ -256,7 +259,10 @@ class GuiWindowCtrl : public GuiContainer
       {
          mText = text;
       }
-      
+
+      /// Set the textID for the window title bar text.
+      virtual void setTextID(const char* id);
+
       /// @name Collapsing
       /// @{
       

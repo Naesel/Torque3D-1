@@ -92,6 +92,7 @@ GuiWindowCtrl::GuiWindowCtrl()
    mIsContainer = true;
 
    mCloseCommand = StringTable->EmptyString();
+   mInitialTextID = StringTable->EmptyString();
 
    mMinimized = false;
    mMaximized = false;
@@ -132,6 +133,8 @@ void GuiWindowCtrl::initPersistFields()
    
       addField( "text",              TypeRealString,   Offset( mText, GuiWindowCtrl ),
          "Text label to display in titlebar." );
+      addField("textID",             TypeString,       Offset(mInitialTextID, GuiWindowCtrl),
+         "Maps the text of this control to a variable used in localization, rather than raw text.");
       addField( "resizeWidth",       TypeBool,         Offset( mResizeWidth, GuiWindowCtrl ),
          "Whether the window can be resized horizontally." );
       addField( "resizeHeight",      TypeBool,         Offset( mResizeHeight, GuiWindowCtrl ),
@@ -691,6 +694,9 @@ bool GuiWindowCtrl::onWake()
    S32 buttonHeight = mBitmapBounds[BmpStates * BmpClose].extent.y;
 
    mTitleHeight = buttonHeight + 4;
+
+   if (mInitialTextID && *mInitialTextID != 0)
+      setTextID(mInitialTextID);
 
    //set the button coords
    positionButtons();
@@ -1662,6 +1668,16 @@ void GuiWindowCtrl::selectWindow(void)
 
 //-----------------------------------------------------------------------------
 
+void GuiWindowCtrl::setTextID(const char* id)
+{
+   mInitialTextID = StringTable->insert(id);
+   const UTF8* str = getGUIString(mInitialTextID);
+   if (str)
+      setText((const char*)str);
+}
+
+//-----------------------------------------------------------------------------
+
 void GuiWindowCtrl::getCursor(GuiCursor *&cursor, bool &showCursor, const GuiEvent &lastGuiEvent)
 {
    GuiCanvas *pRoot = getRoot();
@@ -1954,3 +1970,19 @@ DefineEngineStaticMethod( GuiWindowCtrl, attach, void, ( GuiWindowCtrl* bottomWi
 
    bottomWindow->moveToCollapseGroup( topWindow, 1 );
 }
+
+//-----------------------------------------------------------------------------
+
+DefineEngineMethod(GuiWindowCtrl, setTextID, void, (const char* textID), ,
+   "@brief Maps the window title to a variable used in localization, rather than raw text.\n\n"
+   "@param textID tag string that maps to localized text.\n"
+   "@tsexample\n"
+   "// Set localized 'Quit' title on the window\n"
+   "%thisGuiWindowCtrl.setTextID(\"str_quit\");\n"
+   "@endtsexample\n\n"
+   "@see GuiWindowCtrl"
+   "@see Localization")
+{
+   object->setTextID(textID);
+}
+
