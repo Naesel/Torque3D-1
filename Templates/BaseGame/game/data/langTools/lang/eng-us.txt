@@ -1,0 +1,62 @@
+//==============================================================================
+// Localized text file for langTools module.
+// Lines beginning with '/' or '#' are comment lines and are ignored. All other
+// lines must take the form:
+// text_tag = Localized text.
+// The text tag must begin on the first character of the line and cannot contain
+// whitespace. Following the text tag is a single space, an equal sign then 
+// another space. All text following the second space to the end of the line is
+// the localized text replacement. Each localized text string cannot be more
+// than 2048 bytes including the null terminator. This is not 'characters',
+// multi-byte utf8 encoding can use more than one byte per character.
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Do not translate any of these character types:
+// /c0 - /c9 are character color codes.
+// <...> Text within <> are markup language directives for GuiMLTextCtrl.
+// %1 - %9 are placeholders for the string builder.
+
+//------------------------------------------------------------------------------
+// Language table for: langTools module.
+lang_tool = Language Tool
+lang_tool_tt = Display language tools gui.
+lang_close_tt = Close this window.
+lt_default = Default Language:
+lt_default_tt = This should be the language that you develop in and manually maintain language files for. This is the fallback language in-case localized text is not found in the active language.
+lt_langname = Language Name
+lt_langcode = Code
+lt_add_tt = Add a language to the table.
+lt_remove_tt = Remove the selected language from the table.
+lt_compile = Compile
+lt_compile_tt = Compile all .txt files to .lso for the selected language.
+lt_update = Update
+lt_update_tt = Update all .txt files for the selected language to contain all text tags that are defined in the default language.
+
+//------------------------------------------------------------------------------
+// Add language gui.
+lt_add_title = Add Language
+lt_add_code = Code (See Tips)
+lt_add_code_tt = Standard three letter language code (639-2) plus two letter country code if relevant (e.g. eng-us, fra, deu, eng-uk).
+lt_add_name = Language Name
+lt_add_name_tt = Enter the name as it should appear in the language selector menu.
+
+//------------------------------------------------------------------------------
+// MessageBox titles and messages.
+lt_add_fail_title = Cannot Create Language
+lt_add_fail_msg = Language code must be at-least 2 characters and name cannot be empty.
+lt_delconfirm_title = Confirm Remove
+// Remove language confirmation message. %1 is the language name.
+lt_delconfirm_msg = Are you sure you want to remove %1 from the registered languages?
+lt_compdone_title = Language Compiled
+// Compile language done message. %1 is the language code and root file name.
+lt_compdone_msg = All %1.lso files are up-to-date.
+lt_updconfirm_title = Confirm Update
+// Update language confirmation message. %1 is the language code being generated.
+lt_updconfirm_msg = Updating will regenerate all %1.txt files. All of the translations will be maintained, but comments that are not in the default language files will be lost.<br>Are you sure?
+lt_write_err_title = File Write Error
+// Message displayed when a file cannot be opened for write. %1 is the file path and name.
+lt_write_err_msg = Cannot open %1 for writing. Translation files were not updated.
+lt_upddone_title = Language Updated
+// Update language done message. %1 is the language code and root file name.
+lt_upddone_msg = All %1.txt files have been updated. Check the console log for details.

@@ -1,0 +1,8 @@
+
+singleton GuiControlProfile( GuiBigTextArrayProfile : GuiTextArrayProfile )
+{
+   fontSize = 20;
+   fillColor = "10 10 10";
+   fillColorHL = "140 140 140";
+   fillColorSEL = "140 140 140";
+};

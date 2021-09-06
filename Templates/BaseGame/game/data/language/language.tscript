@@ -1,0 +1,93 @@
+//------------------------------------------------------------------------------
+// Language module. The table of registered languages is loaded as soon as the
+// module is created. The current and default languages are loaded and installed
+// when initClient is called, after prefs have been loaded.
+//------------------------------------------------------------------------------
+
+function language::onCreate(%this)
+{
+   if ($Server::Dedicated)
+      return; // Not needed on dedicated servers.
+
+   // Set initial defaults. User prefs will be loaded before initClient is called.
+   // Active language for all text lookups.
+   $pref::Lang::active = "en-us";
+
+   // Default language will be used if a text tag cannot be found in the
+   // active language. This is the fallback to prevent missing text.
+   $pref::Lang::default = "en-us";
+
+   // Create a language table.
+   %this.langTable = new LangTable();
+   $I18N::MainTable = %this.langTable;
+
+   // Initialize it from saved data
+   // Convert path from module relative to game relative.
+   %fullPath = expandFilename("./langTable.lso");
+   %this.tablePath = makeRelativePath(%fullPath, getMainDotCsDir());
+   %this.langTable.loadFromFile(%this.tablePath);
+}
+
+function language::onDestroy(%this)
+{
+   if (isObject(%this.langTable))
+      %this.langTable.delete();
+}
+
+function language::initClient(%this)
+{
+   // Find the language index for the default and active languages.
+   %this.resetLangIndex();
+
+   %this.queueExec("./scripts/langHandlers." @ $TorqueScriptFileExtension);
+}
+
+function language::resetLangIndex(%this)
+{
+   // Find the language index for the default and active languages.
+   %this.defaultLang = -1;
+   %this.activeLang = -1;
+   %numLangs = %this.langTable.getNumLang();
+   for(%i = 0; %i < %numLangs; %i++)
+   {
+      %langCode = %this.langTable.getLangCode(%i);
+      if (%langCode $= $pref::Lang::default)
+         %this.defaultLang = %i;
+      if (%langCode $= $pref::Lang::active)
+         %this.activeLang = %i;
+   }
+
+   if ((%this.defaultLang == -1) && (%numLangs > 0))
+      %this.defaultLang = 0;
+   if ((%this.activeLang == -1) && (%numLangs > 0))
+      %this.activeLang = 0;
+
+   // Install the selected languages. This will trigger loading of the .lso files.
+   %this.langTable.setDefaultLanguage(%this.defaultLang);
+   %this.langTable.setCurrentLanguage(%this.activeLang);
+}
+
+/// Callback issued whan a language is being activated and loaded.
+/// %langIdx is the index into the language table for the requested language.
+/// %langCode is the standard language code (e.g. en-us, fra, deu). This is the
+///   base file name for the language files.
+function LangTable::onLoadLanguage(%this, %langIdx, %langCode)
+{
+   // Add the localized text from all loaded modules.
+   %modulesList = ModuleDatabase.findModules(false);
+   foreach$ (%modId in %modulesList)
+   {
+      %lsoPath = %modId.ModulePath @ "/lang/" @ %langCode @ ".lso";
+      if (isFile(%lsoPath))
+         %this.addLocalizedText(%langIdx, %lsoPath);
+   }
+}
+
+//------------------------------------------------------------------------------
+/// Get the localized string from a text Id. Lookup will be performed against
+/// the active language. If not found, the default language will be checked.
+function L(%textId)
+{
+   if (isObject($I18N::MainTable))
+      return $I18N::MainTable.getString(%textId);
+}

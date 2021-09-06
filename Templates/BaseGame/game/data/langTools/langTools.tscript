@@ -1,0 +1,50 @@
+//------------------------------------------------------------------------------
+// Language tool module creation and loading.
+//------------------------------------------------------------------------------
+
+function langTools::onCreate(%this)
+{
+   if ($Server::Dedicated)
+      return; // Not needed on dedicated servers.
+
+   // If true, every time the engine launches language files will be checked and
+   // any that have been updated will be compiled to lso files. Leave this on
+   // during development to have new localized text appear immediately.
+   $Lang::autocompile = true;
+
+   if ($Lang::autocompile)
+      %this.compileAll();
+}
+
+function langTools::onDestroy(%this)
+{
+}
+
+function langTools::initClient(%this)
+{
+   //Profiles
+   %this.queueExec("./scripts/profiles");
+   
+   %this.queueExec("./scripts/langTool.gui");
+   %this.queueExec("./scripts/addLang.gui");
+   %this.queueExec("./scripts/toolGui");
+   %this.queueExec("./scripts/toolInstall");
+}
+
+function langTools::compileAll(%this)
+{
+   // Check for a 'lang' folder in each module.
+   %modulesList = ModuleDatabase.findModules(false);
+   foreach$ (%modId in %modulesList)
+   {
+      %dirPath = %modId.ModulePath @ "/lang";
+      if (!IsDirectory(%dirPath))
+         continue;
+
+      // 'lang' folder found. Compile all localized text. The compiler will
+      // early-out if the .txt is older than the corresponding .lso.
+      %pattern = %dirPath @ "/*.txt";
+      for(%file = findFirstFile(%pattern,false); %file !$= ""; %file = findNextFile(%pattern))
+         CompileLanguage(%file);
+   }
+}

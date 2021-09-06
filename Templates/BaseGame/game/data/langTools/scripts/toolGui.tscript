@@ -1,0 +1,316 @@
+//------------------------------------------------------------------------------
+// Language tool gui methods.
+//------------------------------------------------------------------------------
+
+function LangToolGui::toggleToolGui(%this)
+{
+   if (%this.isAwake())
+      $GameCanvas.popDialog(%this);
+   else
+      $GameCanvas.pushDialog(%this);
+}
+
+function LangToolGui::onWake(%this)
+{
+   // Fill the list control and default popup with the available languages.
+   %this.refillLangLists();
+}
+
+function LangToolGui::onDefaultChange(%this, %popupCtrl)
+{
+   %langIndex = %popupCtrl.getSelected();
+   if (%langIndex == language.defaultLang)
+      return; // No change.
+
+   %langCode = language.langTable.getLangCode(%langIndex);
+   $pref::Lang::default = %langCode;
+   language.resetLangIndex();
+
+   // Force a list refresh.
+   LangToolGui.refillLangLists();
+}
+
+function LangToolGui::languageSelected(%this, %listCtrl)
+{
+   %langIndex = %listCtrl.getSelectedId();
+   %canChange = %langIndex != language.defaultLang;
+   %canRemove = (%langIndex != language.defaultLang) && (%langIndex != language.activeLang);
+   %this-->removeBtn.setActive(%canRemove);
+   %this-->updateBtn.setActive(%canChange);
+}
+
+function LangToolGui::onAddBtn(%this)
+{
+   $GameCanvas.pushDialog(AddLangGui);
+}
+
+function LangToolGui::onRemoveBtn(%this)
+{
+   %langIndex = %this-->languageList.getSelectedId();
+   if ((%langIndex != language.defaultLang) && (%langIndex != language.activeLang))
+   {
+      %langName = language.langTable.getLangName(%langIndex);
+      %message = buildString(L("lt_delconfirm_msg"), %langName);
+      %callback = "LangToolGui.removeLanguage(" @ %langIndex @ ");";
+      MessageBoxYesNo(L("lt_delconfirm_title"), %message, %callback, "");
+   }
+}
+
+function LangToolGui::onCompileBtn(%this, %showMessage)
+{  // Compile all .txt files for the selected language.
+   %langIndex = %this-->languageList.getSelectedId();
+   %langCode = language.langTable.getLangCode(%langIndex);
+
+   %pattern = "/*/" @ %langCode @ ".txt";
+   for(%file = findFirstFile(%pattern, true); %file !$= ""; %file = findNextFile(%pattern))
+      CompileLanguage(%file);
+
+   if (%showMessage)
+   {
+      %message = buildString(L("lt_compdone_msg"), %langCode);
+      MessageBoxOK(L("lt_compdone_title"), %message, "");
+   }
+}
+
+function LangToolGui::onUpdateBtn(%this)
+{
+   %langIndex = %this-->languageList.getSelectedId();
+   if (%langIndex == language.defaultLang)
+      return; // Can't update the default language.
+
+   // If there are existing language files, notify the user they'll be overwritten.
+   %langCode = language.langTable.getLangCode(%langIndex);
+   %filesExist = false;
+   %pattern = "/*/" @ %langCode @ ".txt";
+   for(%file = findFirstFile(%pattern, true); %file !$= ""; %file = findNextFile(%pattern))
+   {
+      %filesExist = true;
+      break;
+   }
+
+   if (%filesExist)
+   {
+      %message = buildString(L("lt_updconfirm_msg"), %langCode);
+      %callback = "LangToolGui.doUpdate(" @ %langIndex @ ");";
+      MessageBoxYesNo(L("lt_updconfirm_title"), %message, %callback, "");
+   }
+   else
+      %this.doUpdate(%langIndex);
+}
+
+function LangToolGui::refillLangLists(%this)
+{
+   %listCtrl = %this-->languageList;
+   %listCtrl.clear();
+
+   %popupCtrl = %this-->defaultPopup;
+   %popupCtrl.clear();
+
+   %numLangs = language.langTable.getNumLang();
+   for(%i = 0; %i < %numLangs; %i++)
+   {
+      %langCode = language.langTable.getLangCode(%i);
+      %langName = language.langTable.getLangName(%i);
+      %lineText = %langName TAB %langCode;
+      %listCtrl.addRow(%i, %lineText);
+      %popupCtrl.add(%langName, %i);
+   }
+
+   if (%numLangs > 0)
+      %listCtrl.setSelectedById(%numLangs - 1);
+
+   if (language.defaultLang >= 0)
+      %popupCtrl.setSelected(language.defaultLang, false);
+}
+
+function LangToolGui::removeLanguage(%this, %langIndex)
+{
+   language.langTable.removeLanguage(%langIndex);
+   language.langTable.saveToFile(language.tablePath);
+
+   // If the index for the active or default lang has changed, notify the 
+   // language module.
+   if ((%langIndex < language.defaultLang) || (%langIndex < language.activeLang))
+      language.resetLangIndex();
+
+   // Refill the list and default popup.
+   LangToolGui.refillLangLists();
+}
+
+function LangToolGui::doUpdate(%this, %langIndex)
+{
+   // Compile the language first to make sure all translations get loaded.
+   %this.onCompileBtn(false);
+
+   %targetCode = language.langTable.getLangCode(%langIndex);
+   %defaultCode = language.langTable.getLangCode(language.defaultLang);
+
+   // Set the target language as active so we can pull existing text.
+   %activeLanguage = language.activeLang; // Save current.
+   language.langTable.setCurrentLanguage(%langIndex);
+
+   // Find all .txt files in the default language.
+   %pattern = "/*/" @ %defaultCode @ ".txt";
+   %failed = false;
+   for(%file = findFirstFile(%pattern, true); %file !$= ""; %file = findNextFile(%pattern))
+   {
+      if (!%this.updateFileTo(%file, %defaultCode, %targetCode))
+      {
+         %failed = true;
+         break;
+      }
+   }
+
+   // Reset to the previously active language.   
+   language.resetLangIndex();
+   // Display the done message.
+   %message = buildString(L("lt_upddone_msg"), %targetCode);
+   MessageBoxOK(L("lt_upddone_title"), %message, "");
+   return;
+}
+
+function LangToolGui::updateFileTo(%this, %inFileName, %defaultCode, %langCode)
+{
+   // Make target filename
+   %path = filePath(%inFileName);
+   %outFileName = %path @ "/" @ %langCode @ ".txt";
+   %locTextNeeded = 0;
+
+   %inFile = new FileObject();
+   %outFile = new FileObject();
+   if (!isObject(%inFile) || !isObject(%outFile) || !%inFile.openForRead(%inFileName))
+   {
+      %outFile.delete();
+      %inFile.delete();
+      return false;
+   }
+
+   if (!%outFile.openForWrite(%outFileName))
+   {
+      %outFile.delete();
+      %inFile.delete();
+
+      %message = buildString(L("lt_write_err_msg"), %outFileName);
+      MessageBoxOK(L("lt_write_err_title"), %message, "");
+      return false;
+   }
+   echo("Writing localized text file: " @ %outFileName);
+
+   while( !%inFile.isEOF() )
+   {
+      %line = %inFile.readLine();
+      %firstChar = getSubStr(%line, 0, 1);
+      if ((%firstChar $= "/") || (%firstChar $= "#") ||(strlen(%line) < 5))
+      {  // Comment or blank line, just copy.
+         %outFile.writeLine(%line);
+         continue;
+      }
+
+      %tagStr = getWord(%line, 0);
+      if ("=" !$= getWord(%line, 1))
+      {
+         error("Error parsing localized text: " @ %line);
+         continue;
+      }
+
+      %outFile.writeLine("#[" @ %defaultCode @ "] " @ %line); // Add the reference line commented out
+      %outStr = language.langTable.getString(%tagStr, false);
+      if ((%outStr $= "") && (%langCode $= "eng-pl"))
+         %outStr = %this.translateLineToPgl(getWords(%line, 2));
+
+      if (%outStr $= "")
+         %locTextNeeded++;
+      %outFile.writeLine(%tagStr @ " = " @ %outStr);
+   }
+   echo("  " @ %locTextNeeded @ " lines need translated.");
+
+   %outFile.close();
+   %outFile.delete();
+   %inFile.close();
+   %inFile.delete();
+   return true;
+}
+
+function LangToolGui::translateLineToPgl(%this, %inStr)
+{
+   %outStr = %inStr;
+   %separators = " ,./?;:[{]}>|-_=+()&!\t\n";
+   %numWords = getTokenCount(%inStr, %separators);
+   for (%i = 0; %i < %numWords; %i++)
+   {
+      %curWord = getToken(%inStr, %separators, %i);
+      %firstChar = getSubStr(%curWord, 0, 1);
+      if (!isalnum(%curWord, 0) || isInt(%firstChar) || (%curWord $= "txt") || (%curWord $= "lso"))
+         continue;
+      %outWord = %this.translateWordToPgl(%curWord);
+      %outStr = setToken(%outStr, %separators, %i, %outWord);
+   }
+   return %outStr;
+}
+
+function LangToolGui::isVowel(%this, %inChar)
+{
+   %inChar = strupr(%inChar);
+   if ((%inChar $= "A") || (%inChar $= "E") || (%inChar $= "I") || (%inChar $= "O") || (%inChar $= "U"))
+      return true;
+   return false;
+}
+
+function LangToolGui::translateWordToPgl(%this, %inWord)
+{
+   %wordLen = strlen(%inWord);
+   %firstChar = getSubStr(%inWord, 0, 1);
+   %firstVowel = %this.isVowel(%firstChar);
+   %firstCap = strcmp(%firstChar, strupr(%firstChar)) == 0;
+   %allCaps = %firstCap;
+   for (%i = 1; %allCaps && (%i < %wordLen); %i++)
+   {
+      %nextChar = getSubStr(%inWord, %i, 1);
+      if (strcmp(%nextChar, strupr(%nextChar)) != 0)
+         %allCaps = false;
+   }
+
+   if (%firstVowel)
+      %outWord = %inWord @ (%allCaps ? "WAY" : "way");
+   else
+   {
+      %consonants = "";
+      for (%i = 0; %i < %wordLen; %i++)
+      {
+         %nextChar = getSubStr(%inWord, %i, 1);
+         if (%this.isVowel(%nextChar))
+            break;
+         if ((%nextChar $= "Q") || (%nextChar $= "q"))
+         {  // If we've got a 'q', grab the 'u' that follows.
+            %i++;
+            %nextChar = %nextChar @ getSubStr(%inWord, %i, 1);
+         }
+         %consonants = %consonants @ %nextChar;
+      }
+
+      %trimmedWord = getSubStr(%inWord, strlen(%consonants));
+      if (%firstCap && !%allCaps)
+         %trimmedWord = strupr(getSubStr(%trimmedWord, 0, 1)) @ getSubStr(%trimmedWord, 1);
+      if (!%allCaps)
+         %consonants = strlwr(%consonants);
+      %outWord = %trimmedWord @ %consonants;
+      %outWord = %outWord @ (%allCaps ? "AY" : "ay");
+   }
+
+   return %outWord;
+}
+
+function AddLangGui::onOKBtn(%this)
+{
+   %langCode = %this-->codeEdit.getText();
+   %langName = %this-->nameEdit.getText();
+   if ((strlen(%langCode) >= 2) && (%langName !$= ""))
+   {
+      language.langTable.addLanguage(%langCode, %langName);
+      language.langTable.saveToFile(language.tablePath);
+      LangToolGui.refillLangLists();
+      $GameCanvas.popDialog(%this);
+   }
+   else
+      MessageBoxOK(L("lt_add_fail_title"), L("lt_add_fail_msg"), "");
+}

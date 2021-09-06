@@ -1,0 +1,15 @@
+<ModuleDefinition
+	ModuleId="langTools"
+	VersionId="1"
+	Description="Module that manages localization file creation and compiling."
+	ScriptFile="langTools"
+	CreateFunction="onCreate"
+	DestroyFunction="onDestroy"
+	Group="Lang"
+	Dependencies="language=1">
+	 <DeclaredAssets
+        canSave="true"
+        canSaveDynamicFields="true"
+        Extension="asset.taml"
+        Recurse="false" />
+</ModuleDefinition>

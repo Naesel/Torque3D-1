@@ -1,0 +1,14 @@
+<ModuleDefinition
+	ModuleId="language"
+	VersionId="1"
+	Description="Module that manages localized text loading/switching for the game."
+	ScriptFile="language"
+	CreateFunction="onCreate"
+	DestroyFunction="onDestroy"
+	Group="Lang">
+	 <DeclaredAssets
+        canSave="true"
+        canSaveDynamicFields="true"
+        Extension="asset.taml"
+        Recurse="false" />
+</ModuleDefinition>
