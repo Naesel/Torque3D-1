@@ -93,7 +93,6 @@ class GuiPaneControl : public GuiControl
       /// Collapse or expand the pane.
       void setCollapsed(bool isCollapsed);
 
-      virtual void setCaptionID(S32 id);
       virtual void setCaptionID(const char *id);
       
       // GuiControl.

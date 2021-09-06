@@ -225,6 +225,7 @@ GuiControl::GuiControl() : mAddGroup( NULL ),
    mLangTableName       = StringTable->EmptyString();
    
    mTooltip = StringTable->EmptyString();
+   mTooltipTextID = StringTable->EmptyString();
    mRenderTooltipDelegate.bind( this, &GuiControl::defaultTooltipRender );
 
    mCanSaveFieldDictionary = false;
@@ -300,6 +301,8 @@ void GuiControl::initPersistFields()
          "Control profile to use when rendering tooltips for this control." );
       addField("tooltip",           TypeRealString,   Offset(mTooltip, GuiControl),
          "String to show in tooltip for this control." );
+      addField("tooltipTextID", TypeString, Offset(mTooltipTextID, GuiControl),
+         "Maps the tooltip to a text Id used in localization, rather than raw text.");
       addField("hovertime",         TypeS32,          Offset(mTipHoverTime, GuiControl),
          "Time for mouse to hover over control until tooltip is shown (in milliseconds)." );
    endGroup( "ToolTip" );
@@ -844,6 +847,9 @@ bool GuiControl::onWake()
    //increment the profile
    mProfile->incLoadCount();
    mTooltipProfile->incLoadCount();
+
+   if (mTooltipTextID && *mTooltipTextID != 0)
+      setTooltipTextID(mTooltipTextID);
 
    // Only invoke script callbacks if we have a namespace in which to do so
    // This will suppress warnings
@@ -2359,7 +2365,7 @@ LangTable * GuiControl::getGUILangTable()
 		return mLangTable;
 	}
 
-	GuiControl *parent = getParent();
+	GuiControl *parent = getRoot();
 	if(parent)
 		return parent->getGUILangTable();
 
@@ -2368,13 +2374,23 @@ LangTable * GuiControl::getGUILangTable()
 
 //-----------------------------------------------------------------------------
 
-const UTF8 * GuiControl::getGUIString(S32 id)
+const UTF8 * GuiControl::getGUIString(const char* tagStr)
 {
 	LangTable *lt = getGUILangTable();
 	if(lt)
-		return lt->getString(id);
+		return lt->getString(tagStr);
 
 	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+
+void GuiControl::setTooltipTextID(const char* id)
+{
+   mTooltipTextID = StringTable->insert(id);
+   const UTF8* str = getGUIString(mTooltipTextID);
+   if (str)
+      mTooltip = str;
 }
 
 //-----------------------------------------------------------------------------
@@ -2932,4 +2948,18 @@ DefineEngineMethod( GuiControl, getAspect, F32, (),,
 {
    const Point2I &ext = object->getExtent();
    return (F32)ext.x / (F32)ext.y;
+}
+
+//-----------------------------------------------------------------------------
+
+DefineEngineMethod(GuiControl, setTooltipTextID, void, (const char* textID), ,
+   "@brief Maps the tooltip text to a variable used in localization, rather than raw text.\n\n"
+   "@param textID Name of variable text should be mapped to\n"
+   "@tsexample\n"
+   "// Inform the GuiControl control of the tooltipTextID to use.\n"
+   "%thisGuiCtrl.setTooltipTextID(\"tt_str_quit\");\n"
+   "@endtsexample\n\n"
+   "@see Localization")
+{
+   object->setTooltipTextID(textID);
 }

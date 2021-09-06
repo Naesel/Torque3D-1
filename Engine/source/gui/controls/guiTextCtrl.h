@@ -64,7 +64,6 @@ public:
 
    //text methods
    virtual void setText(const char *txt = NULL);
-   virtual void setTextID(S32 id);
    virtual void setTextID(const char *id);
    const char *getText() { return (const char*)mText; }
 

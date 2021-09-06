@@ -88,7 +88,6 @@ class GuiButtonBaseCtrl : public GuiControl
       static void initPersistFields();
 
       void setText(const char *text);
-      void setTextID(S32 id);
       void setTextID(const char *id);
       const char *getText();
       void setStateOn( bool bStateOn );

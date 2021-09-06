@@ -202,19 +202,10 @@ void GuiTextCtrl::setText(const char *txt)
 
 void GuiTextCtrl::setTextID(const char *id)
 {
-   S32 n = Con::getIntVariable(id, -1);
-   if(n != -1)
-   {
-      mInitialTextID = StringTable->insert(id);
-      setTextID(n);
-   }
-}
-void GuiTextCtrl::setTextID(S32 id)
-{
-   const UTF8 *str = getGUIString(id);
-   if(str)
+   mInitialTextID = StringTable->insert(id);
+   const UTF8* str = getGUIString(mInitialTextID);
+   if (str)
       setText((const char*)str);
-   //mInitialTextID = id;
 }
 
 void GuiTextCtrl::onPreRender()

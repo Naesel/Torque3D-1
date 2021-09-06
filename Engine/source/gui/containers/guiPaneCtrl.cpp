@@ -131,19 +131,10 @@ bool GuiPaneControl::onWake()
 
 void GuiPaneControl::setCaptionID(const char *id)
 {
-   S32 n = Con::getIntVariable(id, -1);
-   if(n != -1)
-   {
-      mCaptionID = StringTable->insert(id);
-      setCaptionID(n);
-   }
-}
-
-//-----------------------------------------------------------------------------
-
-void GuiPaneControl::setCaptionID(S32 id)
-{
-   mCaption = getGUIString(id);
+   mCaptionID = StringTable->insert(id);
+   const UTF8* str = getGUIString(mCaptionID);
+   if (str)
+      mCaption = (const char*) str;
 }
 
 //-----------------------------------------------------------------------------

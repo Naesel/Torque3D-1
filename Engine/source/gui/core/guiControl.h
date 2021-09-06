@@ -218,7 +218,8 @@ class GuiControl : public SimGroup
       String mAltConsoleCommand;
       
       String mTooltip;
-      
+      StringTableEntry mTooltipTextID;
+
       /// @}
       
       /// @name Console
@@ -291,10 +292,11 @@ class GuiControl : public SimGroup
       void setConsoleCommand( const String& newCmd );
       const char * getConsoleCommand(); ///< Returns the name of the function bound to this GuiControl
       LangTable *getGUILangTable(void);
-      const UTF8 *getGUIString(S32 id);
+      const UTF8 *getGUIString(const char* tagStr);
 
       inline String& getTooltip() { return mTooltip; } ///< Returns the tooltip
-      
+      virtual void setTooltipTextID(const char* id);
+
       /// @}
       
       /// @name Callbacks

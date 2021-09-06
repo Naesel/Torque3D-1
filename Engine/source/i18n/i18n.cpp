@@ -50,10 +50,7 @@ static const UTF8 *gI18NDefaultStrings[] =
 
 const UTF8 *getCoreString(S32 id)
 {
-	if(gCoreLangTable)
-		return gCoreLangTable->getString(id);
-	else
-		return gI18NDefaultStrings[id];
+   return gI18NDefaultStrings[id];
 }
 
 //-----------------------------------------------------------------------------

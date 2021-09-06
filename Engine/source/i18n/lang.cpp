@@ -36,170 +36,136 @@
 // LangFile Class
 //-----------------------------------------------------------------------------
 
-LangFile::LangFile(const UTF8 *langName /* = NULL */)
+LangFile::LangFile(const UTF8* langName /* = NULL */, const UTF8* langCode /* = NULL */)
 {
-   VECTOR_SET_ASSOCIATION( mStringTable );
+   if (langName)
+   {
+      dsize_t langNameLen = dStrlen(langName) + 1;
+      mLangName = new UTF8[langNameLen];
+      dStrcpy(mLangName, langName, langNameLen);
+   }
+   else
+      mLangName = NULL;
 
-	if(langName)
-	{
-		dsize_t langNameLen = dStrlen(langName) + 1;
-		mLangName = new UTF8 [langNameLen];
-		dStrcpy(mLangName, langName, langNameLen);
-	}
-	else
-		mLangName = NULL;
-
-	mLangFile = NULL;
+   if (langCode)
+   {
+      dsize_t langNameLen = dStrlen(langCode) + 1;
+      mLangCode = new UTF8[langNameLen];
+      dStrcpy(mLangCode, langCode, langNameLen);
+   }
+   else
+      mLangCode = NULL;
 }
 
 LangFile::~LangFile()
 {
-	// [tom, 3/1/2005] Note: If this is freed in FreeTable() then when the file
-	// is loaded, the language name will be blitzed.
-	// Programming after 36 hours without sleep != good.
-
    SAFE_DELETE_ARRAY(mLangName);
-   SAFE_DELETE_ARRAY(mLangFile);
-	freeTable();
+   SAFE_DELETE_ARRAY(mLangCode);
+   freeTable();
 }
 
 void LangFile::freeTable()
 {
-	U32 i;
-	for(i = 0;i < mStringTable.size();i++)
-	{
-		if(mStringTable[i])
-			delete [] mStringTable[i];
-	}
-	mStringTable.clear();
+   for (typeLocTextHash::Iterator textItr = mTexthash.begin(); textItr != mTexthash.end(); ++textItr)
+   {
+      delete[] textItr->value;
+   }
+   mTexthash.clear();
 }
 
-bool LangFile::load(const UTF8 *filename)
+UTF8* LangFile::convertColorCodes(UTF8* dst, const UTF8* src)
 {
-	FileStream * stream;
-   if((stream = FileStream::createAndOpen( filename, Torque::FS::File::Read )) == NULL)
+   U32 i = 0;
+   U32 j = 0;
+
+   while ('\0' != (dst[j] = src[i]))
+   {
+      if ((src[i] == '\\') && ((src[i + 1] == 'c') || (src[i + 1] == 'C')) && ((src[i + 2] >= '0') || (src[i + 2] <= '9')))
+      {  // Color code found
+         dst[j++] = (src[i + 2] - '0') + (UTF8)1;
+         i += 3; // Chop off the \cN
+      }
+      else
+         dst[j++] = src[i++];
+   }
+   return dst;
+}
+
+bool LangFile::load(const UTF8* filename)
+{
+   FileStream* stream;
+   if ((stream = FileStream::createAndOpen(filename, Torque::FS::File::Read)) == NULL)
       return false;
 
-	bool ret = load(stream);
-	delete stream;
+   bool ret = load(stream);
+   delete stream;
    return ret;
 }
 
-bool LangFile::load(Stream *s)
+bool LangFile::load(Stream* s)
 {
-   freeTable();
-
    while (s->getStatus() == Stream::Ok)
    {
-      char buf[2048];
-      s->readLongString(2048, buf);
+      char keyBuf[2048], textBuf[2048];
+      s->readLongString(2048, keyBuf);
+      s->readLongString(2048, textBuf);
       if (s->getStatus() == Stream::Ok)
-         addString((const UTF8*)buf);
+         addString((const UTF8*)keyBuf, (const UTF8*)textBuf);
    }
    return true;
 }
 
-bool LangFile::save(const UTF8 *filename)
+const UTF8* LangFile::getString(StringTableEntry tag)
 {
-	FileStream *fs;
-	
-	if(!isLoaded())
-		return false;
+   typeLocTextHash::Iterator textItr = mTexthash.find(tag);
+   if (textItr != mTexthash.end())
+      return textItr->value;
 
-   if((fs = FileStream::createAndOpen( filename, Torque::FS::File::Write )) == NULL)
-      return false;
-
-	bool ret = save(fs);
-	delete fs;
-
-   return ret;
+   return nullptr;
 }
 
-bool LangFile::save(Stream *s)
+void LangFile::addString(const UTF8* tag, const UTF8* str)
 {
-   if (!isLoaded())
-      return false;
+   StringTableEntry keyPtr = StringTable->insert(tag);
+   dsize_t newstrLen = dStrlen(str) + 1;
+   UTF8* newstr = new UTF8[newstrLen];
+   convertColorCodes(newstr, str);
 
-   U32 i;
-   for (i = 0; i < mStringTable.size(); i++)
+   // If the string is already in the table, delete the old string.
+   typeLocTextHash::Iterator textItr = mTexthash.find(keyPtr);
+   if (textItr == mTexthash.end())
+      mTexthash.insertUnique(keyPtr, newstr);
+   else
    {
-      s->writeLongString(2048, (char*)mStringTable[i]); //irei1as_ lang
+      delete[] textItr->value;
+      textItr->value = newstr;
    }
-   return true;
 }
 
-const UTF8 * LangFile::getString(U32 id)
+void LangFile::setLangName(const UTF8* newName)
 {
-	if(id == LANG_INVALID_ID || id >= mStringTable.size())
-		return NULL;
-	return mStringTable[id];
+   if (mLangName)
+      delete[] mLangName;
+
+   dsize_t langNameLen = dStrlen(newName) + 1;
+   mLangName = new UTF8[langNameLen];
+   dStrcpy(mLangName, newName, langNameLen);
 }
 
-U32 LangFile::addString(const UTF8 *str)
+void LangFile::setLangCode(const UTF8* langCode)
 {
-	dsize_t newstrLen = dStrlen(str) + 1;
-	UTF8 *newstr = new UTF8 [newstrLen];
-	dStrcpy(newstr, str, newstrLen);
-	mStringTable.push_back(newstr);
-	return mStringTable.size() - 1;
-}
+   if (mLangCode)
+      delete[] mLangCode;
 
-void LangFile::setString(U32 id, const UTF8 *str)
-{
-	if(id >= mStringTable.size())
-   {
-      U32 oldsize = mStringTable.size();
-		mStringTable.setSize(id+1);
-      for( U32 i=oldsize; i<mStringTable.size(); ++i )
-      {
-         mStringTable[i] = NULL;
-      }
-   }
-
-   SAFE_DELETE_ARRAY(mStringTable[id]);
-
-	dsize_t newstrLen = dStrlen(str) + 1;
-	UTF8 *newstr = new UTF8 [newstrLen];
-	dStrcpy(newstr, str, newstrLen);
-	mStringTable[id] = newstr;
-}
-
-void LangFile::setLangName(const UTF8 *newName)
-{
-	if(mLangName)
-		delete [] mLangName;
-	
-	dsize_t langNameLen = dStrlen(newName) + 1;
-	mLangName = new UTF8 [langNameLen];
-	dStrcpy(mLangName, newName, langNameLen);
-}
-
-void LangFile::setLangFile(const UTF8 *langFile)
-{
-	if(mLangFile)
-		delete [] mLangFile;
-	
-	dsize_t langFileLen = dStrlen(langFile) + 1;
-	mLangFile = new UTF8 [langFileLen];
-	dStrcpy(mLangFile, langFile, langFileLen);
-}
-
-bool LangFile::activateLanguage()
-{
-	if(isLoaded())
-		return true;
-
-	if(mLangFile)
-	{
-		return load(mLangFile);
-	}
-	return false;
+   dsize_t codeLen = dStrlen(langCode) + 1;
+   mLangCode = new UTF8[codeLen];
+   dStrcpy(mLangCode, langCode, codeLen);
 }
 
 void LangFile::deactivateLanguage()
 {
-	if(mLangFile && isLoaded())
-		freeTable();
+   if (mLangCode && isLoaded())
+      freeTable();
 }
 
 //-----------------------------------------------------------------------------
@@ -208,10 +174,10 @@ void LangFile::deactivateLanguage()
 
 IMPLEMENT_CONOBJECT(LangTable);
 
-ConsoleDocClass( LangTable,
+ConsoleDocClass(LangTable,
    "@brief Provides the code necessary to handle the low level management "
    "of the string tables for localization\n\n"
-   
+
    "One LangTable is created for each mod, as well as one for the C++ code. "
    "LangTable is responsible for obtaining the correct strings from each "
    "and relaying it to the appropriate controls.\n\n"
@@ -221,269 +187,398 @@ ConsoleDocClass( LangTable,
    "@ingroup Localization\n"
 );
 
+IMPLEMENT_CALLBACK(LangTable, onLoadLanguage, void, (S32 langId, const char* langCode), (langId, langCode),
+   "Callback issued to trigger loading of all language files for the passed language code.");
+
 LangTable::LangTable() : mDefaultLang(-1), mCurrentLang(-1)
 {
-   VECTOR_SET_ASSOCIATION( mLangTable );
+   VECTOR_SET_ASSOCIATION(mLangTable);
 }
 
 LangTable::~LangTable()
 {
-	S32 i;
-
-	for(i = 0;i < mLangTable.size();i++)
-	{
-		if(mLangTable[i])
-			delete mLangTable[i];
-	}
-	mLangTable.clear();
+   freeTable();
 }
 
-S32 LangTable::addLanguage(LangFile *lang, const UTF8 *name /* = NULL */)
+void LangTable::freeTable()
 {
-	if(name)
-		lang->setLangName(name);
-
-	mLangTable.push_back(lang);
-
-	if(mDefaultLang == -1)
-		setDefaultLanguage(mLangTable.size() - 1);
-	if(mCurrentLang == -1)
-		setCurrentLanguage(mLangTable.size() - 1);
-
-	return mLangTable.size() - 1;
+   for (S32 i = 0; i < mLangTable.size(); ++i)
+   {
+      if (mLangTable[i])
+         delete mLangTable[i];
+   }
+   mLangTable.clear();
+   mDefaultLang = -1;
+   mCurrentLang = -1;
 }
 
-S32 LangTable::addLanguage(const UTF8 *filename, const UTF8 *name /* = NULL */)
+bool LangTable::loadTableFromFile(const UTF8* filename)
 {
-	LangFile * lang = new LangFile(name);
+   freeTable();
+   FileStream* stream;
+   if ((stream = FileStream::createAndOpen(filename, Torque::FS::File::Read)) == NULL)
+      return false;
 
-   if(Torque::FS::IsFile(filename))
-	{
-		lang->setLangFile(filename);
-			
-      S32 ret = addLanguage(lang);
-		if(ret >= 0)
-			return ret;
-	}
-	delete lang;
+   while (stream->getStatus() == Stream::Ok)
+   {
+      char codeBuf[256], nameBuf[256];
+      stream->readLongString(256, codeBuf);
+      stream->readLongString(256, nameBuf);
+      if (stream->getStatus() == Stream::Ok)
+         addLanguage((const UTF8*)codeBuf, (const UTF8*)nameBuf);
+   }
 
-	return -1;
+   delete stream;
+   return (mLangTable.size() > 0);
 }
 
-const UTF8 *LangTable::getString(const U32 id) const
+bool LangTable::saveTableToFile(const UTF8* filename)
 {
-	const UTF8 *s = NULL;
+   FileStream* stream;
 
-	if(mCurrentLang >= 0)
-		s = mLangTable[mCurrentLang]->getString(id);
-	if(s == NULL && mDefaultLang >= 0 && mDefaultLang != mCurrentLang)
-		s = mLangTable[mDefaultLang]->getString(id);
+   if (mLangTable.size() == 0)
+      return false;
 
-	return s;
+   if ((stream = FileStream::createAndOpen(filename, Torque::FS::File::Write)) == NULL)
+      return false;
+
+   for (S32 i = 0; i < mLangTable.size(); ++i)
+   {
+      stream->writeLongString(256, (char*)mLangTable[i]->getLangCode());
+      stream->writeLongString(256, (char*)mLangTable[i]->getLangName());
+   }
+
+   delete stream;
+   return true;
 }
 
-const U32 LangTable::getStringLength(const U32 id) const
+S32 LangTable::addLanguage(LangFile* lang)
 {
-	const UTF8 *s = getString(id);
-	if(s)
-		return dStrlen(s);
-	
-	return 0;
+   mLangTable.push_back(lang);
+
+   if (mDefaultLang == -1)
+      setDefaultLanguage(mLangTable.size() - 1, false);
+   if (mCurrentLang == -1)
+      setCurrentLanguage(mLangTable.size() - 1, false);
+
+   return mLangTable.size() - 1;
 }
 
-void LangTable::setDefaultLanguage(S32 langid)
+S32 LangTable::addLanguage(const UTF8* langCode, const UTF8* name /* = NULL */)
 {
-	if(langid >= 0 && langid < mLangTable.size())
-	{
-		if(mLangTable[langid]->activateLanguage())
-		{
-			if(mDefaultLang >= 0)
-				mLangTable[mDefaultLang]->deactivateLanguage();
-			
-			mDefaultLang = langid;
-		}
-	}
+   LangFile* lang = new LangFile(name, langCode);
+
+   S32 ret = addLanguage(lang);
+   if (ret >= 0)
+      return ret;
+
+   delete lang;
+   return -1;
 }
 
-void LangTable::setCurrentLanguage(S32 langid)
+bool LangTable::removeLanguage(S32 langid)
 {
-	if(langid >= 0 && langid < mLangTable.size())
-	{
-		if(mLangTable[langid]->activateLanguage())
-		{
-			Con::printf("Language %s [%s] activated.", mLangTable[langid]->getLangName(), mLangTable[langid]->getLangFile());
+   if (langid >= 0 && langid < mLangTable.size() && langid != mDefaultLang && langid != mCurrentLang)
+   {
+      LangFile* pLangFile = mLangTable[langid];
+      pLangFile->deactivateLanguage();
+      mLangTable.erase(langid);
+      delete pLangFile;
+      return true;
+   }
+   return false;
+}
 
-			if(mCurrentLang >= 0 && mCurrentLang != mDefaultLang)
-			{
-				mLangTable[mCurrentLang]->deactivateLanguage();
-				Con::printf("Language %s [%s] deactivated.", mLangTable[mCurrentLang]->getLangName(), mLangTable[mCurrentLang]->getLangFile());
-			}
-			mCurrentLang = langid;
-		}
-	}
+const UTF8* LangTable::getString(const char* textTag, bool defaultfallback /* = true */) const
+{
+   const UTF8* s = NULL;
+   StringTableEntry keyPtr = StringTable->insert(textTag);
+
+   if (mCurrentLang >= 0)
+      s = mLangTable[mCurrentLang]->getString(keyPtr);
+   if (s == NULL && defaultfallback && mDefaultLang >= 0 && mDefaultLang != mCurrentLang)
+      s = mLangTable[mDefaultLang]->getString(keyPtr);
+
+   return s;
+}
+
+const U32 LangTable::getStringLength(const char* textTag, bool defaultfallback /* = true */) const
+{
+   const UTF8* s = getString(textTag, defaultfallback);
+   if (s)
+      return dStrlen(s);
+
+   return 0;
+}
+
+void LangTable::setDefaultLanguage(S32 langid, bool activate /* = true */)
+{
+   if (langid >= 0 && langid < mLangTable.size())
+   {
+      if ((mDefaultLang >= 0) && (mDefaultLang != langid))
+         mLangTable[mDefaultLang]->deactivateLanguage();
+
+      if (activate)
+         activateLanguage(langid);
+
+      mDefaultLang = langid;
+   }
+}
+
+void LangTable::setCurrentLanguage(S32 langid, bool activate /* = true */)
+{
+   if (langid >= 0 && langid < mLangTable.size())
+   {
+      if (mCurrentLang >= 0 && mCurrentLang != mDefaultLang && mCurrentLang != langid)
+      {
+         mLangTable[mCurrentLang]->deactivateLanguage();
+         Con::printf("Language %s [%s] deactivated.", mLangTable[mCurrentLang]->getLangName(), mLangTable[mCurrentLang]->getLangCode());
+      }
+
+      if (activate)
+      {
+         activateLanguage(langid);
+         Con::printf("Language %s [%s] activated.", mLangTable[langid]->getLangName(), mLangTable[langid]->getLangCode());
+      }
+
+      mCurrentLang = langid;
+   }
+}
+
+void LangTable::activateLanguage(S32 langid)
+{
+   if (!mLangTable[langid]->isLoaded())
+      onLoadLanguage_callback(langid, mLangTable[langid]->getLangCode());
+}
+
+bool LangTable::addLocalizedText(S32 langid, const char* filename)
+{
+   if (langid >= 0 && langid < mLangTable.size())
+   {
+      S32 startSize = mLangTable[langid]->getNumStrings();
+      bool ret = mLangTable[langid]->load(filename);
+      S32 newSize = mLangTable[langid]->getNumStrings();
+
+      return ret && (newSize > startSize);
+   }
+
+   return false;
 }
 
 //-----------------------------------------------------------------------------
 // LangTable Console Methods
 //-----------------------------------------------------------------------------
 
-
-
-DefineEngineMethod(LangTable, addLanguage, S32, (String filename, String languageName), ("", ""), 
-			  "(string filename, [string languageName])"
-			  "@brief Adds a language to the table\n\n"
-			  "@param filename Name and path to the language file\n"
-			  "@param languageName Optional name to assign to the new language entry\n\n"
-			  "@return True If file was successfully found and language created\n"
-			  )
+DefineEngineMethod(LangTable, loadFromFile, bool, (String filename), ,
+   "@brief Loads and initializes the language table from a saved file.\n\n"
+   "@param filename Path to a saved language table.\n\n"
+   "@return True if the file was found and a valid language table was loaded.\n")
 {
-	UTF8 scriptFilenameBuffer[1024];
-	
-	Con::expandScriptFilename((char*)scriptFilenameBuffer, sizeof(scriptFilenameBuffer), filename);
-	return object->addLanguage(scriptFilenameBuffer, (const UTF8*)languageName);
+   UTF8 scriptFilenameBuffer[1024];
+
+   Con::expandScriptFilename((char*)scriptFilenameBuffer, sizeof(scriptFilenameBuffer), filename);
+   return object->loadTableFromFile((const UTF8*)scriptFilenameBuffer);
 }
 
-DefineEngineMethod(LangTable, getString, const char *, (U32 id), , 
-			  "(string filename)"
-			  "@brief Grabs a string from the specified table\n\n"
-			  "If an invalid is passed, the function will attempt to "
-			  "to grab from the default table\n\n"
-			  "@param filename Name of the language table to access\n\n"
-			  "@return Text from the specified language table, \"\" if ID was invalid and default table is not set")
+DefineEngineMethod(LangTable, saveToFile, bool, (String filename), ,
+   "@brief Saves the language table to the passed file.\n\n"
+   "@param filename Path to a save the language table to.\n\n"
+   "@return True if the table was not empty and was saved to disk.\n")
 {
-	const char * str =	(const char*)object->getString(id);
-	if(str != NULL)
-	{
-		dsize_t retLen = dStrlen(str) + 1;
-		char * ret = Con::getReturnBuffer(retLen);
-		dStrcpy(ret, str, retLen);
-		return ret;
-	}
-	
-	return "";
+   UTF8 scriptFilenameBuffer[1024];
+
+   Con::expandScriptFilename((char*)scriptFilenameBuffer, sizeof(scriptFilenameBuffer), filename);
+   return object->saveTableToFile((const UTF8*)scriptFilenameBuffer);
+}
+
+DefineEngineMethod(LangTable, addLanguage, S32, (String languageCode, String languageName), (""),
+   "@brief Adds a language to the table.\n\n"
+   "@param languageCode Standard three letter language code (ISO 639-2) "
+   "plus two letter country code if relevant (e.g. eng-us, fra, deu, eng-uk).\n"
+   "@see References: https://www.loc.gov/standards/iso639-2/php/langcodes-search.php, "
+   "https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes \n"
+   "@param languageName Optional name to assign to the new language entry.\n"
+   "@return The index value for the newly added language or -1 if there was an error.\n")
+{
+   return object->addLanguage((const UTF8*)languageCode.c_str(), (const UTF8*)languageName.c_str());
+}
+
+DefineEngineMethod(LangTable, removeLanguage, bool, (S32 langid), ,
+   "@brief Removes a language from the table.\n\n"
+   "@param language ID to remove.\n"
+   "@note You cannot remove the currently active or default languages."
+   "@return True if the language was removed.\n")
+{
+   return object->removeLanguage(langid);
+}
+
+DefineEngineMethod(LangTable, getString, const char*, (const char* textTag, bool defaultFallback), (true),
+   "@brief Retrieves a localized text string for the passed tag string.\n\n"
+   "@param textTag Text tag to look up the localized string for.\n"
+   "@param defaultFallback If the text tag cannot be found in the active language, the default "
+   "language will be checked if this is true. Optional, default true.\n"
+   "@return A localized text string, \"\" if textTag was not found.\n")
+{
+   const char* str = (const char*)object->getString(textTag, defaultFallback);
+   if (str != NULL)
+   {
+      dsize_t retLen = dStrlen(str) + 1;
+      char* ret = Con::getReturnBuffer(retLen);
+      dStrcpy(ret, str, retLen);
+      return ret;
+   }
+
+   return "";
 }
 
 DefineEngineMethod(LangTable, setDefaultLanguage, void, (S32 langId), , "(int language)"
-			  "@brief Sets the default language table\n\n"
-			  "@param language ID of the table\n")
+   "@brief Sets the default language table\n\n"
+   "@param language ID of the table\n")
 {
-	object->setDefaultLanguage(langId);
+   object->setDefaultLanguage(langId);
 }
 
-DefineEngineMethod(LangTable, setCurrentLanguage, void, (S32 langId), , 
-			  "(int language)"
-			  "@brief Sets the current language table for grabbing text\n\n"
-			  "@param language ID of the table\n")
+DefineEngineMethod(LangTable, setCurrentLanguage, void, (S32 langId), ,
+   "(int language)"
+   "@brief Sets the current language table for grabbing text\n\n"
+   "@param language ID of the table\n")
 {
-	object->setCurrentLanguage(langId);
+   object->setCurrentLanguage(langId);
 }
 
 DefineEngineMethod(LangTable, getCurrentLanguage, S32, (), , "()"
-			  "@brief Get the ID of the current language table\n\n"
-			  "@return Numerical ID of the current language table")
+   "@brief Get the ID of the current language table\n\n"
+   "@return Numerical ID of the current language table")
 {
-	return object->getCurrentLanguage();
+   return object->getCurrentLanguage();
 }
 
-DefineEngineMethod(LangTable, getLangName, const char *, (S32 langId), , "(int language)"
-			  "@brief Return the readable name of the language table\n\n"
-			  "@param language Numerical ID of the language table to access\n\n"
-			  "@return String containing the name of the table, NULL if ID was invalid or name was never specified")
+DefineEngineMethod(LangTable, getLangCode, const char*, (S32 langId), ,
+   "@brief Return the ISO 639-1 or 639-2 code assigned for the language. "
+   "This is usually the filename for the compiled text files of this language.\n\n"
+   "@param langId Numerical index of the language table to access.\n\n"
+   "@return String containing the language code, NULL if langId was invalid.")
 {
-	const char * str = (const char*)object->getLangName(langId);
-	if(str != NULL)
-	{
-		dsize_t retLen = dStrlen(str) + 1;
-		char * ret = Con::getReturnBuffer(retLen);
-		dStrcpy(ret, str, retLen);
-		return ret;
-	}
-	
-	return "";
+   const char* str = (const char*)object->getLangCode(langId);
+   if (str != NULL)
+   {
+      dsize_t retLen = dStrlen(str) + 1;
+      char* ret = Con::getReturnBuffer(retLen);
+      dStrcpy(ret, str, retLen);
+      return ret;
+   }
+
+   return "";
+}
+
+DefineEngineMethod(LangTable, getLangName, const char*, (S32 langId), ,
+   "@brief Return the readable name of the language.\n\n"
+   "@param langId Numerical index of the language to access.\n\n"
+   "@return String containing the name of the language, NULL if langId was invalid or name was never specified")
+{
+   const char* str = (const char*)object->getLangName(langId);
+   if (str != NULL)
+   {
+      dsize_t retLen = dStrlen(str) + 1;
+      char* ret = Con::getReturnBuffer(retLen);
+      dStrcpy(ret, str, retLen);
+      return ret;
+   }
+
+   return "";
 }
 
 DefineEngineMethod(LangTable, getNumLang, S32, (), , "()"
-			  "@brief Used to find out how many languages are in the table\n\n"
-			  "@return Size of the vector containing the languages, numerical")
+   "@brief Used to find out how many languages are in the table\n\n"
+   "@return Size of the vector containing the languages, numerical")
 {
-	return object->getNumLang();
+   return object->getNumLang();
+}
+
+DefineEngineMethod(LangTable, addLocalizedText, bool, (S32 langid, const char* langFile), , "()"
+   "@brief Load a compiled localized text file into the selected language.\n\n"
+   "@param langid Numerical index of the language to access.\n"
+   "@param langFile Path to the lso file to load text from.\n"
+   "@return True if the file was found and text was added to the LangFile.\n")
+{
+   return object->addLocalizedText(langid, langFile);
 }
 
 //-----------------------------------------------------------------------------
 // Support Functions
 //-----------------------------------------------------------------------------
 
-UTF8 *sanitiseVarName(const UTF8 *varName, UTF8 *buffer, U32 bufsize)
+UTF8* sanitiseVarName(const UTF8* varName, UTF8* buffer, U32 bufsize)
 {
-	if(! varName || bufsize < 10)	// [tom, 3/3/2005] bufsize check gives room to be lazy below
-	{
-		*buffer = 0;
-		return NULL;
-	}
-	
-	dStrcpy(buffer, (const UTF8*)"I18N::", bufsize);
-	
-	UTF8 *dptr = buffer + 6;
-	const UTF8 *sptr = varName;
-	while(*sptr)
-	{
-		if(dIsalnum(*sptr))
-			*dptr++ = *sptr++;
-		else
-		{
-			if(*(dptr - 1) != '_')
-				*dptr++ = '_';
-			sptr++;
-		}
-		
-		if((dptr - buffer) >= (bufsize - 1))
-			break;
-	}
-	*dptr = 0;
-	
-	return buffer;
+   if (!varName || bufsize < 10)	// [tom, 3/3/2005] bufsize check gives room to be lazy below
+   {
+      *buffer = 0;
+      return NULL;
+   }
+
+   dStrcpy(buffer, (const UTF8*)"I18N::", bufsize);
+
+   UTF8* dptr = buffer + 6;
+   const UTF8* sptr = varName;
+   while (*sptr)
+   {
+      if (dIsalnum(*sptr))
+         *dptr++ = *sptr++;
+      else
+      {
+         if (*(dptr - 1) != '_')
+            *dptr++ = '_';
+         sptr++;
+      }
+
+      if ((dptr - buffer) >= (bufsize - 1))
+         break;
+   }
+   *dptr = 0;
+
+   return buffer;
 }
 
-UTF8 *getCurrentModVarName(UTF8 *buffer, U32 bufsize)
+UTF8* getCurrentModVarName(UTF8* buffer, U32 bufsize)
 {
-	char varName[256];
-	StringTableEntry cbName = CodeBlock::getCurrentCodeBlockName();
-	
-	const UTF8 *slash = (const UTF8*)dStrchr(cbName, '/');
-	if (slash == NULL)
-	{
-		Con::errorf("Illegal CodeBlock path detected in sanitiseVarName() (no mod directory): %s", cbName);
-		return NULL;
-	}
-	
-	dStrncpy(varName, cbName, slash - (const UTF8*)cbName);
-	varName[slash - (const UTF8*)cbName] = 0;
+   char varName[256];
+   StringTableEntry cbName = CodeBlock::getCurrentCodeBlockName();
 
-	return sanitiseVarName((UTF8*)varName, buffer, bufsize);
+   const UTF8* slash = (const UTF8*)dStrchr(cbName, '/');
+   if (slash == NULL)
+   {
+      Con::errorf("Illegal CodeBlock path detected in sanitiseVarName() (no mod directory): %s", cbName);
+      return NULL;
+   }
+
+   dStrncpy(varName, cbName, slash - (const UTF8*)cbName);
+   varName[slash - (const UTF8*)cbName] = 0;
+
+   return sanitiseVarName((UTF8*)varName, buffer, bufsize);
 }
 
-const LangTable *getCurrentModLangTable()
+const LangTable* getCurrentModLangTable()
 {
-	UTF8 saneVarName[256];
-	
-	if(getCurrentModVarName(saneVarName, sizeof(saneVarName)))
-	{
-		const LangTable *lt = dynamic_cast<LangTable *>(Sim::findObject(Con::getIntVariable((const char*)saneVarName)));
-		return lt;
-	}
-	return NULL;
+   UTF8 saneVarName[256];
+
+   if (getCurrentModVarName(saneVarName, sizeof(saneVarName)))
+   {
+      const LangTable* lt = dynamic_cast<LangTable*>(Sim::findObject(Con::getIntVariable((const char*)saneVarName)));
+      return lt;
+   }
+   return NULL;
 }
 
-const LangTable *getModLangTable(const UTF8 *mod)
+const LangTable* getModLangTable(const UTF8* mod)
 {
-	UTF8 saneVarName[256];
+   UTF8 saneVarName[256];
 
-	if(sanitiseVarName(mod, saneVarName, sizeof(saneVarName)))
-	{
-		const LangTable *lt = dynamic_cast<LangTable *>(Sim::findObject(Con::getIntVariable((const char*)saneVarName)));
-		return lt;
-	}
-	return NULL;
+   if (sanitiseVarName(mod, saneVarName, sizeof(saneVarName)))
+   {
+      const LangTable* lt = dynamic_cast<LangTable*>(Sim::findObject(Con::getIntVariable((const char*)saneVarName)));
+      return lt;
+   }
+   return NULL;
 }
 
 //lang_ localization
@@ -508,12 +603,15 @@ bool compiledFileNeedsUpdate(UTF8* filename)
    return false;
 }
 
-DefineEngineFunction(CompileLanguage, void, (const char* inputFile, bool createMap), (false), 
-   "@brief Compiles a LSO language file."
-   " if createIndex is true, will also create languageMap." TORQUE_SCRIPT_EXTENSION " with"
-   " the global variables for each string index."
-   " The input file must follow this example layout:"
-   " TXT_HELLO_WORLD = Hello world in english!")
+DefineEngineFunction(CompileLanguage, void, (const char* inputFile), ,
+   "@brief Compiles a LSO language file.\n"
+   "@param inputFile Path to the .txt file to compile. The output .lso file "
+   "will be placed in the same directory and have the same name.\n"
+   "The input file must follow this example layout:\n"
+   "txt_hello_world = Hello world in english!\n"
+   "The text to the left of the equal sign is the text id. Text to the right of "
+   "the equal sign is the localized text. There must be a single space on each "
+   "side of the equal sign.\n")
 {
    UTF8 scriptFilenameBuffer[1024];
    Con::expandScriptFilename((char*)scriptFilenameBuffer, sizeof(scriptFilenameBuffer), inputFile);
@@ -524,6 +622,9 @@ DefineEngineFunction(CompileLanguage, void, (const char* inputFile, bool createM
       return;
    }
 
+   if (!compiledFileNeedsUpdate(scriptFilenameBuffer))
+      return;
+
    FileObject file;
    if (!file.readMemory(scriptFilenameBuffer))
    {
@@ -531,55 +632,115 @@ DefineEngineFunction(CompileLanguage, void, (const char* inputFile, bool createM
       return;
    }
 
-   if (compiledFileNeedsUpdate(scriptFilenameBuffer))
+   FileStream* outStream;
+   Torque::Path lsoPath = scriptFilenameBuffer;
+   lsoPath.setExtension("lso");
+
+   if ((outStream = FileStream::createAndOpen(lsoPath.getFullPath(), Torque::FS::File::Write)) == NULL)
    {
-      FileStream *mapStream = NULL;
-      if (createMap)
+      Con::errorf("Could not open output file (%s) for compiled language", lsoPath.getFullPath().c_str());
+      return;
+   }
+   Con::printf("Compiling language file: %s.", lsoPath.getFullPath().c_str());
+
+   const U8* inLine = NULL;
+   const char* separatorStr = " = ";
+   while (!file.isEOF())
+   {
+      inLine = file.readLine();
+      char* line;
+      chompUTF8BOM((const char*)inLine, &line);
+
+      // Skip comments and blank lines
+      if ((line[0] == '/') || (line[0] == '#') || (dStrlen(line) == 0))
+         continue;
+
+      char* div = dStrstr(line, separatorStr);
+      if (div == NULL)
       {
-         Torque::Path mapPath = scriptFilenameBuffer;
-         mapPath.setFileName("languageMap");
-         mapPath.setExtension(TORQUE_SCRIPT_EXTENSION);
-         if ((mapStream = FileStream::createAndOpen(mapPath, Torque::FS::File::Write)) == NULL)
-            Con::errorf("CompileLanguage - failed creating languageMap." TORQUE_SCRIPT_EXTENSION);
+         Con::errorf("Separator %s not found in line: %s", separatorStr, line);
+         Con::errorf("Could not determine string name ID");
+         continue;
+      }
+      *div = 0;
+      char* text = div + dStrlen(separatorStr);
+
+      if (dStrlen(text) > 2048)
+      {
+         text[2047] = '\0';
+         Con::warnf("The following localized text has been truncated to 2048 characters:\n%s", text);
       }
 
-      LangFile langFile;
-      const U8* inLine = NULL;
-      const char* separatorStr = " = ";
-      S32 stringId = 0;
-      while ((inLine = file.readLine())[0] != 0)
+      outStream->writeLongString(2048, line);
+      outStream->writeLongString(2048, text);
+   }
+
+   outStream->close();
+   delete outStream;
+}
+
+DefineEngineStringlyVariadicFunction(buildString, const char*, 2, 11, "(string format, ...)"
+   "@brief Build a string from a format string. This function is identical to 'buildTaggedString'"
+   "for plain text strings that are not network tag IDs.\n\n"
+
+   "This function takes a format string and one "
+   "or more additional strings.  If the format string contains argument tags that range from "
+   "%%1 through %%9, then each additional string will be substituted into the format string.  "
+   "The final combined string will be returned.  The maximum length of the format "
+   "string plus any inserted additional strings is 511 characters.\n\n"
+
+   "@param format A string that contains zero or more argument tags, in the form of "
+   "%%1 through %%9.\n"
+   "@param ... A variable number of arguments that are insterted into the tagged string "
+   "based on the argument tags within the format string.\n"
+
+   "@returns A string that is a combination of the original format string with any additional "
+   "strings passed in inserted in place of each argument tag.\n")
+{
+   const char* fmtString = argv[1];
+   static const U32 bufSize = 512;
+   char* strBuffer = Con::getReturnBuffer(bufSize);
+   const char* fmtStrPtr = fmtString;
+   char* strBufPtr = strBuffer;
+   S32 strMaxLength = bufSize - 1;
+   if (!fmtString)
+      goto done;
+
+   //build the string
+   while (*fmtStrPtr)
+   {
+      //look for an argument tag
+      if (*fmtStrPtr == '%')
       {
-         char* line;
-         chompUTF8BOM((const char *)inLine, &line);
-         char* div = dStrstr(line, separatorStr);
-         if (div == NULL)
+         if (fmtStrPtr[1] >= '1' && fmtStrPtr[1] <= '9')
          {
-            Con::errorf("Separator %s not found in line: %s", separatorStr, line);
-            Con::errorf("Could not determine string name ID");
+            S32 argIndex = S32(fmtStrPtr[1] - '0') + 1;
+            if (argIndex >= argc)
+               goto done;
+            const char* argStr = argv[argIndex];
+            if (!argStr)
+               goto done;
+            S32 strLength = dStrlen(argStr);
+            if (strLength > strMaxLength)
+               goto done;
+            dStrcpy(strBufPtr, argStr, strMaxLength);
+            strBufPtr += strLength;
+            strMaxLength -= strLength;
+            fmtStrPtr += 2;
             continue;
          }
-         *div = 0;
-         char* text = div + dStrlen(separatorStr);
-
-         langFile.addString((const UTF8*)text);
-
-         if (mapStream)
-         {
-            String mapLine = String::ToString("$%s = %i;", line, stringId);
-            mapStream->writeLine((const U8*)mapLine.c_str());
-            String commentLine = String::ToString("// %s", text);
-            mapStream->writeLine((const U8*)commentLine.c_str());
-         }
-
-         stringId++;
       }
 
-      Torque::Path lsoPath = scriptFilenameBuffer;
-      lsoPath.setExtension("lso");
-      langFile.save(lsoPath.getFullPath());
-
-      if (mapStream)
-         delete mapStream;
+      //if we don't continue, just copy the character
+      if (strMaxLength <= 0)
+         goto done;
+      *strBufPtr++ = *fmtStrPtr++;
+      strMaxLength--;
    }
+
+done:
+   *strBufPtr = '\0';
+   return strBuffer;
 }
+
 //end lang_ localization

@@ -26,7 +26,7 @@
 //-----------------------------------------------------------------------------
 
 #include "console/simBase.h"
-#include "core/util/tVector.h"
+#include "core/util/tDictionary.h"
 //lang_ localization
 #include "core/fileObject.h"
 #include "core/util/str.h"
@@ -43,39 +43,35 @@
 class LangFile
 {
 protected:
-	Vector<UTF8 *> mStringTable;
-	UTF8 * mLangName;
-	UTF8 * mLangFile;
+   typedef HashTable<StringTableEntry, const char*> typeLocTextHash;
+   typeLocTextHash mTexthash;
+   UTF8* mLangName;
+   UTF8* mLangCode;
 
-	void freeTable();
+   void freeTable();
+
+   // Convert color codes in localized text
+   UTF8* convertColorCodes(UTF8* dst, const UTF8* src);
 
 public:
-	LangFile(const UTF8 *langName = NULL);
-	virtual ~LangFile();
+   LangFile(const UTF8* langName = NULL, const UTF8* langCode = NULL);
+   virtual ~LangFile();
 
-	bool load(const UTF8 *filename);
-	bool save(const UTF8 *filename);
+   bool load(const UTF8* filename);
 
-	bool load(Stream *s);
-	bool save(Stream *s);
+   bool load(Stream* s);
 
-	const UTF8 * getString(U32 id);
-	U32 addString(const UTF8 *str);
-	
-	// [tom, 4/22/2005] setString() added to help the language compiler a bit
-	void setString(U32 id, const UTF8 *str);
+   const UTF8* getString(StringTableEntry tag);
+   void addString(const UTF8* tag, const UTF8* str);
 
-	void setLangName(const UTF8 *newName);
-	const UTF8 *getLangName(void)			{ return mLangName; }
-	const UTF8 *getLangFile(void)			{ return mLangFile; }
+   void setLangName(const UTF8* newName);
+   void setLangCode(const UTF8* newCode);
+   const UTF8* getLangName(void) { return mLangName; }
+   const UTF8* getLangCode(void) { return mLangCode; }
 
-	void setLangFile(const UTF8 *langFile);
-	bool activateLanguage(void);
-	void deactivateLanguage(void);
-
-	bool isLoaded(void)						{ return mStringTable.size() > 0; }
-	
-	S32 getNumStrings(void)					{ return mStringTable.size(); }
+   void deactivateLanguage(void);
+   bool isLoaded(void) { return mTexthash.size() > 0; }
+   S32 getNumStrings(void) { return mTexthash.size(); }
 };
 
 //-----------------------------------------------------------------------------
@@ -83,37 +79,52 @@ public:
 //-----------------------------------------------------------------------------
 class LangTable : public SimObject
 {
-	typedef SimObject Parent;
-	
+   typedef SimObject Parent;
+
 protected:
-	Vector<LangFile *> mLangTable;
-	S32 mDefaultLang;
-	S32 mCurrentLang;
+   Vector<LangFile*> mLangTable;
+   S32 mDefaultLang;
+   S32 mCurrentLang;
 
 public:
-	DECLARE_CONOBJECT(LangTable);
+   DECLARE_CALLBACK(void, onLoadLanguage, (S32 langId, const char* langCode));
+   DECLARE_CONOBJECT(LangTable);
 
-	LangTable();
-	virtual ~LangTable();
+   LangTable();
+   virtual ~LangTable();
 
-	S32 addLanguage(LangFile *lang, const UTF8 *name = NULL);
-	S32 addLanguage(const UTF8 *filename, const UTF8 *name = NULL);
+   bool loadTableFromFile(const UTF8* filename);
+   bool saveTableToFile(const UTF8* filename);
 
-	void setDefaultLanguage(S32 langid);
-	void setCurrentLanguage(S32 langid);
-	S32 getCurrentLanguage(void)			{ return mCurrentLang; }
-	
-	const UTF8 * getLangName(const S32 langid) const 
-	{
-		if(langid < 0 || langid >= mLangTable.size())
-			return NULL;
-		return mLangTable[langid]->getLangName();
-	}
+   void freeTable();
+   S32 addLanguage(LangFile* lang);
+   S32 addLanguage(const UTF8* langCode, const UTF8* name = NULL);
+   bool removeLanguage(S32 langid);
 
-	const S32 getNumLang(void) const					{ return mLangTable.size(); }
+   void setDefaultLanguage(S32 langid, bool activate = true);
+   void setCurrentLanguage(S32 langid, bool activate = true);
+   S32 getCurrentLanguage(void) { return mCurrentLang; }
+   void activateLanguage(S32 langid);
+   bool addLocalizedText(S32 langid, const char* filename);
 
-	const UTF8 * getString(const U32 id) const;
-	const U32 getStringLength(const U32 id) const;
+   const UTF8* getLangName(const S32 langid) const
+   {
+      if (langid < 0 || langid >= mLangTable.size())
+         return NULL;
+      return mLangTable[langid]->getLangName();
+   }
+
+   const UTF8* getLangCode(const S32 langid) const
+   {
+      if (langid < 0 || langid >= mLangTable.size())
+         return NULL;
+      return mLangTable[langid]->getLangCode();
+   }
+
+   const S32 getNumLang(void) const { return mLangTable.size(); }
+
+   const UTF8* getString(const char* textTag, bool defaultfallback = true) const;
+   const U32 getStringLength(const char* textTag, bool defaultfallback = true) const;
 };
 
 extern UTF8 *sanitiseVarName(const UTF8 *varName, UTF8 *buffer, U32 bufsize);

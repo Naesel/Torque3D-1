@@ -165,22 +165,10 @@ void GuiButtonBaseCtrl::setText( const char* text )
 
 void GuiButtonBaseCtrl::setTextID(const char *id)
 {
-	S32 n = Con::getIntVariable(id, -1);
-	if(n != -1)
-	{
-		mButtonTextID = StringTable->insert(id);
-		setTextID(n);
-	}
-}
-
-//-----------------------------------------------------------------------------
-
-void GuiButtonBaseCtrl::setTextID(S32 id)
-{
-	const UTF8 *str = getGUIString(id);
-	if(str)
-		setText((const char*)str);
-	//mButtonTextID = id;
+   mButtonTextID = StringTable->insert(id);
+   const UTF8* str = getGUIString(mButtonTextID);
+   if (str)
+      setText((const char*)str);
 }
 
 //-----------------------------------------------------------------------------
