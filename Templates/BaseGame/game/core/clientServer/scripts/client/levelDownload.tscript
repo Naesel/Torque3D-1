@@ -180,7 +180,8 @@ function clientCmdMissionStartPhase1(%seq, %levelAsset, %cache_crc)
     echo("<<<< client datablock caching is disabled, datablocks will be transmitted. >>>>");
   }
   
-   onMissionDownloadPhase("LOADING DATABLOCKS");
+   //onMissionDownloadPhase("LOADING DATABLOCKS");
+   onMissionDownloadPhase("loading_db");
    
    commandToServer('MissionStartPhase1Ack', %seq);
 }
@@ -198,7 +199,8 @@ function clientCmdMissionStartPhase2(%seq, %levelAsset)
    onPhaseComplete();
    echo ("*** Phase 2: Download Ghost Objects");
    
-   onMissionDownloadPhase("LOADING OBJECTS");
+   //onMissionDownloadPhase("LOADING OBJECTS");
+   onMissionDownloadPhase("loading_objects");
    
    commandToServer('MissionStartPhase2Ack', %seq);
 }
@@ -242,7 +244,8 @@ function clientCmdMissionStartPhase3(%seq, %levelAsset)
       echo("Lighting mission....");
       schedule(1, 0, "updateLightingProgress");
       
-      onMissionDownloadPhase("LIGHTING MISSION");
+      //onMissionDownloadPhase("LIGHTING MISSION");
+      onMissionDownloadPhase("loading_lights");
       
       $lightingMission = true;
    }
@@ -272,7 +275,7 @@ function sceneLightingComplete()
    $pref::ReflectionProbes::CurrentLevelPath = filePath($Client::MissionFile) @ "/" @ fileBase($Client::MissionFile) @ "/probes/";
    //ProbeBin.processProbes();
    
-   onPhaseComplete("STARTING MISSION");
+   onPhaseComplete("loading_done");
    
    // The is also the end of the mission load cycle.
    commandToServer('MissionStartPhase3Ack', $MSeq);
@@ -290,13 +293,13 @@ function connect(%server)
    %conn.connect(%server);
 }
 
-function onMissionDownloadPhase(%phase)
+function onMissionDownloadPhase(%phaseTag)
 {
    if ( !isObject( LoadingProgress ) )
       return;
       
    LoadingProgress.setValue(0);
-   LoadingProgressTxt.setValue(%phase);
+   LoadingProgressTxt.setTextID(%phaseTag);
    Canvas.repaint();
 }
 
@@ -309,13 +312,13 @@ function onMissionDownloadProgress(%progress)
    Canvas.repaint(33);
 }
 
-function onPhaseComplete(%text)
+function onPhaseComplete(%textTag)
 {
    if ( !isObject( LoadingProgress ) )
       return;
 	  
-   if(%text !$= "")
-      LoadingProgressTxt.setValue(%text);
+   if(%textTag !$= "")
+      LoadingProgressTxt.setTextID(%textTag);
       
    LoadingProgress.setValue( 1 );
    Canvas.repaint();

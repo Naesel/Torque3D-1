@@ -101,7 +101,7 @@ function MessageBoxOK(%title, %message, %callback)
    MessageBoxYNCButtonHolder.hidden = true;
    MessageBoxOKButtonHolder.hidden = false;
    
-   MessageBoxOKButtonHolder-->OKButton.set("btn_a", "Return", "OK", "MessageCallback(MessageBoxDlg,MessageBoxDlg.callback);");
+   MessageBoxOKButtonHolder-->OKButton.set("btn_a", "Return", L("ok"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.callback);");
    
    MessageBoxCtrl.originalMenuInputContainer = $activeMenuButtonContainer;
    MessageBoxOKButtonHolder.setActive();
@@ -125,8 +125,8 @@ function MessageBoxOKCancel(%title, %message, %callback, %cancelCallback)
    MessageBoxYNCButtonHolder.hidden = true;
    MessageBoxOKButtonHolder.hidden = true;
    
-   MessageBoxOCButtonHolder-->OKButton.set("btn_a", "Return", "OK", "MessageCallback(MessageBoxDlg,MessageBoxDlg.callback);");
-   MessageBoxOCButtonHolder-->CancelButton.set("btn_b", "Escape", "Cancel", "MessageCallback(MessageBoxDlg,MessageBoxDlg.cancelCallback);");
+   MessageBoxOCButtonHolder-->OKButton.set("btn_a", "Return", L("ok"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.callback);");
+   MessageBoxOCButtonHolder-->CancelButton.set("btn_b", "Escape", L("cancel"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.cancelCallback);");
 
    MessageBoxCtrl.originalMenuInputContainer = $activeMenuButtonContainer;
    MessageBoxOCButtonHolder.setActive();
@@ -223,8 +223,8 @@ function MessageBoxYesNo(%title, %message, %yesCallback, %noCallback)
    MessageBoxYNCButtonHolder.hidden = true;
    MessageBoxOKButtonHolder.hidden = true;
    
-   MessageBoxOCButtonHolder-->OKButton.set("btn_a", "Return", "Yes", "MessageCallback(MessageBoxDlg,MessageBoxDlg.yesCallBack);");
-   MessageBoxOCButtonHolder-->CancelButton.set("btn_b", "Escape", "No", "MessageCallback(MessageBoxDlg,MessageBoxDlg.noCallback);");
+   MessageBoxOCButtonHolder-->OKButton.set("btn_a", "Return", L("yes"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.yesCallBack);");
+   MessageBoxOCButtonHolder-->CancelButton.set("btn_b", "Escape", L("no"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.noCallback);");
    
    MessageBoxCtrl.originalMenuInputContainer = $activeMenuButtonContainer;
    MessageBoxOCButtonHolder.setActive();
@@ -243,9 +243,9 @@ function MessageBoxYesNoCancel(%title, %message, %yesCallback, %noCallback, %can
    MessageBoxYNCButtonHolder.hidden = false;
    MessageBoxOKButtonHolder.hidden = true;
    
-   MessageBoxYNCButtonHolder-->yesButton.set("btn_a", "Return", "Yes", "MessageCallback(MessageBoxDlg,MessageBoxDlg.yesCallBack);");
-   MessageBoxYNCButtonHolder-->noButton.set("btn_x", "backspace", "No", "MessageCallback(MessageBoxDlg,MessageBoxDlg.noCallback);");
-   MessageBoxYNCButtonHolder-->cancelButton.set("btn_b", "Escape", "No", "MessageCallback(MessageBoxDlg,MessageBoxDlg.cancelCallback);");
+   MessageBoxYNCButtonHolder-->yesButton.set("btn_a", "Return", L("yes"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.yesCallBack);");
+   MessageBoxYNCButtonHolder-->noButton.set("btn_x", "backspace", L("no"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.noCallback);");
+   MessageBoxYNCButtonHolder-->cancelButton.set("btn_b", "Escape", L("cancel"), "MessageCallback(MessageBoxDlg,MessageBoxDlg.cancelCallback);");
    
    MessageBoxCtrl.originalMenuInputContainer = $activeMenuButtonContainer;
    MessageBoxYNCButtonHolder.setActive();

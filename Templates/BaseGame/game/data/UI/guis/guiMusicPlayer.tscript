@@ -119,7 +119,7 @@ function GuiMusicPlayerClass::play( %this )
       
       if( %isPlaying )
       {
-         GuiMusicPlayerPlayButton.setText( "Pause" );
+         GuiMusicPlayerPlayButton.setTextID( "pause" );
          GuiMusicPlayerPlayButton.command = "GuiMusicPlayer.pause();";
          GuiMusicPlayerLoopCheckBox.setActive( false );
          GuiMusicPlayerFadeCheckBox.setActive( false );
@@ -145,7 +145,7 @@ function GuiMusicPlayerClass::onStop( %this )
    GuiMusicPlayerLoopCheckBox.setActive( true );
    GuiMusicPlayerFadeCheckBox.setActive( true );
    GuiMusicPlayerScrubber.setActive( false );
-   GuiMusicPlayerPlayButton.setText( "Play" );
+   GuiMusicPlayerPlayButton.setTextID( "play" );
    GuiMusicPlayerPlayButton.Command = "GuiMusicPlayer.play();";
    %this.status = "Stopped";
    
@@ -159,7 +159,7 @@ function GuiMusicPlayerClass::pause( %this )
       if( isObject( %this.sfxSource ) )
          %this.sfxSource.pause( 0 );
          
-      GuiMusicPlayerPlayButton.setText( "Play" );
+      GuiMusicPlayerPlayButton.setTextID( "play" );
       GuiMusicPlayerPlayButton.command = "GuiMusicPlayer.play();";
       %this.status = "Paused";
    }

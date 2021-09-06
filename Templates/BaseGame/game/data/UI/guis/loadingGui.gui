@@ -95,6 +95,7 @@
       };
       new GuiTextCtrl(LoadingProgressTxt) {
          text = "LOADING DATABLOCKS";
+         textID = "loading_db";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";

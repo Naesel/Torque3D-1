@@ -17,10 +17,10 @@ function PauseMenu::onWake(%this)
    {
       PauseMenuList.addRow("Exit Editor", "fastLoadWorldEdit", -1, -30); 
    }
-   
-   PauseMenuList.addRow("Options", "openPauseMenuOptions", -1, -30);
-   PauseMenuList.addRow("Exit to Menu", "pauseMenuExitToMenu", -1, -30);
-   PauseMenuList.addRow("Exit to Desktop", "pauseMenuExitToDesktop", -1, -30); 
+
+   PauseMenuList.addRow(L("options"), "openPauseMenuOptions", -1, -30);
+   PauseMenuList.addRow(L("pausem_tomenu"), "pauseMenuExitToMenu", -1, -30);
+   PauseMenuList.addRow(L("pausem_todesk"), "pauseMenuExitToDesktop", -1, -30);
 }
 
 
@@ -50,17 +50,19 @@ function openPauseMenuOptions()
 function pauseMenuExitToMenu()
 {
    PauseMenuList.hidden = true;
-   MessageBoxOKCancel("Exit?", "Do you wish to exit to the Main Menu?", "escapeFromGame();", "PauseMenu.onReturnTo();");
+   //MessageBoxOKCancel("Exit?", "Do you wish to exit to the Main Menu?", "escapeFromGame();", "PauseMenu.onReturnTo();");
+   MessageBoxOKCancel(L("pausem_pop_title"), L("pausem_pop_menumsg"), "escapeFromGame();", "PauseMenu.onReturnTo();");
 }
 
 function pauseMenuExitToDesktop()
 {
    PauseMenuList.hidden = true;
-   MessageBoxOKCancel("Exit?", "Do you wish to exit to the desktop?", "quit();", "PauseMenu.onReturnTo();");
+   //MessageBoxOKCancel("Exit?", "Do you wish to exit to the desktop?", "quit();", "PauseMenu.onReturnTo();");
+   MessageBoxOKCancel(L("pausem_pop_title"), L("pausem_pop_deskmsg"), "quit();", "PauseMenu.onReturnTo();");
 }
 
 function PauseButtonHolder::onWake(%this)
 {
-   %this-->goButton.set("btn_a", "Return", "OK", "PauseMenuList.activateRow();", true);
-   %this-->backButton.set("btn_b", "Escape", "Back", "Canvas.popDialog();");
+   %this-->goButton.set("btn_a", "Return", L("ok"), "PauseMenuList.activateRow();", true);
+   %this-->backButton.set("btn_b", "Escape", L("back"), "Canvas.popDialog();");
 }

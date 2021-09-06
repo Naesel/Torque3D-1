@@ -140,6 +140,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
 
       new GuiTextCtrl(GhostsActive) {
          text = "Ghosts Active";
+         textID = "netgg_gh_act";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -163,6 +164,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl(GhostUpdates) {
          text = "Ghost Updates";
+         textID = "netgg_gh_upd";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -186,6 +188,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl(BitsSent) {
          text = "Bytes Sent";
+         textID = "netgg_b_sent";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -209,6 +212,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl(BitsReceived) {
          text = "Bytes Received";
+         textID = "netgg_b_rec";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -232,6 +236,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl(Latency) {
          text = "Latency";
+         textID = "netgg_latency";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -255,6 +260,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl(PacketLoss) {
          text = "Packet Loss";
+         textID = "netgg_p_loss";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -278,6 +284,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl() {
          text = "Network Simulation:";
+         textID = "netgg_net_sim";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -301,6 +308,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl() {
          text = "Simulated Latency:";
+         textID = "netgg_sim_lat";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -324,6 +332,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl() {
          text = "ms";
+         textID = "ms_abrv";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -375,6 +384,7 @@ new GuiControlProfile (NetGraphPacketLossProfile)
       };
       new GuiTextCtrl() {
          text = "Simulated Packet Loss:";
+         textID = "netgg_sim_loss";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -483,18 +493,18 @@ function NetGraph::updateStats()
   {
     if(isobject(ServerConnection))
         NetGraph.addDatum(0,ServerConnection.getGhostsActive());
-    GhostsActive.setText("Ghosts Active: " @ ServerConnection.getGhostsActive());
+    GhostsActive.setText(L("netgg_gh_act") SPC ServerConnection.getGhostsActive());
     NetGraph.addDatum(1,$Stats::netGhostUpdates);
-    GhostUpdates.setText("Ghost Updates: " @ $Stats::netGhostUpdates);
+    GhostUpdates.setText(L("netgg_gh_upd") SPC $Stats::netGhostUpdates);
     NetGraph.addDatum(2,$Stats::netBitsSent);
-    BitsSent.setText("Bytes Sent: " @ $Stats::netBitsSent);
+    BitsSent.setText(L("netgg_b_sent") SPC $Stats::netBitsSent);
     NetGraph.addDatum(3,$Stats::netBitsReceived);
-    BitsReceived.setText("Bytes Received: " @ $Stats::netBitsReceived);
+    BitsReceived.setText(L("netgg_b_rec") SPC $Stats::netBitsReceived);
     NetGraph.matchScale(2,3);
     NetGraph.addDatum(4,ServerConnection.getPing());
-    Latency.setText("Latency: " @ ServerConnection.getPing());
+    Latency.setText(L("netgg_latency") SPC ServerConnection.getPing());
     NetGraph.addDatum(5,ServerConnection.getPacketLoss());
-    PacketLoss.setText("Packet Loss: " @ ServerConnection.getPacketLoss());
+    PacketLoss.setText(L("netgg_p_loss") SPC ServerConnection.getPacketLoss());
   }
 }
 

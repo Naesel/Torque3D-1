@@ -322,6 +322,32 @@ function MenuInputButtonContainer::processAxisEvent(%this, %device, %action, %ax
       %this.refresh();
 }
 
+/// Fills the option row with the localized text equivalent of all tags in the
+/// passed list. The tag string is set as the option key for lookup by key
+/// instead of text.
+/// %lineNum - The line to fill. The option line must be created empty.
+/// %tagList - A tab or space separated list of option tags. If the tag is
+///    numeric, it will be added as-is with no text lookup.
+/// %defaultVal - If one of the tags matches this value, that option will be
+///    selected.
+function GuiGameListMenuCtrl::fillLocalizedOptions(%this, %lineNum, %tagList, %defaultVal)
+{
+   %currentQuality = "";
+
+   foreach$ (%tagStr in %tagList)
+   {
+      %dispText = isInt(%tagStr) ? %tagStr : L(strlwr(%tagStr));
+      %this.addOption(%lineNum, %dispText, %tagStr);
+
+      if (%tagStr $= %defaultVal)
+         %currentQuality = %tagStr;
+   }
+   %this.setRowEnabled(%lineNum, true);
+
+   if (%currentQuality !$= "")
+      %this.selectOptionByKey(%lineNum, %currentQuality);
+}
+
 //
 //
 function onSDLDeviceConnected(%sdlIndex, %deviceName, %deviceType)

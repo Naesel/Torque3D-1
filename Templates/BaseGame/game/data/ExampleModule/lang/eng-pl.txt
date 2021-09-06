@@ -1,0 +1,25 @@
+//==============================================================================
+// Localized text file for UI module.
+// Lines beginning with '/' or '#' are comment lines and are ignored. All other
+// lines must take the form:
+// text_tag = Localized text.
+// The text tag must begin on the first character of the line and cannot contain
+// whitespace. Following the text tag is a single space, an equal sign then 
+// another space. All text following the second space to the end of the line is
+// the localized text replacement. Each localized text string cannot be more
+// than 2048 bytes including the null terminator. This is not 'characters',
+// multi-byte utf8 encoding can use more than one byte per character.
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Do not translate any of these character types:
+// /c0 - /c9 are character color codes.
+// <...> Text within <> are markup language directives for GuiMLTextCtrl.
+// %1 - %9 are placeholders for the string builder.
+
+//------------------------------------------------------------------------------
+// Example level asset
+#[eng-us] level_name_example = Example Level
+level_name_example = Exampleway Evellay
+#[eng-us] level_desc_example = An example level asset
+level_desc_example = Anway exampleway evellay assetway

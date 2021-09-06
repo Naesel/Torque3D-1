@@ -1,0 +1,226 @@
+//==============================================================================
+// Localized text file for UI module.
+// Lines beginning with '/' or '#' are comment lines and are ignored. All other
+// lines must take the form:
+// text_tag = Localized text.
+// The text tag must begin on the first character of the line and cannot contain
+// whitespace. Following the text tag is a single space, an equal sign then 
+// another space. All text following the second space to the end of the line is
+// the localized text replacement. Each localized text string cannot be more
+// than 2048 bytes including the null terminator. This is not 'characters',
+// multi-byte utf8 encoding can use more than one byte per character.
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Do not translate any of these character types:
+// /c0 - /c9 are character color codes.
+// <...> Text within <> are markup language directives for GuiMLTextCtrl.
+// %1 - %9 are placeholders for the string builder.
+
+//------------------------------------------------------------------------------
+// Common labels used in multiple places.
+go = Go
+back = Back
+ok = OK
+cancel = Cancel
+yes = Yes
+no = No
+on = On
+off = Off
+add = Add
+remove = Remove
+done = Done
+reset = Reset
+apply = Apply
+refresh = Refresh
+details = Details
+error = Error
+ping = Ping
+game = Game
+join = Join
+ms_abrv = ms
+options = Options
+none = None
+lowest = Lowest
+low = low
+medium = Medium
+high = High
+highest = Highest
+
+//------------------------------------------------------------------------------
+// MainMenu Buttons
+mm_singleplayer = Single Player
+mm_createserver = Create Server
+mm_joinserver = Join Server
+mm_worldedit = Open World Editor
+mm_guiedit = Open GUI Editor
+mm_exit = Exit Game
+lang_header = Language:
+
+//------------------------------------------------------------------------------
+// Choose Level Gui
+cl_single_player = SINGLE PLAYER
+cl_host_server = CREATE SERVER
+cl_start_level = Start Level
+cl_level_desc = Description:
+// Error message when no levels installed
+cl_no_levels = No levels were found in any modules. Please ensure you have modules loaded that contain gameplay code and level files.
+
+//------------------------------------------------------------------------------
+// JoinServerMenu
+js_title = JOIN SERVER
+js_playername = Player Name:
+js_playercount = Players
+js_version = Version
+js_servname = Server Name
+js_qrycancel = Cancel!
+js_qry_lan = Query LAN
+js_qry_net = Query Internet
+js_status_ping = Ping Servers
+js_status_qry = Query Servers
+
+// Server query status messages
+js_qs_qry_lan = Querying LAN servers
+js_qs_qry_main = Querying master server
+js_qs_qry_fav = Query favorites...
+js_qs_refresh = Refreshing server...
+js_qs_switch_main = Switching master servers...
+js_qs_retry = Retrying the master server...
+js_qs_no_main = No master servers found.
+js_qs_no_server = No servers found.
+js_qs_one_server = One server found.
+js_qs_num_server = %1 servers found.
+js_qs_wait_lan = Waiting for lan servers...
+js_qs_num_pings = Pinging servers: %1 left...
+js_qs_num_qrys = Querying servers: %1 left...
+
+//------------------------------------------------------------------------------
+// LoadingGui
+loading_db = LOADING DATABLOCKS
+loading_mission = LOADING MISSION FILE
+loading_waiting = WAITING FOR SERVER
+loading_objects = LOADING OBJECTS
+loading_lights = LIGHTING MISSION
+loading_done = STARTING MISSION
+
+//------------------------------------------------------------------------------
+// GuiMusicPlayer
+musicplay_title = Torque Music Player
+fade = Fade
+loop = Loop
+stop = Stop
+play = Play
+pause = Pause
+
+//------------------------------------------------------------------------------
+// NetGraphGui
+netgg_gh_act = Ghosts Active:
+netgg_gh_upd = Ghost Updates:
+netgg_b_sent = Bytes Sent:
+netgg_b_rec = Bytes Received:
+netgg_latency = Latency:
+netgg_p_loss = Packet Loss:
+netgg_net_sim = Network Simulation:
+netgg_sim_lat = Simulated Latency:
+netgg_sim_loss = Simulated Packet Loss:
+
+//------------------------------------------------------------------------------
+// OptionsDlg / OptionsMenu
+opt_controlname = Control Name
+opt_controlbind = Control Binding
+opt_mouse_sens = Mouse Sensitivity:
+opt_audio_prov = Audio Provider
+opt_audio_dev = Audio Device
+opt_vol_main = Master Volume
+opt_ui_vol = GUI Volume
+opt_fx_vol = Effects Volume
+opt_music_vol = Music Volume
+opt_disp_driver = Display Driver:
+opt_refresh = Refresh:
+opt_fx_qual = Effect Quality:
+opt_part_qual = Particle Quality:
+opt_auto_qual = Auto Detect Quality
+opt_gamma = Gamma:
+opt_gfx_btn = Graphics
+opt_sfx_btn = Audio
+opt_ctrl_btn = Controls
+opt_disp_btn = Display
+opt_kbm_btn = Keyboard + Mouse
+opt_gmpd_btn = Gamepad
+opt_prev_tab = Prev Tab
+opt_next_tab = Next Tab
+opt_reset_msg = This will set the graphical settings back to the auto-detected defaults. Do you wish to continue?
+opt_disp_api = Display API
+opt_disp_api_tt = The display API used for rendering.
+opt_disp_dev = Display Device
+opt_disp_dev_tt = The display devices the window should be on.
+opt_win_mode = Window Mode
+opt_win_mode_tt = Window display type: Windowed, Borderless or Fullscreen.
+opt_resolution = Resolution
+opt_resolution_tt = Resolution of the game window.
+opt_vsync = VSync
+opt_vysnc_tt = 
+opt_rate = Refresh Rate
+opt_rate_tt = 
+opt_fov = Field of View
+opt_fov_tt = 
+opt_bright = Brightness
+opt_bright_tt = 
+opt_contrast = Contrast
+opt_contrast_tt = 
+opt_dev_d3d11 = DirectX 11
+opt_dev_opengl = Open GL
+opt_mode_windowed = Windowed
+opt_mode_borderless = Borderless
+opt_mode_fullscreen = Fullscreen
+
+// Graphics quality setting labels and tooltips.
+opt_light_qlty = Lighting Quality
+opt_light_qlty_tt = Amount and drawdistance of local lights.
+opt_shdw_qlty = Shadow Quality
+opt_shdw_qlty_tt = Shadow revolution quality.
+opt_softshdw_qlty = Soft Shadow Quality
+opt_softshdw_qlty_tt = Amount of softening applied to shadowmaps.
+opt_mesh_qlty = Mesh Quality
+opt_mesh_qlty_tt = Fidelity of rendering of mesh objects.
+opt_drawdist = Object Draw Distance
+opt_drawdist_tt = Dictates if and when static objects fade out in the distance.
+opt_tex_qlty = Texture Quality
+opt_tex_qlty_tt = Fidelity of textures.
+opt_terr_qlty = Terrain Quality
+opt_terr_qlty_tt = Quality level of terrain objects.
+opt_decal_life = Decal Lifetime
+opt_decal_life_tt = How long decals are rendered.
+opt_gc_density = Ground Cover Density
+opt_gc_density_tt = Density of ground cover items, such as grass.
+opt_shdr_qlty = Shader Quality
+opt_shdr_qlty_tt = Dictates the overall shader quality level, adjusting what features are enabled.
+opt_aniso_fltr = Anisotropic Filtering
+opt_aniso_fltr_tt = Amount of Anisotropic Filtering on textures, which dictates their sharpness at a distance.
+opt_anti_alias = Anti-Aliasing
+opt_anti_alias_tt = Amount of Post-Processing Anti-Aliasing applied to rendering.
+opt_parallax = Parallax
+opt_parallax_tt = Whether the surface parallax shader effect is enabled.
+opt_water_ref = Water Reflections
+opt_water_ref_tt = Whether water reflections are enabled.
+opt_ssao = SSAO
+opt_ssao_tt = Whether Screen-Space Ambient Occlusion is enabled.
+opt_dof = Depth of Field
+opt_dof_tt = Whether the Depth of Field effect is enabled.
+opt_vignette = Vignette
+opt_vignette_tt = Whether the vignette effect is enabled.
+opt_lightrays = Light Rays
+opt_lightrays_tt = Whether the light rays effect is enabled.
+
+// Graphics restart message box title and cotents
+opt_restart_title = Change Requires Restart
+opt_restart_msg = Please restart the game for a display device change to take effect.
+
+
+//------------------------------------------------------------------------------
+// PauseMenu
+pausem_tomenu = Exit to Menu
+pausem_todesk = Exit to Desktop
+pausem_pop_title = Exit?
+pausem_pop_menumsg = Do you wish to exit to the Main Menu?
+pausem_pop_deskmsg = Do you wish to exit to the desktop?

@@ -68,6 +68,11 @@ new GuiControlProfile(MenuSubHeaderText)
    justify = "left";
 };
 
+new GuiControlProfile(MenuSubHeaderRight : MenuSubHeaderText)
+{
+   justify = "right";
+};
+
 new GuiControlProfile(MenuMLSubHeaderText)
 {
    fontType = "Arial Bold";
@@ -291,8 +296,8 @@ if( !isObject( GuiTextArrayProfile ) )
 new GuiControlProfile( GuiTextArrayProfile : GuiTextProfile )
 {
    fontColor = $TextMediumEmphasisColor;
-   fontColorHL = $TextMediumEmphasisColor;
-   fontColorSEL = $TextMediumEmphasisColor;
+   fontColorHL = $TextHighEmphasisColor;
+   fontColorSEL = $TextHighEmphasisColor;
    fontColorNA = $TextDisabledColor;
    
    fillColor = "22 22 22 255";
@@ -315,6 +320,7 @@ new GuiControlProfile( GuiMenuTextEditProfile : GuiTextEditProfile )
    fontColorHL = $TextMediumEmphasisColor;
    fontColorSEL = $TextMediumEmphasisColor;
    fontColorNA = $TextDisabledColor;
+   cursorColor = $TextMediumEmphasisColor;
    
    fillColor = "22 22 22 255";
    fillColorHL = "22 22 22 255";   

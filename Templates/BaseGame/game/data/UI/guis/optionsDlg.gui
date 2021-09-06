@@ -17,6 +17,7 @@
 
    new GuiWindowCtrl() {
       text = "Options";
+      textID = "options";
       resizeWidth = "0";
       resizeHeight = "0";
       canMove = "1";
@@ -48,6 +49,7 @@
 
       new GuiButtonCtrl() {
          text = "Done";
+         textID = "done";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
@@ -135,6 +137,7 @@
          };
          new GuiTextCtrl() {
             text = "Control Name";
+            textID = "opt_controlname";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -158,6 +161,7 @@
          };
          new GuiTextCtrl() {
             text = "Control Binding";
+            textID = "opt_controlbind";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -200,6 +204,7 @@
          };  
          new GuiTextCtrl() {  
             text = "Mouse Sensitivity:"; 
+            textID = "opt_mouse_sens"; 
             maxLength = "255";  
             Margin = "0 0 0 0";  
             Padding = "0 0 0 0";  
@@ -260,6 +265,7 @@
          };
          new GuiTextCtrl() {
             text = "Audio Provider:";
+            textID = "opt_audio_prov";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -310,6 +316,7 @@
          };
          new GuiTextCtrl() {
             text = "Audio Device:";
+            textID = "opt_audio_dev";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -375,6 +382,7 @@
 
             new GuiTextCtrl() {
                text = "Master Volume";
+               textID = "opt_vol_main";
                maxLength = "255";
                margin = "0 0 0 0";
                padding = "0 0 0 0";
@@ -435,6 +443,7 @@
 
             new GuiTextCtrl() {
                text = "Interface Volume";
+               textID = "opt_ui_vol";
                maxLength = "255";
                margin = "0 0 0 0";
                padding = "0 0 0 0";
@@ -495,6 +504,7 @@
 
             new GuiTextCtrl() {
                text = "Effects Volume";
+               textID = "opt_fx_vol";
                maxLength = "255";
                margin = "0 0 0 0";
                padding = "0 0 0 0";
@@ -576,6 +586,7 @@
             };
             new GuiTextCtrl() {
                text = "Music Volume";
+               textID = "opt_music_vol";
                maxLength = "255";
                margin = "0 0 0 0";
                padding = "0 0 0 0";
@@ -617,6 +628,7 @@
 
          new GuiTextCtrl() {
             text = "Display Driver:";
+            textID = "opt_disp_driver";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -640,6 +652,7 @@
          };
          new GuiTextCtrl() {
             text = "Resolution:";
+            textID = "opt_resolution";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -663,6 +676,7 @@
          };
          new GuiCheckBoxCtrl() {
             text = "Fullscreen";
+            textID = "opt_mode_fullscreen";
             groupNum = "-1";
             buttonType = "ToggleButton";
             useMouseEvents = "0";
@@ -740,6 +754,7 @@
          };
          new GuiTextCtrl() {
             text = "Refresh:";
+            textID = "opt_refresh";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -792,6 +807,7 @@
          };
          new GuiTextCtrl() {
             text = "Mesh Quality:";
+            textID = "opt_mesh_qlty";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -875,6 +891,7 @@
          };
          new GuiTextCtrl() {
             text = "Texture Quality:";
+            textID = "opt_tex_qlty";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -928,6 +945,7 @@
          };
          new GuiTextCtrl() {
             text = "Lighting Quality:";
+            textID = "opt_light_qlty";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -951,6 +969,7 @@
          };
          new GuiTextCtrl() {
             text = "Effect Quality:";
+            textID = "opt_fx_qual";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -1003,6 +1022,7 @@
          };
          new GuiTextCtrl() {
             text = "Shader Quality:";
+            textID = "opt_shdr_qlty";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -1056,6 +1076,7 @@
          };
          new GuiTextCtrl() {
             text = "Particle Quality:";
+            textID = "opt_part_qual";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -1110,6 +1131,7 @@
          };
          new GuiTextCtrl() {
             text = "Anisotropic Filtering:";
+            textID = "opt_aniso_fltr";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -1162,6 +1184,7 @@
          };
          new GuiCheckBoxCtrl() {
             text = "Vertical Sync";
+            textID = "opt_vsync";
             groupNum = "-1";
             buttonType = "ToggleButton";
             useMouseEvents = "0";
@@ -1183,6 +1206,7 @@
          };
          new GuiButtonCtrl() {
             text = "Auto Detect Quality";
+            textID = "opt_auto_qual";
             groupNum = "-1";
             buttonType = "PushButton";
             useMouseEvents = "0";
@@ -1231,6 +1255,7 @@
          };
          new GuiTextCtrl() {
             text = "Anti-aliasing";
+            textID = "opt_anti_alias";
             maxLength = "255";
             margin = "0 0 0 0";
             padding = "0 0 0 0";
@@ -1290,6 +1315,7 @@
             };
             new GuiTextCtrl() {
                text = "Gamma:";
+               textID = "opt_gamma";
                maxLength = "255";
                margin = "0 0 0 0";
                padding = "0 0 0 0";
@@ -1332,6 +1358,7 @@
       };
       new GuiButtonCtrl() {
          text = "Graphics";
+         textID = "opt_gfx_btn";
          groupNum = "-1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -1353,6 +1380,7 @@
       };
       new GuiButtonCtrl() {
          text = "Audio";
+         textID = "opt_sfx_btn";
          groupNum = "-1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -1373,6 +1401,7 @@
       };
       new GuiButtonCtrl() {
          text = "Controls";
+         textID = "opt_ctrl_btn";
          groupNum = "-1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -1393,6 +1422,7 @@
       };
       new GuiButtonCtrl() {
          text = "Apply";
+         text = "apply";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";

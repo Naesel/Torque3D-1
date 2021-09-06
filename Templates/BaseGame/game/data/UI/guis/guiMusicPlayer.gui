@@ -24,6 +24,7 @@
       minSize = "50 50";
       EdgeSnap = "1";
       text = "Torque Music Player";
+      textID = "musicplay_title";
       Margin = "0 0 0 0";
       Padding = "0 0 0 0";
       AnchorTop = "1";
@@ -47,6 +48,7 @@
       new GuiCheckBoxCtrl(GuiMusicPlayerFadeCheckBox) {
          useInactiveState = "0";
          text = "Fade";
+         textID = "fade";
          groupNum = "-1";
          buttonType = "ToggleButton";
          useMouseEvents = "0";
@@ -66,6 +68,7 @@
       new GuiCheckBoxCtrl(GuiMusicPlayerLoopCheckBox) {
          useInactiveState = "0";
          text = "Loop";
+         text = "loop";
          groupNum = "-1";
          buttonType = "ToggleButton";
          useMouseEvents = "0";
@@ -151,6 +154,7 @@
       };
       new GuiButtonCtrl(GuiMusicPlayerStopButton) {
          text = "Stop";
+         text = "stop";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
@@ -170,6 +174,7 @@
       };
       new GuiButtonCtrl(GuiMusicPlayerPlayButton) {
          text = "Play";
+         text = "play";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";

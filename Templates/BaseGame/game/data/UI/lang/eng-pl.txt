@@ -1,0 +1,415 @@
+//==============================================================================
+// Localized text file for UI module.
+// Lines beginning with '/' or '#' are comment lines and are ignored. All other
+// lines must take the form:
+// text_tag = Localized text.
+// The text tag must begin on the first character of the line and cannot contain
+// whitespace. Following the text tag is a single space, an equal sign then 
+// another space. All text following the second space to the end of the line is
+// the localized text replacement. Each localized text string cannot be more
+// than 2048 bytes including the null terminator. This is not 'characters',
+// multi-byte utf8 encoding can use more than one byte per character.
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Do not translate any of these character types:
+// /c0 - /c9 are character color codes.
+// <...> Text within <> are markup language directives for GuiMLTextCtrl.
+// %1 - %9 are placeholders for the string builder.
+
+//------------------------------------------------------------------------------
+// Common labels used in multiple places.
+#[eng-us] go = Go
+go = Ogay
+#[eng-us] back = Back
+back = Ackbay
+#[eng-us] ok = OK
+ok = OKWAY
+#[eng-us] cancel = Cancel
+cancel = Ancelcay
+#[eng-us] yes = Yes
+yes = Esyay
+#[eng-us] no = No
+no = Onay
+#[eng-us] on = On
+on = Onway
+#[eng-us] off = Off
+off = Offway
+#[eng-us] add = Add
+add = Addway
+#[eng-us] remove = Remove
+remove = Emoveray
+#[eng-us] done = Done
+done = Oneday
+#[eng-us] reset = Reset
+reset = Esetray
+#[eng-us] apply = Apply
+apply = Applyway
+#[eng-us] refresh = Refresh
+refresh = Efreshray
+#[eng-us] details = Details
+details = Etailsday
+#[eng-us] error = Error
+error = Errorway
+#[eng-us] ping = Ping
+ping = Ingpay
+#[eng-us] game = Game
+game = Amegay
+#[eng-us] join = Join
+join = Oinjay
+#[eng-us] ms_abrv = ms
+ms_abrv = msay
+#[eng-us] options = Options
+options = Optionsway
+#[eng-us] none = None
+none = Onenay
+#[eng-us] lowest = Lowest
+lowest = Owestlay
+#[eng-us] low = low
+low = Owlay
+#[eng-us] medium = Medium
+medium = Ediummay
+#[eng-us] high = High
+high = Ighhay
+#[eng-us] highest = Highest
+highest = Ighesthay
+
+//------------------------------------------------------------------------------
+// MainMenu Buttons
+#[eng-us] mm_singleplayer = Single Player
+mm_singleplayer = Inglesay Ayerplay
+#[eng-us] mm_createserver = Create Server
+mm_createserver = Eatecray Erversay
+#[eng-us] mm_joinserver = Join Server
+mm_joinserver = Oinjay Erversay
+#[eng-us] mm_worldedit = Open World Editor
+mm_worldedit = Openway Orldway Editorway
+#[eng-us] mm_guiedit = Open GUI Editor
+mm_guiedit = Openway UIGAY Editorway
+#[eng-us] mm_exit = Exit Game
+mm_exit = Exitway Amegay
+#[eng-us] lang_header = Language:
+lang_header = Anguagelay:
+
+//------------------------------------------------------------------------------
+// Choose Level Gui
+#[eng-us] cl_single_player = SINGLE PLAYER
+cl_single_player = INGLESAY AYERPLAY
+#[eng-us] cl_host_server = CREATE SERVER
+cl_host_server = EATECRAY ERVERSAY
+#[eng-us] cl_start_level = Start Level
+cl_start_level = Artstay Evellay
+#[eng-us] cl_level_desc = Description:
+cl_level_desc = Escriptionday:
+// Error message when no levels installed
+#[eng-us] cl_no_levels = No levels were found in any modules. Please ensure you have modules loaded that contain gameplay code and level files.
+cl_no_levels = Onay evelslay ereway oundfay inway anyway odulesmay. Easeplay ensureway ouyay avehay odulesmay oadedlay atthay ontaincay ameplaygay odecay andway evellay ilesfay.
+
+//------------------------------------------------------------------------------
+// JoinServerMenu
+#[eng-us] js_title = JOIN SERVER
+js_title = OINJAY ERVERSAY
+#[eng-us] js_playername = Player Name:
+js_playername = Ayerplay Amenay:
+#[eng-us] js_playercount = Players
+js_playercount = Ayersplay
+#[eng-us] js_version = Version
+js_version = Ersionvay
+#[eng-us] js_servname = Server Name
+js_servname = Erversay Amenay
+#[eng-us] js_qrycancel = Cancel!
+js_qrycancel = Ancelcay!
+#[eng-us] js_qry_lan = Query LAN
+js_qry_lan = Eryquay ANLAY
+#[eng-us] js_qry_net = Query Internet
+js_qry_net = Eryquay Ebway
+#[eng-us] js_status_ping = Ping Servers
+js_status_ping = Ingpay Erverssay
+#[eng-us] js_status_qry = Query Servers
+js_status_qry = Eryquay Erverssay
+
+// Server query status messages
+#[eng-us] js_qs_qry_lan = Querying LAN servers
+js_qs_qry_lan = Eryingquay ANLAY erverssay
+#[eng-us] js_qs_qry_main = Querying master server
+js_qs_qry_main = Eryingquay astermay erversay
+#[eng-us] js_qs_qry_fav = Query favorites...
+js_qs_qry_fav = Eryquay avoritesfay...
+#[eng-us] js_qs_refresh = Refreshing server...
+js_qs_refresh = Efreshingray erversay...
+#[eng-us] js_qs_switch_main = Switching master servers...
+js_qs_switch_main = Itchingsway astermay erverssay...
+#[eng-us] js_qs_retry = Retrying the master server...
+js_qs_retry = Etryingray ethay astermay erversay...
+#[eng-us] js_qs_no_main = No master servers found.
+js_qs_no_main = Onay astermay erverssay oundfay.
+#[eng-us] js_qs_no_server = No servers found.
+js_qs_no_server = Onay erverssay oundfay.
+#[eng-us] js_qs_one_server = One server found.
+js_qs_one_server = Oneway erversay oundfay.
+#[eng-us] js_qs_num_server = %1 servers found.
+js_qs_num_server = %1 erverssay oundfay.
+#[eng-us] js_qs_wait_lan = Waiting for lan servers...
+js_qs_wait_lan = Aitingway orfay anlay erverssay...
+#[eng-us] js_qs_num_pings = Pinging servers: %1 left...
+js_qs_num_pings = Ingingpay erverssay: %1 eftlay...
+#[eng-us] js_qs_num_qrys = Querying servers: %1 left...
+js_qs_num_qrys = Eryingquay erverssay: %1 eftlay...
+
+//------------------------------------------------------------------------------
+// LoadingGui
+#[eng-us] loading_db = LOADING DATABLOCKS
+loading_db = OADINGLAY ATABLOCKSDAY
+#[eng-us] loading_mission = LOADING MISSION FILE
+loading_mission = OADINGLAY ISSIONMAY ILEFAY
+#[eng-us] loading_waiting = WAITING FOR SERVER
+loading_waiting = AITINGWAY ORFAY ERVERSAY
+#[eng-us] loading_objects = LOADING OBJECTS
+loading_objects = OADINGLAY OBJECTSWAY
+#[eng-us] loading_lights = LIGHTING MISSION
+loading_lights = IGHTINGLAY ISSIONMAY
+#[eng-us] loading_done = STARTING MISSION
+loading_done = ARTINGSTAY ISSIONMAY
+
+//------------------------------------------------------------------------------
+// GuiMusicPlayer
+#[eng-us] musicplay_title = Torque Music Player
+musicplay_title = Orquetay Usicmay Ayerplay
+#[eng-us] fade = Fade
+fade = Adefay
+#[eng-us] loop = Loop
+loop = Ooplay
+#[eng-us] stop = Stop
+stop = Opstay
+#[eng-us] play = Play
+play = Ayplay
+#[eng-us] pause = Pause
+pause = Ausepay
+
+//------------------------------------------------------------------------------
+// NetGraphGui
+#[eng-us] netgg_gh_act = Ghosts Active:
+netgg_gh_act = Ostsghay Activeway:
+#[eng-us] netgg_gh_upd = Ghost Updates:
+netgg_gh_upd = Ostghay Updatesway:
+#[eng-us] netgg_b_sent = Bytes Sent:
+netgg_b_sent = Esbytay Entsay:
+#[eng-us] netgg_b_rec = Bytes Received:
+netgg_b_rec = Esbytay Eceivedray:
+#[eng-us] netgg_latency = Latency:
+netgg_latency = Atencylay:
+#[eng-us] netgg_p_loss = Packet Loss:
+netgg_p_loss = Acketpay Osslay:
+#[eng-us] netgg_net_sim = Network Simulation:
+netgg_net_sim = Etworknay Imulationsay:
+#[eng-us] netgg_sim_lat = Simulated Latency:
+netgg_sim_lat = Imulatedsay Atencylay:
+#[eng-us] netgg_sim_loss = Simulated Packet Loss:
+netgg_sim_loss = Imulatedsay Acketpay Osslay:
+
+//------------------------------------------------------------------------------
+// OptionsDlg / OptionsMenu
+#[eng-us] opt_controlname = Control Name
+opt_controlname = Ontrolcay Amenay
+#[eng-us] opt_controlbind = Control Binding
+opt_controlbind = Ontrolcay Indingbay
+#[eng-us] opt_mouse_sens = Mouse Sensitivity:
+opt_mouse_sens = Ousemay Ensitivitysay:
+#[eng-us] opt_audio_prov = Audio Provider
+opt_audio_prov = Audioway Oviderpray:
+#[eng-us] opt_audio_dev = Audio Device
+opt_audio_dev = Audioway Eviceday:
+#[eng-us] opt_vol_main = Master Volume
+opt_vol_main = Astermay Olumevay
+#[eng-us] opt_ui_vol = GUI Volume
+opt_ui_vol = Interfaceway Olumevay
+#[eng-us] opt_fx_vol = Effects Volume
+opt_fx_vol = Effectsway Olumevay
+#[eng-us] opt_music_vol = Music Volume
+opt_music_vol = Usicmay Olumevay
+#[eng-us] opt_disp_driver = Display Driver:
+opt_disp_driver = Isplayday Iverdray:
+#[eng-us] opt_fullscreen = Fullscreen
+opt_fullscreen = Ullscreenfay
+#[eng-us] opt_refresh = Refresh:
+opt_refresh = Efreshray:
+#[eng-us] opt_mesh_qual = Mesh Quality:
+opt_mesh_qual = Eshmay Alityquay:
+#[eng-us] opt_tex_qual = Texture Quality:
+opt_tex_qual = Exturetay Alityquay:
+#[eng-us] opt_light_qual = Lighting Quality:
+opt_light_qual = Ightinglay Alityquay:
+#[eng-us] opt_fx_qual = Effect Quality:
+opt_fx_qual = Effectway Alityquay:
+#[eng-us] opt_shader_qual = Shader Quality:
+opt_shader_qual = Adershay Alityquay:
+#[eng-us] opt_part_qual = Particle Quality:
+opt_part_qual = Articlepay Alityquay:
+#[eng-us] opt_anis_filter = Anisotropic Filtering:
+opt_anis_filter = Anisotropicway Ilteringfay:
+#[eng-us] opt_vsync = Vertical Sync
+opt_vsync = vsyncay
+#[eng-us] opt_auto_qual = Auto Detect Quality
+opt_auto_qual = Autoway Etectday Alityquay
+#[eng-us] opt_aa = Anti-aliasing
+opt_aa = Antiway-aliasingway
+#[eng-us] opt_gamma = Gamma:
+opt_gamma = Ammagay:
+#[eng-us] opt_gfx_btn = Graphics
+opt_gfx_btn = Aphicsgray
+#[eng-us] opt_sfx_btn = Audio
+opt_sfx_btn = Audioway
+#[eng-us] opt_ctrl_btn = Controls
+opt_ctrl_btn = Ontrolscay
+#[eng-us] opt_disp_btn = Display
+opt_disp_btn = Isplayday
+#[eng-us] opt_kbm_btn = Keyboard + Mouse
+opt_kbm_btn = Eyboardkay + Ousemay
+#[eng-us] opt_gmpd_btn = Gamepad
+opt_gmpd_btn = Amepadgay
+#[eng-us] opt_prev_tab = Prev Tab
+opt_prev_tab = Evpray Abtay
+#[eng-us] opt_next_tab = Next Tab
+opt_next_tab = Extnay Abtay
+#[eng-us] opt_reset_msg = This will set the graphical settings back to the auto-detected defaults. Do you wish to continue?
+opt_reset_msg = Isthay illway etsay ethay aphicalgray ettingssay ackbay otay ethay autoway-etectedday efaultsday. Oday ouyay ishway otay ontinuecay?
+#[eng-us] opt_disp_api = Display API
+opt_disp_api = Isplayday APIWAY
+#[eng-us] opt_disp_api_tt = The display API used for rendering.
+opt_disp_api_tt = Ethay isplayday APIWAY usedway orfay enderingray.
+#[eng-us] opt_disp_dev = Display Device
+opt_disp_dev = Isplayday Eviceday
+#[eng-us] opt_disp_dev_tt = The display devices the window should be on.
+opt_disp_dev_tt = Ethay isplayday evicesday ethay indowway ouldshay ebay onway.
+#[eng-us] opt_win_mode = Window Mode
+opt_win_mode = Indowway Odemay
+#[eng-us] opt_win_mode_tt = Window display type: Windowed, Borderless or Fullscreen.
+opt_win_mode_tt = Indowway isplayday etypay: Indowedway, Orderlessbay orway Ullscreenfay.
+#[eng-us] opt_resolution = Resolution
+opt_resolution = Esolutionray
+#[eng-us] opt_resolution_tt = Resolution of the game window.
+opt_resolution_tt = Esolutionray ofway ethay amegay indowway.
+#[eng-us] opt_vsync = VSync
+opt_vsync = vsyncay
+#[eng-us] opt_vysnc_tt = 
+opt_vysnc_tt = 
+#[eng-us] opt_rate = Refresh Rate
+opt_rate = Efreshray Ateray
+#[eng-us] opt_rate_tt = 
+opt_rate_tt = 
+#[eng-us] opt_fov = Field of View
+opt_fov = Ieldfay ofway Iewvay
+#[eng-us] opt_fov_tt = 
+opt_fov_tt = 
+#[eng-us] opt_bright = Brightness
+opt_bright = Ightnessbray
+#[eng-us] opt_bright_tt = 
+opt_bright_tt = 
+#[eng-us] opt_contrast = Contrast
+opt_contrast = Ontrastcay
+#[eng-us] opt_contrast_tt = 
+opt_contrast_tt = 
+#[eng-us] opt_dev_d3d11 = DirectX 11
+opt_dev_d3d11 = IrectXday 11
+#[eng-us] opt_dev_opengl = Open GL
+opt_dev_opengl = Openway GLAY
+#[eng-us] opt_mode_windowed = Windowed
+opt_mode_windowed = Indowedway
+#[eng-us] opt_mode_borderless = Borderless
+opt_mode_borderless = Orderlessbay
+#[eng-us] opt_mode_fullscreen = Fullscreen
+opt_mode_fullscreen = Ullscreenfay
+
+// Graphics quality setting labels and tooltips.
+#[eng-us] opt_light_qlty = Lighting Quality
+opt_light_qlty = Ightinglay Alityquay
+#[eng-us] opt_light_qlty_tt = Amount and drawdistance of local lights.
+opt_light_qlty_tt = Amountway andway awdistancedray ofway ocallay ightslay.
+#[eng-us] opt_shdw_qlty = Shadow Quality
+opt_shdw_qlty = Adowshay Alityquay
+#[eng-us] opt_shdw_qlty_tt = Shadow revolution quality.
+opt_shdw_qlty_tt = Adowshay evolutionray alityquay.
+#[eng-us] opt_softshdw_qlty = Soft Shadow Quality
+opt_softshdw_qlty = Oftsay Adowshay Alityquay
+#[eng-us] opt_softshdw_qlty_tt = Amount of softening applied to shadowmaps.
+opt_softshdw_qlty_tt = Amountway ofway ofteningsay appliedway otay adowmapsshay.
+#[eng-us] opt_mesh_qlty = Mesh Quality
+opt_mesh_qlty = Eshmay Alityquay
+#[eng-us] opt_mesh_qlty_tt = Fidelity of rendering of mesh objects.
+opt_mesh_qlty_tt = Idelityfay ofway enderingray ofway eshmay objectsway.
+#[eng-us] opt_drawdist = Object Draw Distance
+opt_drawdist = Objectway Awdray Istanceday
+#[eng-us] opt_drawdist_tt = Dictates if and when static objects fade out in the distance.
+opt_drawdist_tt = Ictatesday ifway andway enwhay aticstay objectsway adefay outway inway ethay istanceday.
+#[eng-us] opt_tex_qlty = Texture Quality
+opt_tex_qlty = Exturetay Alityquay
+#[eng-us] opt_tex_qlty_tt = Fidelity of textures.
+opt_tex_qlty_tt = Idelityfay ofway exturestay.
+#[eng-us] opt_terr_qlty = Terrain Quality
+opt_terr_qlty = Erraintay Alityquay
+#[eng-us] opt_terr_qlty_tt = Quality level of terrain objects.
+opt_terr_qlty_tt = Alityquay evellay ofway erraintay objectsway.
+#[eng-us] opt_decal_life = Decal Lifetime
+opt_decal_life = Ecalday Ifetimelay
+#[eng-us] opt_decal_life_tt = How long decals are rendered.
+opt_decal_life_tt = Owhay onglay ecalsday areway enderedray.
+#[eng-us] opt_gc_density = Ground Cover Density
+opt_gc_density = Oundgray Overcay Ensityday
+#[eng-us] opt_gc_density_tt = Density of ground cover items, such as grass.
+opt_gc_density_tt = Ensityday ofway oundgray overcay itemsway, uchsay asway assgray.
+#[eng-us] opt_shdr_qlty = Shader Quality
+opt_shdr_qlty = Adershay Alityquay
+#[eng-us] opt_shdr_qlty_tt = Dictates the overall shader quality level, adjusting what features are enabled.
+opt_shdr_qlty_tt = Ictatesday ethay overallway adershay alityquay evellay, adjustingway atwhay eaturesfay areway enabledway.
+#[eng-us] opt_aniso_fltr = Anisotropic Filtering
+opt_aniso_fltr = Anisotropicway Ilteringfay
+#[eng-us] opt_aniso_fltr_tt = Amount of Anisotropic Filtering on textures, which dictates their sharpness at a distance.
+opt_aniso_fltr_tt = Amountway ofway Anisotropicway Ilteringfay onway exturestay, ichwhay ictatesday eirthay arpnessshay atway away istanceday.
+#[eng-us] opt_anti_alias = Anti-Aliasing
+opt_anti_alias = Antiway-Aliasingway
+#[eng-us] opt_anti_alias_tt = Amount of Post-Processing Anti-Aliasing applied to rendering.
+opt_anti_alias_tt = Amountway ofway Ostpay-Ocessingpray Antiway-Aliasingway appliedway otay enderingray.
+#[eng-us] opt_parallax = Parallax
+opt_parallax = Arallaxpay
+#[eng-us] opt_parallax_tt = Whether the surface parallax shader effect is enabled.
+opt_parallax_tt = Etherwhay ethay urfacesay arallaxpay adershay effectway isway enabledway.
+#[eng-us] opt_water_ref = Water Reflections
+opt_water_ref = Aterway Eflectionsray
+#[eng-us] opt_water_ref_tt = Whether water reflections are enabled.
+opt_water_ref_tt = Etherwhay aterway eflectionsray areway enabledway.
+#[eng-us] opt_ssao = SSAO
+opt_ssao = AOSSAY
+#[eng-us] opt_ssao_tt = Whether Screen-Space Ambient Occlusion is enabled.
+opt_ssao_tt = Etherwhay Eenscray-Acespay Ambientway Occlusionway isway enabledway.
+#[eng-us] opt_dof = Depth of Field
+opt_dof = Epthday ofway Ieldfay
+#[eng-us] opt_dof_tt = Whether the Depth of Field effect is enabled.
+opt_dof_tt = Etherwhay ethay Epthday ofway Ieldfay effectway isway enabledway.
+#[eng-us] opt_vignette = Vignette
+opt_vignette = Ignettevay
+#[eng-us] opt_vignette_tt = Whether the vignette effect is enabled.
+opt_vignette_tt = Etherwhay ethay ignettevay effectway isway enabledway.
+#[eng-us] opt_lightrays = Light Rays
+opt_lightrays = Ightlay Aysray
+#[eng-us] opt_lightrays_tt = Whether the light rays effect is enabled.
+opt_lightrays_tt = Etherwhay ethay ightlay aysray effectway isway enabledway.
+
+// Graphics restart message box title and cotents
+#[eng-us] opt_restart_title = Change Requires Restart
+opt_restart_title = Angechay equiresray estartray
+#[eng-us] opt_restart_msg = Please restart the game for a display device change to take effect.
+opt_restart_msg = Easeplay estartray ethay amegay orfay away isplayday eviceday angechay otay aketay effectway.
+
+
+//------------------------------------------------------------------------------
+// PauseMenu
+#[eng-us] pausem_tomenu = Exit to Menu
+pausem_tomenu = Exitway otay Enumay
+#[eng-us] pausem_todesk = Exit to Desktop
+pausem_todesk = Exitway otay Esktopday
+#[eng-us] pausem_pop_title = Exit?
+pausem_pop_title = Exitway?
+#[eng-us] pausem_pop_menumsg = Do you wish to exit to the Main Menu?
+pausem_pop_menumsg = Oday ouyay ishway otay exitway otay ethay Ainmay Enumay?
+#[eng-us] pausem_pop_deskmsg = Do you wish to exit to the desktop?
+pausem_pop_deskmsg = Oday ouyay ishway otay exitway otay ethay esktopday?

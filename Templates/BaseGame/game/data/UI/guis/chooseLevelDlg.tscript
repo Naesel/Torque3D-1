@@ -41,7 +41,7 @@ function ChooseLevelDlg::onWake( %this )
    if(%count == 0 && !IsDirectory("tools"))
    {
       //We have no levels found. Prompt the user to open the editor to the default level if the tools are present
-      MessageBoxOK("Error", "No levels were found in any modules. Please ensure you have modules loaded that contain gameplay code and level files.", 
+      MessageBoxOK(L("error"), L("cl_no_levels"), 
          "Canvas.popDialog(ChooseLevelDlg); if(isObject(ChooseLevelDlg.returnGui) && ChooseLevelDlg.returnGui.isMethod(\"onReturnTo\")) ChooseLevelDlg.returnGui.onReturnTo();");
          
       %assetQuery.delete();
@@ -85,24 +85,28 @@ function ChooseLevelDlg::onWake( %this )
    {
       %levelAsset = LevelListEntries.getKey(%i);
       
-      LevelList.addRow(%levelAsset.LevelName, "", -1, -30);
+      // Check for a localized level name.
+      %levelName = %levelAsset.LevelName;
+      if ((getWordCount(%levelName) == 1) && (L(%levelName) !$= ""))
+         %levelName = L(%levelName);
+      LevelList.addRow(%levelName, "", -1, -30);
    }
    
    LevelList.setSelected(0);
    LevelList.onChange();
    
    if(!$pref::HostMultiPlayer)
-      LevelSelectTitle.setText("SINGLE PLAYER");
+      LevelSelectTitle.setTextID("cl_single_player");
    else
-      LevelSelectTitle.setText("CREATE SERVER");
+      LevelSelectTitle.setTextID("cl_host_server");
    
    ChooseLevelButtonHolder.setActive();
 }
 
 function ChooseLevelButtonHolder::onWake(%this)
 {
-   %this-->goButton.set("btn_a", "Return", "Start Level", "ChooseLevelDlg.beginLevel();");
-   %this-->backButton.set("btn_b", "Escape", "Back", "ChooseLevelDlg.backOut();");
+   %this-->goButton.set("btn_a", "Return", L("cl_start_level"), "ChooseLevelDlg.beginLevel();");
+   %this-->backButton.set("btn_b", "Escape", L("back"), "ChooseLevelDlg.backOut();");
 }
 
 function ChooseLevelDlg::onSleep( %this )
@@ -125,9 +129,17 @@ function ChooseLevelDlg::addMissionFile( %this, %file )
          %levelName = %LevelInfoObject.levelName;
       else if(%LevelInfoObject.name !$= "")
          %levelName = %LevelInfoObject.name;
+      // Check for a localized level name.
+      if ((getWordCount(%levelName) == 1) && (L(%levelName) !$= ""))
+         %levelName = L(%levelName);
 
       if (%LevelInfoObject.desc0 !$= "")
+      {
          %levelDesc = %LevelInfoObject.desc0;
+         // Check for a localized description.
+         if ((getWordCount(%levelDesc) == 1) && (L(%levelDesc) !$= ""))
+            %levelDesc = L(%levelDesc);
+      }
          
       if (%LevelInfoObject.preview !$= "")
          %levelPreview = %LevelInfoObject.preview;
@@ -150,7 +162,11 @@ function LevelList::onChange(%this)
    %levelAsset = LevelListEntries.getKey(%index);
    
    // Get the name
-   ChooseLevelWindow->LevelName.text = %levelAsset.LevelName;
+   %levelName = %levelAsset.LevelName;
+   // Check for a localized level name.
+   if ((getWordCount(%levelName) == 1) && (L(%levelName) !$= ""))
+      %levelName = L(%levelName);
+   ChooseLevelWindow->LevelName.text = %levelName;
    
    // Get the level id
    $selectedLevelAsset = %levelAsset.getAssetId();
@@ -167,6 +183,9 @@ function LevelList::onChange(%this)
 
    // Get the description
    %levelDesc = %levelAsset.description;
+   // Check for a localized description.
+   if ((getWordCount(%levelDesc) == 1) && (L(%levelDesc) !$= ""))
+      %levelDesc = L(%levelDesc);
    
    if(%levelDesc !$= "")
    {

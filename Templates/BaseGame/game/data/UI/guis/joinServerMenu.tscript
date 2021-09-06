@@ -1,22 +1,25 @@
 
-function JoinServerMenu::onWake()
+function JoinServerMenu::onWake(%this)
 {
    // Double check the status. Tried setting this the control
    // inactive to start with, but that didn't seem to work.
-   JoinServerJoinBtn.setActive(JS_serverList.rowCount() > 0);
-   
+   // It's a hidden control now...
+   //JoinServerJoinBtn.setActive(JS_serverList.rowCount() > 0);
+   // Start a query to see what's out there.
+   %this.query();
+
    JoinServerButtonHolder.setActive();
-   
-   JoinServerMenuInputHandler.setFirstResponder();
+
+   //JoinServerMenuInputHandler.setFirstResponder();
 }   
 
 function JoinServerButtonHolder::onWake(%this)
 {
-   %this-->joinButton.set("btn_start", "Return", "Join", "JoinServerMenu.join();");
-   %this-->backButton.set("btn_b", "Escape", "Back", "JoinServerMenu.backOut();");
-   %this-->refreshButton.set("btn_y", "R", "Refresh", "JoinServerMenu.refresh();");
-   %this-->queryLANButton.set("btn_a", "Q", "Query LAN", "JoinServerMenu.queryLan();");
-   %this-->queryInternetButton.set("btn_x", "E", "Query Internet", "JoinServerMenu.query();");
+   %this-->joinButton.set("btn_start", "Return", L("join"), "JoinServerMenu.join();");
+   %this-->backButton.set("btn_b", "Escape", L("back"), "JoinServerMenu.backOut();");
+   %this-->refreshButton.set("btn_y", "R", L("refresh"), "JoinServerMenu.refresh();");
+   %this-->queryLANButton.set("btn_a", "Q", L("js_qry_lan"), "JoinServerMenu.queryLan();");
+   %this-->queryInternetButton.set("btn_x", "E", L("js_qry_net"), "JoinServerMenu.query();");
 }
 
 function JoinServerMenuInputHandler::onInputEvent(%this, %device, %action, %state)
@@ -126,13 +129,72 @@ function JoinServerMenu::update(%this)
    JS_serverList.setSelectedRow(0);
    JS_serverList.scrollVisible(0);
 
-   JoinServerJoinBtn.setActive(JS_serverList.rowCount() > 0);
+   //JoinServerJoinBtn.setActive(JS_serverList.rowCount() > 0);
+   JoinServerButtonHolder->joinButton.setActive(JS_serverList.rowCount() > 0);
 } 
+
+//----------------------------------------
+function JoinServerMenu::localizeQueryStatus(%this, %rawText)
+{  // onServerQueryStatus returns status as english plain text...
+   %textTag = "";
+   %param = "";
+   switch$(%rawText)
+   {
+      case "Querying LAN servers":
+         %textTag = "js_qs_qry_lan";
+      case "Querying master server":
+         %textTag = "js_qs_qry_main";
+      case "Query favorites...":
+         %textTag = "js_qs_qry_fav";
+      case "Refreshing server...":
+         %textTag = "js_qs_refresh";
+      case "Switching master servers...":
+         %textTag = "js_qs_switch_main";
+      case "Retrying the master server...":
+         %textTag = "js_qs_retry";
+      case "No master servers found.":
+         %textTag = "js_qs_no_main";
+      case "No servers found.":
+         %textTag = "js_qs_no_server";
+      case "One server found.":
+         %textTag = "js_qs_one_server";
+      case "Waiting for lan servers...":
+         %textTag = "js_qs_wait_lan";
+
+      default:
+         // If we get here, the message is either '%d servers found.',
+         // 'Pinging servers: %d left...' or 'Querying servers: %d left...'.
+         %firstWord = getWord(%rawText, 0);
+         if (isInt(%firstWord))
+         {
+            %textTag = "js_qs_num_server";
+            %param = %firstWord;
+         }
+         else if (%firstWord $= "Pinging")
+         {
+            %textTag = "js_qs_num_pings";
+            %param = getWord(%rawText, 2);
+         }
+         else if (%firstWord $= "Querying")
+         {
+            %textTag = "js_qs_num_qrys";
+            %param = getWord(%rawText, 2);
+         }
+   }
+
+   if (%textTag $= "")
+      return %rawText;
+   else if (%param $= "")
+      return L(%textTag);
+
+   return buildString(L(%textTag), %param);
+}
 
 //----------------------------------------
 function onServerQueryStatus(%status, %msg, %value)
 {
 	echo("ServerQuery: " SPC %status SPC %msg SPC %value);
+	%msg = JoinServerMenu.localizeQueryStatus(%msg);
    // Update query status
    // States: start, update, ping, query, done
    // value = % (0-1) done for ping and query states
@@ -148,11 +210,11 @@ function onServerQueryStatus(%status, %msg, %value)
          JS_serverList.clear();
 
       case "ping":
-         JS_statusText.setText("Ping Servers");
+         JS_statusText.setText(L("js_status_ping"));
          JS_statusBar.setValue(%value);
 
       case "query":
-         JS_statusText.setText("Query Servers");
+         JS_statusText.setText(L("js_status_qry"));
          JS_statusBar.setValue(%value);
 
       case "done":

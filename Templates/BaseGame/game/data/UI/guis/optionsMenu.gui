@@ -20,8 +20,8 @@
       useVariable = "0";
 
    new GuiControl() {
-      position = "48 56";
-      extent = "928 655";
+      position = "48 86";
+      extent = "928 595";
       minExtent = "8 2";
       horizSizing = "center";
       vertSizing = "center";
@@ -56,6 +56,7 @@
       };
       new GuiTextCtrl() {
          text = "OPTIONS";
+         textID = "options";
          maxLength = "1024";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -64,7 +65,7 @@
          anchorLeft = "1";
          anchorRight = "0";
          position = "22 7";
-         extent = "120 28";
+         extent = "320 28";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -84,7 +85,7 @@
          bitmap = "data/ui/images/panel_low.png";
          color = "255 255 255 255";
          position = "0 40";
-         extent = "927 618";
+         extent = "927 555";
          minExtent = "8 2";
          horizSizing = "width";
          vertSizing = "bottom";
@@ -99,6 +100,7 @@
       };
       new GuiButtonCtrl() {
          text = "Display";
+         textID = "opt_disp_btn";
          groupNum = "1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -120,6 +122,7 @@
       };
       new GuiButtonCtrl() {
          text = "Graphics";
+         textID = "opt_gfx_btn";
          groupNum = "1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -141,6 +144,7 @@
       };
       new GuiButtonCtrl() {
          text = "Audio";
+         textID = "opt_sfx_btn";
          groupNum = "1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -162,6 +166,7 @@
       };
       new GuiButtonCtrl() {
          text = "Keyboard + Mouse";
+         textID = "opt_kbm_btn";
          groupNum = "1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -183,6 +188,7 @@
       };
       new GuiButtonCtrl() {
          text = "Gamepad";
+         textID = "opt_gmpd_btn";
          groupNum = "1";
          buttonType = "RadioButton";
          useMouseEvents = "0";
@@ -218,7 +224,7 @@
          anchorLeft = "1";
          anchorRight = "0";
          position = "1 83";
-         extent = "622 573";
+         extent = "622 508";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -259,7 +265,7 @@
          anchorLeft = "1";
          anchorRight = "0";
          position = "635 94";
-         extent = "293 17";
+         extent = "293 20";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -300,8 +306,8 @@
       horizSizing = "center";
       vertSizing = "top";
       profile = "GuiDefaultProfile";
-      visible = "1";
-      active = "1";
+      visible = "0";
+      active = "0";
       tooltipProfile = "GuiToolTipProfile";
       hovertime = "1000";
       isContainer = "1";
@@ -309,8 +315,8 @@
       canSaveDynamicFields = "0";
    };
    new GuiControl(OptionsButtonHolder) {
-      position = "109 711";
-      extent = "791 40";
+      position = "58 711";
+      extent = "908 40";
       minExtent = "8 2";
       horizSizing = "center";
       vertSizing = "top";
@@ -334,11 +340,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Apply";
+         textID = "apply";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
-         position = "507 0";
-         extent = "140 40";
+         position = "572 0";
+         extent = "160 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -364,11 +371,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Back";
+         textID = "back";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
-         position = "651 0";
-         extent = "140 40";
+         position = "740 0";
+         extent = "160 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -394,11 +402,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Prev Tab";
+         textID = "opt_prev_tab";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
          position = "0 0";
-         extent = "140 40";
+         extent = "167 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -423,11 +432,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Next Tab";
+         textID = "opt_next_tab";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
-         position = "144 0";
-         extent = "140 40";
+         position = "175 0";
+         extent = "167 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -452,11 +462,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Reset";
+         textID = "reset";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
-         position = "325 0";
-         extent = "140 40";
+         position = "382 0";
+         extent = "160 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";

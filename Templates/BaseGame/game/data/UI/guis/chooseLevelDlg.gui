@@ -18,8 +18,8 @@
       returnGui = "MainMenuGui";
 
    new GuiControl(ChooseLevelWindow) {
-      position = "48 56";
-      extent = "928 655";
+      position = "48 86";
+      extent = "928 595";
       minExtent = "8 2";
       horizSizing = "center";
       vertSizing = "center";
@@ -54,6 +54,7 @@
       };
       new GuiTextCtrl(LevelSelectTitle) {
          text = "SINGLE PLAYER";
+         textID = "cl_single_player";
          maxLength = "1024";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -82,7 +83,7 @@
          bitmap = "data/ui/images/panel_low.png";
          color = "255 255 255 255";
          position = "0 40";
-         extent = "927 618";
+         extent = "927 555";
          minExtent = "8 2";
          horizSizing = "width";
          vertSizing = "bottom";
@@ -141,6 +142,7 @@
       };
       new GuiTextCtrl() {
          text = "Description:";
+         textID = "cl_level_desc";
          maxLength = "255";
          margin = "0 0 0 0";
          padding = "0 0 0 0";
@@ -149,7 +151,7 @@
          anchorLeft = "1";
          anchorRight = "0";
          position = "522 410";
-         extent = "91 18";
+         extent = "200 18";
          minExtent = "8 8";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -200,7 +202,7 @@
          anchorLeft = "1";
          anchorRight = "0";
          position = "0 40";
-         extent = "450 580";
+         extent = "450 551";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -234,8 +236,8 @@
       };
    };
    new GuiControl(ChooseLevelButtonHolder) {
-      position = "189 711";
-      extent = "646 40";
+      position = "58 711";
+      extent = "908 40";
       minExtent = "8 2";
       horizSizing = "center";
       vertSizing = "top";
@@ -259,11 +261,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Go";
+         textID = "go";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
-         position = "363 0";
-         extent = "140 40";
+         position = "572 0";
+         extent = "160 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -289,11 +292,12 @@
          textMargin = "4";
          autoSize = "0";
          text = "Back";
+         textID = "back";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
-         position = "507 0";
-         extent = "140 40";
+         position = "740 0";
+         extent = "160 40";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";

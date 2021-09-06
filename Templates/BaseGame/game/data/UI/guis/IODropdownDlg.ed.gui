@@ -116,6 +116,7 @@
       };
       new GuiButtonCtrl() {
          text = "OK";
+         textID = "ok";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
@@ -136,6 +137,7 @@
       };
       new GuiButtonCtrl() {
          text = "Cancel";
+         textID = "cancel";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";

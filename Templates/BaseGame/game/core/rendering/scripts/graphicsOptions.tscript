@@ -54,6 +54,30 @@ function GraphicsOptionsMenuGroup::applySetting(%this, %settingName)
    }
 }
 
+/// Fills all options on a GuiGameListMenuCtrl line with the quality levels
+/// available for this option group and the current option will be selected.
+/// %menuCtrl - The menu control to access.
+/// %lineNum - The line to fill. The option line must be created empty.
+function GraphicsOptionsMenuGroup::fillRowOptions(%this, %menuCtrl, %lineNum)
+{
+   %count = %this.getCount()-1;
+   %currentQuality = "";
+
+   // Add in reverse order so they're lowest to highest.
+   for (%i = %count; %i >= 0; %i--)
+   {
+      %level = %this.getObject(%i);
+      %menuCtrl.addOption(%lineNum, L(strlwr(%level.displayName)), %level.displayName);
+
+      if ( %level.isCurrent() )
+         %currentQuality = %level.displayName;
+   }
+   %menuCtrl.setRowEnabled(%lineNum, (%count > 0));
+
+   if (%currentQuality !$= "")
+      %menuCtrl.selectOptionByKey(%lineNum, %currentQuality);
+}
+
 new SimGroup( MeshQualityGroup )
 { 
    class = "GraphicsOptionsMenuGroup";
@@ -453,7 +477,7 @@ new SimGroup( LightingQualityList )
       class = "GraphicsQualityLevel";
       caseSensitive = true;
       
-      displayName = "High";
+      displayName = "Highest";
       
       key["$pref::maximumNumOfLights"] = -1;
       key["$pref::useLightFade"] = false;

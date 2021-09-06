@@ -25,6 +25,10 @@ ModuleDatabase.LoadExplicit( "CoreModule" );
 ModuleDatabase.scanModules( "data", false );
 ModuleDatabase.LoadGroup( "Game" );
 
+//-----------------------------------------------------------------------------
+// Load the localization modules
+ModuleDatabase.LoadGroup("lang");
+
 //Finally, initialize the client/server structure
 ModuleDatabase.LoadExplicit( "Core_ClientServer" );
 

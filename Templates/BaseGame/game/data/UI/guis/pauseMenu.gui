@@ -96,6 +96,7 @@
          textMargin = "4";
          autoSize = "0";
          text = "OK";
+         textID = "ok";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";
@@ -126,6 +127,7 @@
          textMargin = "4";
          autoSize = "0";
          text = "Back";
+         textID = "back";
          groupNum = "-1";
          buttonType = "PushButton";
          useMouseEvents = "0";

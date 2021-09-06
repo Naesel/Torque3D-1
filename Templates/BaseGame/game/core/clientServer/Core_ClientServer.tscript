@@ -84,7 +84,7 @@ function StartGame( %levelAsset, %hostingType )
    {
       Canvas.setContent("LoadingGui");
       LoadingProgress.setValue(1);
-      LoadingProgressTxt.setValue("LOADING MISSION FILE");
+      LoadingProgressTxt.setTextID("loading_mission");
       Canvas.repaint();
    }
 
@@ -99,7 +99,7 @@ function JoinGame( %serverIndex )
    {
       Canvas.setContent("LoadingGui");
       LoadingProgress.setValue(1);
-      LoadingProgressTxt.setValue("WAITING FOR SERVER");
+      LoadingProgressTxt.setTextID("loading_waiting");
       Canvas.repaint();
 
       %conn = new GameConnection(ServerConnection);

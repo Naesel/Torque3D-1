@@ -32,6 +32,7 @@ function createCanvas(%windowTitle)
    $GameCanvas = new GuiCanvas(Canvas)
    {
       displayWindow = $platform !$= "windows";
+      langTableMod = "MainTable";
    };
 
    // Set the window title
