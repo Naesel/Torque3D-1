@@ -1,0 +1,399 @@
+//==============================================================================
+// Localized text file for UI module.
+// Lines beginning with '/' or '#' are comment lines and are ignored. All other
+// lines must take the form:
+// text_tag = Localized text.
+// The text tag must begin on the first character of the line and cannot contain
+// whitespace. Following the text tag is a single space, an equal sign then 
+// another space. All text following the second space to the end of the line is
+// the localized text replacement. Each localized text string cannot be more
+// than 2048 bytes including the null terminator. This is not 'characters',
+// multi-byte utf8 encoding can use more than one byte per character.
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Do not translate any of these character types:
+// /c0 - /c9 are character color codes.
+// <...> Text within <> are markup language directives for GuiMLTextCtrl.
+// %1 - %9 are placeholders for the string builder.
+
+//------------------------------------------------------------------------------
+// Common labels used in multiple places.
+#[eng-us] go = Go
+go = Confirmar 
+#[eng-us] back = Back
+back = Voltar
+#[eng-us] ok = OK
+ok = Confirmar
+#[eng-us] cancel = Cancel
+cancel = Cancelar
+#[eng-us] yes = Yes
+yes = Sim
+#[eng-us] no = No
+no = Não
+#[eng-us] on = On
+on = Ativar
+#[eng-us] off = Off
+off = Desativar
+#[eng-us] add = Add
+add = Adicionar
+#[eng-us] remove = Remove
+remove = Remover
+#[eng-us] done = Done
+done = Pronto
+#[eng-us] reset = Reset
+reset = Resetar
+#[eng-us] apply = Apply
+apply = Aplicar
+#[eng-us] refresh = Refresh
+refresh = Atualizar
+#[eng-us] details = Details
+details = Detalhes
+#[eng-us] error = Error
+error = Falha
+#[eng-us] ping = Ping
+ping = Latência
+#[eng-us] game = Game
+game = Jogo
+#[eng-us] join = Join
+join = Juntar-se
+#[eng-us] ms_abrv = ms
+ms_abrv = ms
+#[eng-us] options = Options
+options = Opções
+#[eng-us] none = None
+none = Nenhum
+#[eng-us] lowest = Lowest
+lowest = Muito Baixo
+#[eng-us] low = low
+low = Baixo
+#[eng-us] medium = Medium
+medium = Médio
+#[eng-us] high = High
+high = Alto
+#[eng-us] highest = Highest
+highest = Mais Alto
+
+//------------------------------------------------------------------------------
+// MainMenu Buttons
+#[eng-us] mm_singleplayer = Single Player
+mm_singleplayer = Um Jogador
+#[eng-us] mm_createserver = Create Server
+mm_createserver = Criar Servidor 
+#[eng-us] mm_joinserver = Join Server
+mm_joinserver = Entrar em um Servidor
+#[eng-us] mm_worldedit = Open World Editor
+mm_worldedit = Abrir o Editor
+#[eng-us] mm_guiedit = Open GUI Editor
+mm_guiedit = Abrir o Editor de Interface
+#[eng-us] mm_exit = Exit Game
+mm_exit = Fechar o Jogo
+#[eng-us] lang_header = Language:
+lang_header = Idioma:
+
+//------------------------------------------------------------------------------
+// Choose Level Gui
+#[eng-us] cl_single_player = SINGLE PLAYER
+cl_single_player = UM JOGADOR
+#[eng-us] cl_host_server = CREATE SERVER
+cl_host_server = CRIAR SERVIDOR
+#[eng-us] cl_start_level = Start Level
+cl_start_level = Iniciar Nível
+#[eng-us] cl_level_desc = Description:
+cl_level_desc = Descrição:
+// Error message when no levels installed
+#[eng-us] cl_no_levels = No levels were found in any modules. Please ensure you have modules loaded that contain gameplay code and level files.
+cl_no_levels = Não foi encontrado nenhum nível nos módulos. Certifique-se que você tenha moódulos carregados que contenham código de gameplay e arquivos de níveis. 
+
+//------------------------------------------------------------------------------
+// JoinServerMenu
+#[eng-us] js_title = JOIN SERVER
+js_title = ENTRAR EM UM SERVIDOR
+#[eng-us] js_playername = Player Name:
+js_playername = Nome do Jogador:
+#[eng-us] js_playercount = Players
+js_playercount = Jogadores
+#[eng-us] js_version = Version
+js_version = Versão
+#[eng-us] js_servname = Server Name
+js_servname = Nome do Servidor
+#[eng-us] js_qrycancel = Cancel!
+js_qrycancel = Cancelar!
+#[eng-us] js_qry_lan = Query LAN
+js_qry_lan = Query LAN
+#[eng-us] js_qry_net = Query Internet
+js_qry_net = Query Internet
+#[eng-us] js_status_ping = Ping Servers
+js_status_ping = Testar latência 
+#[eng-us] js_status_qry = Query Servers
+js_status_qry = Solicitar Servidores
+
+// Server query status messages
+#[eng-us] js_qs_qry_lan = Querying LAN servers
+js_qs_qry_lan = Solicitando servidores LAN
+#[eng-us] js_qs_qry_main = Querying master server
+js_qs_qry_main = Solicitando servidor mestre
+#[eng-us] js_qs_qry_fav = Query favorites...
+js_qs_qry_fav = Solicitando favoritos...
+#[eng-us] js_qs_refresh = Refreshing server...
+js_qs_refresh = Atualizando servidor...
+#[eng-us] js_qs_switch_main = Switching master servers...
+js_qs_switch_main = Alternando servidores mestres...
+#[eng-us] js_qs_retry = Retrying the master server...
+js_qs_retry = Repetindo o servidor mestre...
+#[eng-us] js_qs_no_main = No master servers found.
+js_qs_no_main = Nenhum servidor mestre foi encontrado.
+#[eng-us] js_qs_no_server = No servers found.
+js_qs_no_server = Nenhum servidor encontrado.
+#[eng-us] js_qs_one_server = One server found.
+js_qs_one_server = Um servidor encontrado.
+#[eng-us] js_qs_num_server = %1 servers found.
+js_qs_num_server = %1 servidores encontrados.
+#[eng-us] js_qs_wait_lan = Waiting for lan servers...
+js_qs_wait_lan = Esperando por servidores de LAN...
+#[eng-us] js_qs_num_pings = Pinging servers: %1 left...
+js_qs_num_pings = Testando Latência: %1 faltando...
+#[eng-us] js_qs_num_qrys = Querying servers: %1 left...
+js_qs_num_qrys = Solicitando servidores: %1 faltando...
+
+//------------------------------------------------------------------------------
+// LoadingGui
+#[eng-us] loading_db = LOADING DATABLOCKS
+loading_db = CARREGANDO DATABLOCKS
+#[eng-us] loading_mission = LOADING MISSION FILE
+loading_mission = CARREGANDO ARQUIVO DE MISSÃO
+#[eng-us] loading_waiting = WAITING FOR SERVER
+loading_waiting = ESPERANDO PELO SERVIDOR
+#[eng-us] loading_objects = LOADING OBJECTS
+loading_objects = CARREGANDO OBJETOS
+#[eng-us] loading_lights = LIGHTING MISSION
+loading_lights = ILUMINANDO MISSÃO
+#[eng-us] loading_done = STARTING MISSION
+loading_done = INICIANDO MISSÃO
+
+//------------------------------------------------------------------------------
+// GuiMusicPlayer
+#[eng-us] musicplay_title = Torque Music Player
+musicplay_title = Player de Música Torque
+#[eng-us] fade = Fade
+fade = Fade
+#[eng-us] loop = Loop
+loop = Loop
+#[eng-us] stop = Stop
+stop = Parar
+#[eng-us] play = Play
+play = Tocar
+#[eng-us] pause = Pause
+pause = Pausar
+
+//------------------------------------------------------------------------------
+// NetGraphGui
+#[eng-us] netgg_gh_act = Ghosts Active:
+netgg_gh_act = Ghosts Ativos:
+#[eng-us] netgg_gh_upd = Ghost Updates:
+netgg_gh_upd = Atualização de Ghost:
+#[eng-us] netgg_b_sent = Bytes Sent:
+netgg_b_sent = Bytes Enviados:
+#[eng-us] netgg_b_rec = Bytes Received:
+netgg_b_rec = Bytes Recebidos:
+#[eng-us] netgg_latency = Latency:
+netgg_latency = Latência:
+#[eng-us] netgg_p_loss = Packet Loss:
+netgg_p_loss = Perda de Pacotes:
+#[eng-us] netgg_net_sim = Network Simulation:
+netgg_net_sim = Simulação de Rede:
+#[eng-us] netgg_sim_lat = Simulated Latency:
+netgg_sim_lat = Latência Simulada:
+#[eng-us] netgg_sim_loss = Simulated Packet Loss:
+netgg_sim_loss = Perda de Pacotes Simulada:
+
+//------------------------------------------------------------------------------
+// OptionsDlg / OptionsMenu
+#[eng-us] opt_controlname = Control Name
+opt_controlname = Nome do Controle
+#[eng-us] opt_controlbind = Control Binding
+opt_controlbind = Vinculação do Controle
+#[eng-us] opt_mouse_sens = Mouse Sensitivity:
+opt_mouse_sens = Sensibilidade do Mouse:
+#[eng-us] opt_audio_prov = Audio Provider
+opt_audio_prov = Provedor de Áudio
+#[eng-us] opt_audio_dev = Audio Device
+opt_audio_dev = Dispositivo de Áudio
+#[eng-us] opt_vol_main = Master Volume
+opt_vol_main = Volume Mestre
+#[eng-us] opt_ui_vol = GUI Volume
+opt_ui_vol = Volume da Interface
+#[eng-us] opt_fx_vol = Effects Volume
+opt_fx_vol = Volume dos Efeitos
+#[eng-us] opt_music_vol = Music Volume
+opt_music_vol = Volume da Música
+#[eng-us] opt_disp_driver = Display Driver:
+opt_disp_driver = Driver do Dispositivo:
+#[eng-us] opt_refresh = Refresh:
+opt_refresh = Taxa de Atualização:
+#[eng-us] opt_fx_qual = Effect Quality:
+opt_fx_qual = Qualidade dos Efeitos:
+#[eng-us] opt_part_qual = Particle Quality:
+opt_part_qual = Qualidade das Partículas:
+#[eng-us] opt_auto_qual = Auto Detect Quality
+opt_auto_qual = Auto Detectar Qualidade
+#[eng-us] opt_gamma = Gamma:
+opt_gamma = Gamma
+#[eng-us] opt_gfx_btn = Graphics
+opt_gfx_btn = Gráficos
+#[eng-us] opt_sfx_btn = Audio
+opt_sfx_btn = Som
+#[eng-us] opt_ctrl_btn = Controls
+opt_ctrl_btn = Controles
+#[eng-us] opt_disp_btn = Display
+opt_disp_btn = Dispositivo
+#[eng-us] opt_kbm_btn = Keyboard + Mouse
+opt_kbm_btn = Teclado + Mouse
+#[eng-us] opt_gmpd_btn = Gamepad
+opt_gmpd_btn = Gamepad
+#[eng-us] opt_prev_tab = Prev Tab
+opt_prev_tab = Aba Anterior
+#[eng-us] opt_next_tab = Next Tab
+opt_next_tab = Próxima Aba
+#[eng-us] opt_reset_msg = This will set the graphical settings back to the auto-detected defaults. Do you wish to continue?
+opt_reset_msg = Isto fará com que as configurações gráficas voltem às predefinições auto-detectadas. Você deseja continuar?
+#[eng-us] opt_disp_api = Display API
+opt_disp_api = API do Dispositivo
+#[eng-us] opt_disp_api_tt = The display API used for rendering.
+opt_disp_api_tt = A API do Dispositivo usada para renderização.
+#[eng-us] opt_disp_dev = Display Device
+opt_disp_dev = Dispositivo de Tela
+#[eng-us] opt_disp_dev_tt = The display devices the window should be on.
+opt_disp_dev_tt = A janela em que os dispositivos de tela devem estar.
+#[eng-us] opt_win_mode = Window Mode
+opt_win_mode = Modo de Janela
+#[eng-us] opt_win_mode_tt = Window display type: Windowed, Borderless or Fullscreen.
+opt_win_mode_tt = Modo de Exibiçao de Tela: Janela, Sem Borda ou Tela Inteira
+#[eng-us] opt_resolution = Resolution
+opt_resolution = Resolução
+#[eng-us] opt_resolution_tt = Resolution of the game window.
+opt_resolution_tt = Resolução de tela do jogo
+#[eng-us] opt_vsync = VSync
+opt_vsync = VSync
+#[eng-us] opt_vysnc_tt = 
+opt_vysnc_tt = 
+#[eng-us] opt_rate = Refresh Rate
+opt_rate = Taxa de Atualização
+#[eng-us] opt_rate_tt = 
+opt_rate_tt = 
+#[eng-us] opt_fov = Field of View
+opt_fov = Campo de Visão
+#[eng-us] opt_fov_tt = 
+opt_fov_tt = 
+#[eng-us] opt_bright = Brightness
+opt_bright = Brilho
+#[eng-us] opt_bright_tt = 
+opt_bright_tt = 
+#[eng-us] opt_contrast = Contrast
+opt_contrast = Contraste
+#[eng-us] opt_contrast_tt = 
+opt_contrast_tt = 
+#[eng-us] opt_dev_d3d11 = DirectX 11
+opt_dev_d3d11 = DirectX 11
+#[eng-us] opt_dev_opengl = Open GL
+opt_dev_opengl = OpenGL
+#[eng-us] opt_mode_windowed = Windowed
+opt_mode_windowed = Janela
+#[eng-us] opt_mode_borderless = Borderless
+opt_mode_borderless = Sem Borda
+#[eng-us] opt_mode_fullscreen = Fullscreen
+opt_mode_fullscreen = Tela Inteira
+
+// Graphics quality setting labels and tooltips.
+#[eng-us] opt_light_qlty = Lighting Quality
+opt_light_qlty = Qualidade da Iluminação
+#[eng-us] opt_light_qlty_tt = Amount and drawdistance of local lights.
+opt_light_qlty_tt = Define a quantidade e distância das luzes locais.
+#[eng-us] opt_shdw_qlty = Shadow Quality
+opt_shdw_qlty = Qualidade das Sombras:
+#[eng-us] opt_shdw_qlty_tt = Shadow revolution quality.
+opt_shdw_qlty_tt = Define a resolução e das sombras.
+#[eng-us] opt_softshdw_qlty = Soft Shadow Quality
+opt_softshdw_qlty = Suavização das Sombras
+#[eng-us] opt_softshdw_qlty_tt = Amount of softening applied to shadowmaps.
+opt_softshdw_qlty_tt = Define o quão suave serão os mapas de sombra.
+#[eng-us] opt_mesh_qlty = Mesh Quality
+opt_mesh_qlty = Qualidade dos Modelos
+#[eng-us] opt_mesh_qlty_tt = Fidelity of rendering of mesh objects.
+opt_mesh_qlty_tt = Define a fidelidade da renderização dos modelos.
+#[eng-us] opt_drawdist = Object Draw Distance
+opt_drawdist = Distância de Renderização
+#[eng-us] opt_drawdist_tt = Dictates if and when static objects fade out in the distance.
+opt_drawdist_tt = Define a distância em que os objetos estáticos devem desaparecer a distância.
+#[eng-us] opt_tex_qlty = Texture Quality
+opt_tex_qlty = Qualidade da Textura
+#[eng-us] opt_tex_qlty_tt = Fidelity of textures.
+opt_tex_qlty_tt = Define a qualidade das texturas.
+#[eng-us] opt_terr_qlty = Terrain Quality
+opt_terr_qlty = Qualidade do Terreno
+#[eng-us] opt_terr_qlty_tt = Quality level of terrain objects.
+opt_terr_qlty_tt = Define a qualidade dos terrenos.
+#[eng-us] opt_decal_life = Decal Lifetime
+opt_decal_life = Duração dos Decals
+#[eng-us] opt_decal_life_tt = How long decals are rendered.
+opt_decal_life_tt = Define o tempo em que os decals devem ser renderizados.
+#[eng-us] opt_gc_density = Ground Cover Density
+opt_gc_density = Densidade de Detalhes
+#[eng-us] opt_gc_density_tt = Density of ground cover items, such as grass.
+opt_gc_density_tt = Define a densidade de detalhes no terreno, como grama.
+#[eng-us] opt_shdr_qlty = Shader Quality
+opt_shdr_qlty = Qualidade dos Shaders
+#[eng-us] opt_shdr_qlty_tt = Dictates the overall shader quality level, adjusting what features are enabled.
+opt_shdr_qlty_tt = Define a qualidade geral dos shaders, ajustando os recursos que devem ser ativados.
+#[eng-us] opt_aniso_fltr = Anisotropic Filtering
+opt_aniso_fltr = Filtragem Anisotrópica
+#[eng-us] opt_aniso_fltr_tt = Amount of Anisotropic Filtering on textures, which dictates their sharpness at a distance.
+opt_aniso_fltr_tt = Define a quantidade de filtragem nas texturas, o que melhora a qualidade das texturas em ângulo oblíquos.
+#[eng-us] opt_anti_alias = Anti-Aliasing
+opt_anti_alias = Antisserrilhamento
+#[eng-us] opt_anti_alias_tt = Amount of Post-Processing Anti-Aliasing applied to rendering.
+opt_anti_alias_tt = Define a quantidade de antisserrilhamento aplicado na imagem.
+#[eng-us] opt_parallax = Parallax
+opt_parallax = Efeito Parallax
+#[eng-us] opt_parallax_tt = Whether the surface parallax shader effect is enabled.
+opt_parallax_tt = Simula a impressão de revelo nas texturas caso esteja ativado.
+#[eng-us] opt_water_ref = Water Reflections
+opt_water_ref = Reflexões na Água
+#[eng-us] opt_water_ref_tt = Whether water reflections are enabled.
+opt_water_ref_tt = Ativa as reflexões na água.
+#[eng-us] opt_ssao = SSAO
+opt_ssao = SSAO
+#[eng-us] opt_ssao_tt = Whether Screen-Space Ambient Occlusion is enabled.
+opt_ssao_tt = Ativa o efeito de oclusão de ambiente.
+#[eng-us] opt_dof = Depth of Field
+opt_dof = Profundidade de Campo
+#[eng-us] opt_dof_tt = Whether the Depth of Field effect is enabled.
+opt_dof_tt = Ativa o efeito de profundidade de campo.
+#[eng-us] opt_vignette = Vignette
+opt_vignette = Vinheta
+#[eng-us] opt_vignette_tt = Whether the vignette effect is enabled.
+opt_vignette_tt = Ativa o efeito de Vinheta.
+#[eng-us] opt_lightrays = Light Rays
+opt_lightrays = Raios de Luz
+#[eng-us] opt_lightrays_tt = Whether the light rays effect is enabled.
+opt_lightrays_tt = Ativa o efeito de raios de luz ao olhar para o sol.
+
+// Graphics restart message box title and cotents
+#[eng-us] opt_restart_title = Change Requires Restart
+opt_restart_title = Requer reinicialização após a mudança
+#[eng-us] opt_restart_msg = Please restart the game for a display device change to take effect.
+opt_restart_msg = Por favor reinicie o jogo para que a mudança de dispositivo de tela tenha efeito.
+
+
+//------------------------------------------------------------------------------
+// PauseMenu
+#[eng-us] pausem_tomenu = Exit to Menu
+pausem_tomenu = Sair para o Menu
+#[eng-us] pausem_todesk = Exit to Desktop
+pausem_todesk = Sair para a Área de Trabalho 
+#[eng-us] pausem_pop_title = Exit?
+pausem_pop_title = Sair?
+#[eng-us] pausem_pop_menumsg = Do you wish to exit to the Main Menu?
+pausem_pop_menumsg = Você deseja sair para o Menu Principal?
+#[eng-us] pausem_pop_deskmsg = Do you wish to exit to the desktop?
+pausem_pop_deskmsg = Você deseja sair para a Área de Trabalho? 

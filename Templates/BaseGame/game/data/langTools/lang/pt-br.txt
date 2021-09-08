@@ -1,0 +1,92 @@
+//==============================================================================
+// Localized text file for langTools module.
+// Lines beginning with '/' or '#' are comment lines and are ignored. All other
+// lines must take the form:
+// text_tag = Localized text.
+// The text tag must begin on the first character of the line and cannot contain
+// whitespace. Following the text tag is a single space, an equal sign then 
+// another space. All text following the second space to the end of the line is
+// the localized text replacement. Each localized text string cannot be more
+// than 2048 bytes including the null terminator. This is not 'characters',
+// multi-byte utf8 encoding can use more than one byte per character.
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Do not translate any of these character types:
+// /c0 - /c9 are character color codes.
+// <...> Text within <> are markup language directives for GuiMLTextCtrl.
+// %1 - %9 are placeholders for the string builder.
+
+//------------------------------------------------------------------------------
+// Language table for: langTools module.
+#[eng-us] lang_tool = Language Tool
+lang_tool = Ferramenta de Idiomas
+#[eng-us] lang_tool_tt = Display language tools gui.
+lang_tool_tt = Exibe as ferramentas de idiomas.
+#[eng-us] lang_close_tt = Close this window.
+lang_close_tt = Fechar a janela.
+#[eng-us] lt_default = Default Language:
+lt_default = Idioma Principal:
+#[eng-us] lt_default_tt = This should be the language that you develop in and manually maintain language files for. This is the fallback language in-case localized text is not found in the active language.
+lt_default_tt = Este seria o idioma que você desenvolve e mantém manualmente os arquivos. Este é o idioma de contingência caso o texto localizado não é encontrado no idioma escolhido. 
+#[eng-us] lt_langname = Language Name
+lt_langname = Nome da Linguagem
+#[eng-us] lt_langcode = Code
+lt_langcode = Código
+#[eng-us] lt_add_tt = Add a language to the table.
+lt_add_tt = Adicionar um idioma a tabela.
+#[eng-us] lt_remove_tt = Remove the selected language from the table.
+lt_remove_tt = Remove o idioma selecionado da tabela.
+#[eng-us] lt_compile = Compile
+lt_compile = Compilar
+#[eng-us] lt_compile_tt = Compile all .txt files to .lso for the selected language.
+lt_compile_tt = Compila todos os arquivos .txt para .Iso para o idioma selecionado. 
+#[eng-us] lt_update = Update
+lt_update = Atualizar
+#[eng-us] lt_update_tt = Update all .txt files for the selected language to contain all text tags that are defined in the default language.
+lt_update_tt = Atualiza todos os arquivos .txt para o idioma selecionado para conter todas as tags de texto que estão definidas no idioma principal.
+
+//------------------------------------------------------------------------------
+// Add language gui.
+#[eng-us] lt_add_title = Add Language
+lt_add_title = Adicionar Idioma
+#[eng-us] lt_add_code = Code (See Tips)
+lt_add_code = Código (Ver Dicas)
+#[eng-us] lt_add_code_tt = Standard three letter language code (639-2) plus two letter country code if relevant (e.g. eng-us, fra, deu, eng-uk).
+lt_add_code_tt = Código padrão de três dígitos (639-2) mais as duas letras dos códigos de país relevantes (ex: eng-us, fra, deu, eng-uk).
+#[eng-us] lt_add_name = Language Name
+lt_add_name = Nome do Idioma
+#[eng-us] lt_add_name_tt = Enter the name as it should appear in the language selector menu.
+lt_add_name_tt = Coloque o nome que deve aparecer no menu de seleção.
+
+//------------------------------------------------------------------------------
+// MessageBox titles and messages.
+#[eng-us] lt_add_fail_title = Cannot Create Language
+lt_add_fail_title = Não é possívelcriar o idioma
+#[eng-us] lt_add_fail_msg = Language code must be at-least 2 characters and name cannot be empty.
+lt_add_fail_msg = O código do idioma deve ter ao menos 2 caracteres e o nome não pode estar vazio.
+#[eng-us] lt_delconfirm_title = Confirm Remove
+lt_delconfirm_title = Confirmar Remoção
+// Remove language confirmation message. %1 is the language name.
+#[eng-us] lt_delconfirm_msg = Are you sure you want to remove %1 from the registered languages?
+lt_delconfirm_msg =  Tem certeza que quer remover %1 dos idiomas registrados?
+#[eng-us] lt_compdone_title = Language Compiled
+lt_compdone_title = Idioma Compilado
+// Compile language done message. %1 is the language code and root file name.
+#[eng-us] lt_compdone_msg = All %1.lso files are up-to-date.
+lt_compdone_msg = Todos %1 arquivos .Iso estão atualizados.
+#[eng-us] lt_updconfirm_title = Confirm Update
+lt_updconfirm_title = Confirmar Atualização
+// Update language confirmation message. %1 is the language code being generated.
+#[eng-us] lt_updconfirm_msg = Updating will regenerate all %1.txt files. All of the translations will be maintained, but comments that are not in the default language files will be lost.<br>Are you sure?
+lt_updconfirm_msg = Atualizar irá gerar todos %1 arquivos .txt. Todas as traduções serão mantidas, mas os comentários que não estão nos arquivos padrões de idioma serão perdidos. <br> Você term certeza?
+#[eng-us] lt_write_err_title = File Write Error
+lt_write_err_title = Falha ao tentar escrever o arquivo
+// Message displayed when a file cannot be opened for write. %1 is the file path and name.
+#[eng-us] lt_write_err_msg = Cannot open %1 for writing. Translation files were not updated.
+lt_write_err_msg = Não foi possívelabrir %1 para escrever. Arquivos de traduções não serão atualizados. 
+#[eng-us] lt_upddone_title = Language Updated
+lt_upddone_title = Idioma Atualizado
+// Update language done message. %1 is the language code and root file name.
+#[eng-us] lt_upddone_msg = All %1.txt files have been updated. Check the console log for details.
+lt_upddone_msg = Todos os %1 arquivos .txt foram atualizados. Cheque o log do console para detalhes. 
